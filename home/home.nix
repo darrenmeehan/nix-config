@@ -5,11 +5,11 @@
   programs.home-manager.enable = true;
 
   # Home Manager release
-  home.stateVersion = "22.05";
+  home.stateVersion = "22.11";
 
   # User info
-  home.username = "timh";
-  home.homeDirectory = "/home/timh";
+  home.username = "mac";
+  home.homeDirectory = "/home/mac";
 
   # Allow fontconfig to discover installed fonts and configurations
   fonts.fontconfig.enable = true;
@@ -44,6 +44,7 @@
 
     # Browsers
     chromium
+    firefox
 
     # Fonts
     (nerdfonts.override {
@@ -65,8 +66,8 @@
     nodejs
 
     # Python
-    (python310.withPackages (ps: with ps; [ black flake8 pip ]))
     (python311.withPackages (ps: with ps; [ pip ]))
+  ];
 
   # Programs and configurations to be installed
   imports = [
