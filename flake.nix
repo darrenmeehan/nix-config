@@ -19,6 +19,9 @@
   outputs = { nixpkgs, home-manager, ... }@inputs: {
     # NixOS Configurations
     nixosConfigurations = {
+      personal = nixpkgs.lib.nixosSystem {
+        modules = [ ./hosts/personal/configuration.nix ];
+      };
       x1c = nixpkgs.lib.nixosSystem {
         modules = [ ./hosts/x1c/configuration.nix ];
       };
@@ -29,13 +32,13 @@
 
     # Home-Manager Configurations
     homeConfigurations = {
-      "timh@x1c" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        modules = [ ./home/home.nix ];
       "mac@personal" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         modules = [ ./home/home.nix ];
       };
+      "timh@x1c" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        modules = [ ./home/home.nix ];
       };
       "timh@x13" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
