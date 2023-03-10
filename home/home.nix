@@ -44,7 +44,6 @@
 
     # Browsers
     chromium
-    firefox
 
     # Fonts
     (nerdfonts.override {
@@ -67,7 +66,7 @@
 
     # Python
     (python310.withPackages (ps: with ps; [ black flake8 pip ]))
-  ];
+    (python311.withPackages (ps: with ps; [ pip ]))
 
   # Programs and configurations to be installed
   imports = [
