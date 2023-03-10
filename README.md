@@ -2,6 +2,19 @@
 
 NixOS and Home-Manager configuration.
 
+Assumes use of Nix flakes.
+
+## Adding a new host
+
+The steps refer to this new hosts as "example", rename as you see fit.
+
+```shell
+cd <parent-dir>/nix-config
+mkdir hosts/example
+nix-shell -p nixos-install-tools
+nixos-generate-config --dir hosts/example
+```
+
 ## Update NixOS Configuration
 
 * Build:
