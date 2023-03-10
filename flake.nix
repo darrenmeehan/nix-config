@@ -19,9 +19,6 @@
   outputs = { nixpkgs, home-manager, ... }@inputs: {
     # NixOS Configurations
     nixosConfigurations = {
-      personal = nixpkgs.lib.nixosSystem {
-        modules = [ ./hosts/personal/configuration.nix ];
-      };
       x1c = nixpkgs.lib.nixosSystem {
         modules = [ ./hosts/x1c/configuration.nix ];
       };
