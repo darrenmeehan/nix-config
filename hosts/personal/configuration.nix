@@ -5,10 +5,9 @@
 { config, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [ # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   # Feature onfiguration
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -41,11 +40,7 @@
     isNormalUser = true;
     description = "mac";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-      firefox
-      git
-      bottom
-    ];
+    packages = with pkgs; [ firefox git bottom ];
     shell = pkgs.bash;
   };
 
@@ -63,9 +58,6 @@
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
 
-
-  
-
   # Configure keymap in X11
   # services.xserver.layout = "us";
   # services.xserver.xkbOptions = {
@@ -76,16 +68,11 @@
   # Enable CUPS to print documents.
   # services.printing.enable = true;
 
-  # Enable sound.
-  # sound.enable = true;
-  # hardware.pulseaudio.enable = true;
-
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
   # System packages
   environment.systemPackages = with pkgs; [ gnumake vim wget ];
-
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
