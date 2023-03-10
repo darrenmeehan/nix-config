@@ -8,8 +8,8 @@
   home.stateVersion = "22.05";
 
   # User info
-  home.username = "mac";
-  home.homeDirectory = "/home/mac";
+  home.username = "timh";
+  home.homeDirectory = "/home/timh";
 
   # Allow fontconfig to discover installed fonts and configurations
   fonts.fontconfig.enable = true;
@@ -44,6 +44,7 @@
 
     # Browsers
     chromium
+    firefox
 
     # Fonts
     (nerdfonts.override {
