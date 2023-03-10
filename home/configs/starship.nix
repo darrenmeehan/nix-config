@@ -62,6 +62,13 @@
         show_milliseconds = false;
         disabled = false;
       };
+
+      localip = {
+        ssh_only = true;
+        format = "@[$localipv4](bold blue) ";
+        disabled = false;
+      };
+
     };
   };
 }
