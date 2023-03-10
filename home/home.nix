@@ -5,11 +5,11 @@
   programs.home-manager.enable = true;
 
   # Home Manager release
-  home.stateVersion = "22.11";
+  home.stateVersion = "22.05";
 
   # User info
-  home.username = "timh";
-  home.homeDirectory = "/home/timh";
+  home.username = "mac";
+  home.homeDirectory = "/home/mac";
 
   # Allow fontconfig to discover installed fonts and configurations
   fonts.fontconfig.enable = true;
