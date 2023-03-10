@@ -5,7 +5,7 @@
   programs.home-manager.enable = true;
 
   # Home Manager release
-  home.stateVersion = "22.05";
+  home.stateVersion = "22.11";
 
   # User info
   home.username = "timh";
