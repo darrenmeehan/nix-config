@@ -4,8 +4,8 @@
   programs.git = {
     package = pkgs.gitAndTools.gitFull;
     enable = true;
-    userName = "Tim Hourigan";
-    userEmail = "1819176+timhourigan@users.noreply.github.com";
+    userName = "Darren Meehan";
+    userEmail = "hi@drn.ie";
     aliases = {
       ci = "commit";
       co = "checkout";
