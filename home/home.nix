@@ -30,6 +30,7 @@
     nixfmt # NIX formatter
     nmap # Network exploration
     ripgrep # Fast grep
+    ruff # Fast Python linter
     taskwarrior # Task manager
     tig # git text-mode interface
     tldr # Help pages
