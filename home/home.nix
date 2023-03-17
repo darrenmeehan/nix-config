@@ -67,7 +67,11 @@
     nodejs
 
     # Python
-    (python311.withPackages (ps: with ps; [ pip ]))
+    (python310.withPackages (ps: with ps; [
+      pip
+      ansible
+      ansible-lint
+    ]))
   ];
 
   # Programs and configurations to be installed
