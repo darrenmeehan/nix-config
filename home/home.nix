@@ -72,6 +72,7 @@
       pip
       ansible
       ansible-lint
+      tox
     ]))
   ];
 
