@@ -14,5 +14,6 @@ jobs:
       with:
         name: mycache
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-    - run: home-manager switch --flake .#mac@personal
+    - run: nix-shell '<home-manager>' -A install
+    - run: home-manager build --flake .#mac@personal
     - run: nix-shell --run "echo OK"
