@@ -74,6 +74,11 @@
   # System packages
   environment.systemPackages = with pkgs; [ gnumake vim wget ];
 
+  environment.variables = globals.environmentVariables {
+    # Needed for Ansible to work
+    LOCALE_ARCHIVE = "/usr/lib/locale/locale-archive";
+  };
+
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
