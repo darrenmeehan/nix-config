@@ -27,7 +27,8 @@
     htop # Display process information (`top` alternative)
     jq # Command line JSON parser
     neofetch # System information
-    nixfmt # NIX formatter
+    nixfmt # Nix formatter
+    niv # Nix dependency management
     nmap # Network exploration
     ripgrep # Fast grep
     ruff # Fast Python linter
