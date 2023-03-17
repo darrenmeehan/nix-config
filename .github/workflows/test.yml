@@ -1,4 +1,4 @@
-name: "Test"
+name: "Flake Check"
 on:
   pull_request:
   push:
@@ -16,6 +16,4 @@ jobs:
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - run: nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
     - run: nix-channel --update
-    - run: nix-shell '<home-manager>' -A install
-    - run: home-manager build --flake .#mac@personal
-    - run: nix-shell --run "echo OK"
+    - run: nix flake check
