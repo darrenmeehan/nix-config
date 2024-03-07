@@ -69,10 +69,10 @@
     nodejs
 
     # Python
+    ansible-lint
     (python310.withPackages (ps: with ps; [
       pip
       ansible
-      ansible-lint
       tox
     ]))
   ];
