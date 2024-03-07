@@ -41,7 +41,7 @@
     isNormalUser = true;
     description = "mac";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [ firefox git bottom ];
+    packages = with pkgs; [ git bottom ];
     shell = pkgs.bash;
   };
 
