@@ -29,12 +29,12 @@
       # Spelling
       streetsidesoftware.code-spell-checker
       # Dev Environments
-      ms-vscode-remote.remote-containers
-      ms-azuretools.vscode-docker
-      # GitHub
-      GitHub.copilot
-      GitHub.copilot-chat
-      github.vscode-github-actions
+      # ms-vscode-remote.remote-containers
+      # ms-azuretools.vscode-docker
+      # # GitHub
+      # GitHub.copilot
+      # GitHub.copilot-chat
+      # github.vscode-github-actions
     ];
     userSettings = {
       # Material Icons
