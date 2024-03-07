@@ -29,7 +29,7 @@ nixos-rebuild build --flake .#<hostname>
 nixos-rebuild switch --flake .#<hostname>
 ```
 
-# Update Home-Manager Configuration
+## Update Home-Manager Configuration
 
 * Build:
 
@@ -43,7 +43,7 @@ home-manager build --flake .#<username>@<hostname>
 home-manager switch --flake .#<username>@<hostname>
 ```
 
-# Update flake.lock file
+## Update flake.lock file
 
 ```shell
 nix flake update
