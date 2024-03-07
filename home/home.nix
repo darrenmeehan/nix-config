@@ -74,6 +74,7 @@
       pip
       ansible
       tox
+      podman-compose
     ]))
   ];
 
