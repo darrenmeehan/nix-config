@@ -70,7 +70,7 @@
 
     # Python
     ansible-lint
-    (python310.withPackages (ps: with ps; [
+    (python312.withPackages (ps: with ps; [
       pip
       ansible
       tox
