@@ -18,15 +18,6 @@
   };
 
   outputs = { nixpkgs, home-manager, ... }@inputs: {
-    # NixOS Configurations
-    nixosConfigurations = {
-      x1c = nixpkgs.lib.nixosSystem {
-        modules = [ ./hosts/x1c/configuration.nix ];
-      };
-      x13 = nixpkgs.lib.nixosSystem {
-        modules = [ ./hosts/x13/configuration.nix ];
-      };
-    };
 
     # Home-Manager Configurations
     homeConfigurations = {
