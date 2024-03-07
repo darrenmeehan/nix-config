@@ -21,7 +21,7 @@
     bitwarden # Password Manager
     bottom # Display process information (`top` alternative)
     du-dust # Disk space usage (`du` alternative)
-    exa # File listing (`ls` alternative)
+    eza # File listing (`ls` alternative)
     fd # Find files/folders (`find` alternative)
     feh # Command line image viewer
     gitleaks # Git repository secrets checker
