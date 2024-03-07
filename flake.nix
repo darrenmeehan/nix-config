@@ -4,7 +4,7 @@
   inputs = {
     # Nixpkgs
     # https://status.nixos.org/
-    nixpkgs.url = "github:nixos/nixpkgs/126f49a01de5b7e35a43fd43f891ecf6d3a51459";
+    nixpkgs.url = "github:nixos/nixpkgs/54abe781c482f51ff4ff534ebaba77db5bd97442";
 
     # Home Manager
     home-manager = {
