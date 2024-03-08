@@ -17,6 +17,7 @@
   # Packages to be installed
   home.packages = with pkgs; [
     # Utils
+    awscli2
     bat # `cat` clone
     bitwarden # Password Manager
     bottom # Display process information (`top` alternative)
