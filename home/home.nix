@@ -75,7 +75,9 @@
       pip
       ansible
       tox
+      podman
       podman-compose
+      podman-desktop
     ]))
   ];
 
@@ -102,4 +104,5 @@
   systemd.user.services.polybar = {
     Install.WantedBy = [ "graphical-session.target" ];
   };
+
 }
