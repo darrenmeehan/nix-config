@@ -4,9 +4,6 @@
   nixpkgs = {
     config = {
       allowUnfree = true;
-      # Workaround: https://github.com/nix-community/home-manager/issues/2942
-      # Hattip - Tim
-      allowUnfreePredicate = (_: true);
     };
   };
 
