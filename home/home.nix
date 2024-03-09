@@ -1,6 +1,15 @@
 { config, pkgs, ... }:
 
 {
+  nixpkgs = {
+    config = {
+      allowUnfree = true;
+      # Workaround: https://github.com/nix-community/home-manager/issues/2942
+      # Hattip - Tim
+      allowUnfreePredicate = (_: true);
+    };
+  };
+
   # Let Home Manager install and manage itself
   programs.home-manager.enable = true;
 
@@ -68,6 +77,8 @@
 
     # Node
     nodejs
+
+    terraform
 
     # Python
     ansible-lint
