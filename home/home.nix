@@ -35,7 +35,8 @@
     htop # Display process information (`top` alternative)
     jq # Command line JSON parser
     neofetch # System information
-    nixfmt # Nix formatter
+    nixfmt-classic # Nix formatter
+    # nixfmt-rfc-style new RFC 166-style formatter
     niv # Nix dependency management
     nmap # Network exploration
     ripgrep # Fast grep
