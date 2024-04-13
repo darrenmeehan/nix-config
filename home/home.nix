@@ -11,7 +11,7 @@
   programs.home-manager.enable = true;
 
   # Home Manager release
-  home.stateVersion = "22.11";
+  home.stateVersion = "24.05";
 
   # User info
   home.username = "mac";

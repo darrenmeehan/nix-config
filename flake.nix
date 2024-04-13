@@ -4,11 +4,10 @@
   inputs = {
     # Nixpkgs
     # https://status.nixos.org/
-    nixpkgs.url = "github:nixos/nixpkgs/58ae79ea707579c40102ddf62d84b902a987c58b";
-
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     # Home Manager
     home-manager = {
-      url = "github:nix-community/home-manager";
+      url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
