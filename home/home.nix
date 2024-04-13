@@ -81,6 +81,7 @@
     # Python
     ansible-lint
     (python311.withPackages (ps: with ps; [
+      packer
       pip
       ansible
       tox
