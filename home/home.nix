@@ -82,10 +82,10 @@
 
     # Python
     ansible-lint
+    ansible
     (python311.withPackages (ps: with ps; [
       packer
       pip
-      ansible
       tox
       podman
       podman-compose
