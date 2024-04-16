@@ -33,6 +33,7 @@
     eza # File listing (`ls` alternative)
     fd # Find files/folders (`find` alternative)
     feh # Command line image viewer
+    flyctl # Fly.io CLI
     gitleaks # Git repository secrets checker
     htop # Display process information (`top` alternative)
     jq # Command line JSON parser
