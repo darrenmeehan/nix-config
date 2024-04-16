@@ -29,6 +29,7 @@
     bottom # Display process information (`top` alternative)
     caddy # Web server
     curl # I want a newer version than the one provided by Ubuntu
+    dive # Docker image explorer
     du-dust # Disk space usage (`du` alternative)
     eza # File listing (`ls` alternative)
     fd # Find files/folders (`find` alternative)
