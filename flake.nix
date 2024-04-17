@@ -18,17 +18,27 @@
 
   outputs = { nixpkgs, home-manager, ... }@inputs: {
 
+    # Install packages in /etc/profiles
+    # Necessary to use 'nixos-rebuild build-vm'
+    home-manager.useUserPackages = true;
+    # Use the global pkgs that is configured via
+    # the system level nixpkgs options
+    home-manager.useGlobalPkgs = true;
+
+    # NixOS Configurations
+    nixosConfigurations = {
+      media = nixpkgs.lib.nixosSystem {
+        modules = [
+          "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
+          ./hosts/media/configuration.nix
+          ./hosts/media/proxmox.nix
+        ];
+      };
+    };
+
     # Home-Manager Configurations
     homeConfigurations = {
       "mac@personal" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        modules = [ ./home/home.nix ];
-      };
-      "timh@x1c" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        modules = [ ./home/home.nix ];
-      };
-      "timh@x13" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         modules = [ ./home/home.nix ];
       };

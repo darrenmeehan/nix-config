@@ -11,10 +11,6 @@
       ./hardware-configuration.nix
     ];
 
-  # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
   networking.hostName = "media";
   networking.networkmanager.enable = true;
   time.timeZone = "Europe/Dublin";
@@ -30,6 +26,11 @@
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
 
+  # Enable Qemu guest support as this is a VM on Proxmox.
+  services.qemuGuest.enable = true;
+  # Enable systemd-networkd
+  # allowing cloud-init to set up network interfaces on boot. 
+  services.cloud-init.network.enable = true;
   # Configure keymap in X11
   # services.xserver.layout = "us";
   # services.xserver.xkbOptions = {
@@ -48,14 +49,17 @@
   # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  # users.users.alice = {
-  #   isNormalUser = true;
-  #   extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-  #   packages = with pkgs; [
-  #     firefox
-  #     thunderbird
-  #   ];
-  # };
+  users.users.drn = {
+    home = "/home/drn";
+    isNormalUser = true;
+    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+    initialHashedPassword = "$y$j9T$Ua3zZctnVLe2shI6PbePh0$PGsx86ZGX/x8yu6lg4fWeB6VKL1LaL2qEyh89q4imeA";
+    openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKCothD9QCHn87gI2Mkcuoj7h9OKnlzN8icUe+bSx2Fz hi@drn.ie" ];
+    packages = with pkgs; [
+      curl
+      vim
+    ];
+  };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -67,10 +71,10 @@
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
+  programs.gnupg.agent = {
+    enable = true;
+    enableSSHSupport = true;
+  };
 
   # List services that you want to enable:
 

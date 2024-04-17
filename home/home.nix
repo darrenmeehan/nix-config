@@ -1,6 +1,10 @@
 { config, pkgs, ... }:
 
 {
+  targets.genericLinux.enable = true;
+
+  programs.bash.enable = true;
+
   nixpkgs = {
     config = {
       allowUnfree = true;
