@@ -1,9 +1,10 @@
 { config, pkgs, ... }:
 
 {
-  targets.genericLinux.enable = true;
+    # FIXME Move into file for non NixOS machines only
+#   targets.genericLinux.enable = true;
 
-  programs.bash.enable = true;
+  programs.zsh.enable = true;
 
   nixpkgs = {
     config = {
@@ -11,16 +12,13 @@
     };
   };
 
-  # Let Home Manager install and manage itself
-  programs.home-manager.enable = true;
+#   # Let Home Manager install and manage itself
+#   programs.home-manager.enable = true;
 
-  home = {
+  system.stateVersion = "24.05";
+  home-manager.users.drn.home = {
     # Home Manager release
     stateVersion = "24.05";
-
-    # User info
-    username = "mac";
-    homeDirectory = "/home/mac";
 
     # Packages to be installed
     packages = with pkgs; [
@@ -104,26 +102,22 @@
 
   # Programs and configurations to be installed
   imports = [
-    ./configs/alacritty.nix
-    ./configs/autojump.nix
-    ./configs/bash.nix
-    ./configs/dconf.nix
-    ./configs/direnv.nix
-    ./configs/firefox.nix
-    ./configs/fzf.nix
-    ./configs/gh.nix
-    ./configs/git.nix
-    ./configs/neovim.nix
-    ./configs/polybar.nix
-    ./configs/rofi.nix
-    ./configs/starship.nix
-    ./configs/tmux.nix
-    ./configs/vscodium.nix
+    # ./configs/alacritty.nix
+    # ./configs/autojump.nix
+    # ./configs/bash.nix
+    # ./configs/dconf.nix
+    # ./configs/direnv.nix
+    # ./configs/firefox.nix
+    # ./configs/fzf.nix
+    # ./configs/gh.nix
+    # ./configs/git.nix
+    # ./configs/neovim.nix
+    # ./configs/polybar.nix
+    # ./configs/rofi.nix
+    # ./configs/starship.nix
+    # ./configs/tmux.nix
+    # ./configs/vscodium.nix
     # ./configs/zsh.nix
   ];
-
-  systemd.user.services.polybar = {
-    Install.WantedBy = [ "graphical-session.target" ];
-  };
 
 }

@@ -8,7 +8,7 @@
   imports =
     [
       # Include the results of the hardware scan.
-      ./hardware-configuration.nix
+      # ./hardware-configuration.nix
     ];
 
   networking.hostName = "media";
@@ -26,11 +26,14 @@
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
 
-  # Enable Qemu guest support as this is a VM on Proxmox.
-  services.qemuGuest.enable = true;
-  # Enable systemd-networkd
-  # allowing cloud-init to set up network interfaces on boot. 
-  services.cloud-init.network.enable = true;
+  services = {
+    # Enable Qemu guest support as this is a VM on Proxmox.
+    qemuGuest.enable = true;
+    # Enable systemd-networkd
+    # allowing cloud-init to set up network interfaces on boot. 
+    cloud-init.network.enable = true;
+  };
+
   # Configure keymap in X11
   # services.xserver.layout = "us";
   # services.xserver.xkbOptions = {
