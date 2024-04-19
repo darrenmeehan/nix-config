@@ -60,7 +60,7 @@ These insructions are based on the NixOS which page [Proxmox Virtual Environment
 1. Generate the machine image using `nixos-generators` by running
 
     ```shell
-    nix run github:nix-community/nixos-generators -- --format proxmox --configuration hosts/media/configuration.nix
+    nix run github:nix-community/nixos-generators -- --format proxmox --configuration hosts/media
     ```
 
 1. Upload the image to the Proxmox host

@@ -14,12 +14,13 @@
   # Let Home Manager install and manage itself
   programs.home-manager.enable = true;
 
-  # Home Manager release
-  home.stateVersion = "24.05";
-
-  # User info
-  home.username = "mac";
-  home.homeDirectory = "/home/mac";
+  home = {
+    # Home Manager release
+    stateVersion = "24.05";
+    # User info
+    username = "mac";
+    homeDirectory = "/home/mac";
+  };
 
   # Allow fontconfig to discover installed fonts and configurations
   fonts.fontconfig.enable = true;

@@ -7,14 +7,14 @@
     qemuConf = {
       # EFI support
       bios = "ovmf";
-      cores = 4;
-      memory = 4096;
+      cores = 6;
+      memory = 8192;
       net0 = "virtio=00:00:00:00:00:00,bridge=vmbr2,firewall=1";
-      diskSize = "10240"; # 10g
+      diskSize = "102400"; # 10g
       additionalSpace = "10G";
       agent = "1";
       bootSize = "512M";
-      name = "media";
+      name = "rocinante";
     };
     qemuExtraConf = {
       # start the VM automatically on boot
@@ -22,6 +22,6 @@
       cpu = "host";
       tags = "nixos";
     };
-    filenameSuffix = "media";
+    filenameSuffix = "rocinante";
   };
 }
