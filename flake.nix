@@ -73,6 +73,10 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         modules = [ ./home/home.nix ];
       };
+      "rocinante" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        modules = [ ./home/home.nix ];
+      };
     };
 
     # Formatter Configuration
