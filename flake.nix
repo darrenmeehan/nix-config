@@ -38,10 +38,7 @@
           }
         ];
       };
-      # FIXME Not working
-      # rocinante = nixos-generators.nixosGenerate {
-
-        rocinante = nixpkgs.lib.nixosSystem {
+      rocinante = nixos-generators.nixosGenerate {
         system = "x86_64-linux";
         modules = [
           ./hosts/rocinante
@@ -63,7 +60,7 @@
             };
           }
         ];
-        # format = "proxmox";
+        format = "proxmox";
       };
     };
 
