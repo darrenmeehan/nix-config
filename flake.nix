@@ -39,13 +39,16 @@
           }
         ];
       };
-      rocinante = nixos-generators.nixosGenerate {
+      # FIXME I'm not sure how to allow image creation, along with follow up configuration changes
+      # rocinante = nixos-generators.nixosGenerate {
+      # format = "proxmox";
+      rocinante = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
           ./hosts/rocinante
           "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
           ./hosts/rocinante/proxmox.nix
-          ./home
+          ./home/home.nix
           home-manager.nixosModules.home-manager
           {
             home-manager = {
@@ -61,9 +64,8 @@
             };
           }
         ];
-        format = "proxmox";
         specialArgs = {
-            pkgs = pkgs;
+            # pkgs = pkgs;
             diskSize = 128 * 1024;
             bootSize = 512;
             memorySize = 1024 * 8;
@@ -75,7 +77,21 @@
     homeConfigurations = {
       "mac@personal" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        modules = [ ./home/home.nix ];
+        modules = [
+          ./home/home.nix
+          {
+            home-manager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              users.mac = { pkgs, ... }: {
+                home.homeDirectory = "/home/mac";
+                home = {
+                  username = "mac";
+                  stateVersion = "24.05";
+                };
+              };
+            };
+          }];
         # extraSpecialArgs = { inherit nix-colors; };
       };
       "rocinante" = home-manager.lib.homeManagerConfiguration {

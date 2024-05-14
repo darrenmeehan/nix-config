@@ -1,9 +1,7 @@
-{ config, pkgs, ... }:
+{ config, nix-colors, pkgs, ... }:
 
 {
   targets.genericLinux.enable = true;
-
-  programs.bash.enable = true;
 
   nixpkgs = {
     config = {
@@ -19,8 +17,8 @@
     stateVersion = "24.05";
 
     # User info
-    username = "mac";
-    homeDirectory = "/home/mac";
+    # username = "mac";
+    # homeDirectory = "/home/mac";
 
     # Packages to be installed
     packages = with pkgs; [
@@ -81,8 +79,6 @@
 
       # Node
       nodejs
-
-      terraform
 
       # Python
       ansible-lint
