@@ -62,6 +62,12 @@
           }
         ];
         format = "proxmox";
+        specialArgs = {
+            pkgs = pkgs;
+            diskSize = 128 * 1024;
+            bootSize = 512;
+            memorySize = 1024 * 8;
+          };
       };
     };
 
