@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nix-colors.url = "github:misterio77/nix-colors";
 
     home-manager = {
       url = "github:nix-community/home-manager/master";
@@ -69,6 +70,7 @@
       "mac@personal" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         modules = [ ./home/home.nix ];
+        # extraSpecialArgs = { inherit nix-colors; };
       };
       "rocinante" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
