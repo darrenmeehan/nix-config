@@ -15,6 +15,7 @@
     openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKCothD9QCHn87gI2Mkcuoj7h9OKnlzN8icUe+bSx2Fz hi@drn.ie" ];
     packages = with pkgs; [
       curl
+      parted
       vim
     ];
   };
