@@ -13,7 +13,6 @@
       bbenoist.nix # Nix
       ms-python.python # Python
       matklad.rust-analyzer # Rust
-      hashicorp.terraform # Terraform
       redhat.vscode-yaml # YAML
       # Git
       eamodio.gitlens
