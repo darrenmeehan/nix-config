@@ -19,12 +19,12 @@
 
   outputs = { self, nixpkgs, home-manager, nixos-generators, ... }@inputs: {
 
-    # # Install packages in /etc/profiles
-    # # Necessary to use 'nixos-rebuild build-vm'
-    # home-manager.useUserPackages = true;
-    # # Use the global pkgs that is configured via
-    # # the system level nixpkgs options
-    # home-manager.useGlobalPkgs = true;
+    # Install packages in /etc/profiles
+    # Necessary to use 'nixos-rebuild build-vm'
+    home-manager.useUserPackages = true;
+    # Use the global pkgs that is configured via
+    # the system level nixpkgs options
+    home-manager.useGlobalPkgs = true;
 
     # NixOS Configurations
     nixosConfigurations = {
