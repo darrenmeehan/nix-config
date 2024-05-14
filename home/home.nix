@@ -95,6 +95,11 @@
         podman-compose
         podman-desktop
       ]))
+
+      # FIXME How to add this to menus, with icon?
+      signal-desktop # Encryted messaging
+      spotify
+      vim
     ];
   };
   # Allow fontconfig to discover installed fonts and configurations
