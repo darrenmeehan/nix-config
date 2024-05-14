@@ -1,8 +1,14 @@
+{ config, ... }:
+
 {
   programs.zsh = {
     enable = true;
+    enableCompletion = true;
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
     history = {
-      size = -1;
+      size = 10000;
+      path = "/home/mac/.history";
     };
     shellAliases = {
       diff = "diff --color=auto";
