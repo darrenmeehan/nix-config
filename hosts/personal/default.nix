@@ -47,6 +47,7 @@
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [ git bottom ];
     shell = pkgs.bash;
+    # useDefaultShell = true;
   };
 
   # Select internationalisation properties.
@@ -75,6 +76,9 @@
 
   # System packages
   environment.systemPackages = with pkgs; [ gnumake vim wget ];
+
+  # Add zsh to /etc/shells
+  environment.shells = with pkgs; [ zsh ];
 
   environment.variables = globals.environmentVariables {
     # Needed for Ansible to work

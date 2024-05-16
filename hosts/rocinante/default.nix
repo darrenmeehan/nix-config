@@ -28,7 +28,7 @@
       qemuGuest.enable = true;
       # Enable systemd-networkd
       # allowing cloud-init to set up network interfaces on boot. 
-      cloud-init.network.enable = true;
+      # cloud-init.network.enable = true;
       openssh.enable = true;
     };
 
