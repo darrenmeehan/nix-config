@@ -17,8 +17,8 @@
     stateVersion = "24.05";
 
     # User info
-    # username = "mac";
-    # homeDirectory = "/home/mac";
+    username = "mac";
+    homeDirectory = "/home/mac";
 
     # Packages to be installed
     packages = with pkgs; [
@@ -101,8 +101,6 @@
   };
   # Allow fontconfig to discover installed fonts and configurations
   fonts.fontconfig.enable = true;
-
-
 
   # Programs and configurations to be installed
   imports = [

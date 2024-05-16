@@ -79,19 +79,7 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         modules = [
           ./home/home.nix
-          {
-            home-manager = {
-              useGlobalPkgs = true;
-              useUserPackages = true;
-              users.mac = { pkgs, ... }: {
-                home.homeDirectory = "/home/mac";
-                home = {
-                  username = "mac";
-                  stateVersion = "24.05";
-                };
-              };
-            };
-          }];
+        ];
         # extraSpecialArgs = { inherit nix-colors; };
       };
       "rocinante" = home-manager.lib.homeManagerConfiguration {
