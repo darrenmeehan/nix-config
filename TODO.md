@@ -21,7 +21,7 @@ Chrome/Chromium?
 Docker
 Tailscale
 Signal
-Proton VPN
+Proton VPN - Doesnt seem to work in Nix? Not sure if machine or package issue at the moment..
 Spotify
 
 
