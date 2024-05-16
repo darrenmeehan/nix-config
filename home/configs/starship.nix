@@ -4,6 +4,7 @@
   programs.starship = {
     enable = true;
     enableBashIntegration = true;
+    enableZshIntegration = false;
     # https://starship.rs/config/
     settings = {
       add_newline = false;
