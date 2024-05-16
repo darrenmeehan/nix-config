@@ -51,6 +51,7 @@
       tree # Display directory struture
 
       # Apps
+      tailscale # VPN
       filezilla # FTP client
       gimp # Image editor
       libreoffice # Office suite
