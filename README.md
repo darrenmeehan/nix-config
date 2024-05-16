@@ -74,3 +74,7 @@ These insructions are based on the NixOS which page [Proxmox Virtual Environment
     root@proxmox-server:~# qm start <vmid>
     root@proxmox-server:~# qm terminal <vmid>
     ```
+
+### Resources
+
+[Garbage Collection](https://nixos.org/manual/nix/stable/package-management/garbage-collection.html)
