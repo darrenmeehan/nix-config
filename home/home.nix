@@ -78,6 +78,9 @@
       noto-fonts-emoji
       powerline-fonts
 
+      docker-compose
+      docker
+
       # Node
       nodejs
 
@@ -118,8 +121,8 @@
     ./configs/rofi.nix
     ./configs/starship.nix
     ./configs/tmux.nix
-    ./configs/vscodium.nix
-    # ./configs/zsh.nix
+    ./configs/vscode.nix
+    ./configs/zsh.nix
   ];
 
   systemd.user.services.polybar = {
