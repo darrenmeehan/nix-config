@@ -101,7 +101,7 @@
         "healthcheck"
         "relme"
         "reqwest"
-        ];
+      ];
     };
   };
 }

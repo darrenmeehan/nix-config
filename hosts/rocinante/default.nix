@@ -5,7 +5,7 @@
 { config, lib, pkgs, ... }:
 
 {
-  imports = [];
+  imports = [ ];
 
   users.users.drn = {
     home = "/home/drn";
@@ -20,17 +20,17 @@
     ];
   };
   networking.hostName = "rocinante";
-  networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  networking.networkmanager.enable = true; # Easiest to use and most distros use this by default.
 
   time.timeZone = "Europe/Dublin";
   services = {
-      # Enable Qemu guest support as this is a VM on Proxmox.
-      qemuGuest.enable = true;
-      # Enable systemd-networkd
-      # allowing cloud-init to set up network interfaces on boot. 
-      # cloud-init.network.enable = true;
-      openssh.enable = true;
-    };
+    # Enable Qemu guest support as this is a VM on Proxmox.
+    qemuGuest.enable = true;
+    # Enable systemd-networkd
+    # allowing cloud-init to set up network interfaces on boot. 
+    # cloud-init.network.enable = true;
+    openssh.enable = true;
+  };
 
   programs.gnupg.agent = {
     enable = true;

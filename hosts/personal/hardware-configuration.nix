@@ -8,12 +8,12 @@
 
   boot = {
     initrd.availableKernelModules =
-    [ "xhci_pci" "ahci" "usbhid" "sdhci_pci" ];
+      [ "xhci_pci" "ahci" "usbhid" "sdhci_pci" ];
     initrd.kernelModules = [ ];
     kernelModules = [ "kvm-intel" "wl" ];
     extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
   };
-  
+
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/73a68d5f-17a3-40d5-8529-3e1f5c7b0074";
     fsType = "ext4";
