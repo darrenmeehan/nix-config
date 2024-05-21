@@ -8,7 +8,7 @@
     shellAliases = {
       diff = "diff --color=auto";
       l = "eza --long --group --git --all";
+      c = "code .";
     };
   };
 }
-
