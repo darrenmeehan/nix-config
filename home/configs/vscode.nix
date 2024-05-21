@@ -95,6 +95,7 @@
         "nixos"
         "nixpkgs-mozilla"
         "blackbox"
+        "cowsay"
         "changeme"
         "darrenmeehan"
         "deadpool"
