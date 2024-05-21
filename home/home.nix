@@ -110,7 +110,7 @@
     ./configs/alacritty.nix
     ./configs/autojump.nix
     ./configs/bash.nix
-    ./configs/dconf.nix
+    # ./configs/dconf.nix
     ./configs/direnv.nix
     ./configs/firefox.nix
     ./configs/fzf.nix

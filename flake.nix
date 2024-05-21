@@ -21,10 +21,10 @@
 
     # Install packages in /etc/profiles
     # Necessary to use 'nixos-rebuild build-vm'
-    home-manager.useUserPackages = true;
+    # home-manager.nixosModules.home-manager.useUserPackages = true;
     # Use the global pkgs that is configured via
     # the system level nixpkgs options
-    home-manager.useGlobalPkgs = true;
+    # home-manager.nixosModules.home-manager.useGlobalPkgs = true;
 
     # NixOS Configurations
     nixosConfigurations = {
@@ -48,7 +48,7 @@
           ./hosts/rocinante
           "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
           ./hosts/rocinante/proxmox.nix
-          ./home/home.nix
+          #   ./home/home.nix
           home-manager.nixosModules.home-manager
           {
             home-manager = {
