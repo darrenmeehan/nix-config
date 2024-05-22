@@ -83,6 +83,7 @@
 
       # Node
       nodejs
+      rustup
 
       # Python
       ansible-lint
