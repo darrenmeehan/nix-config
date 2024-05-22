@@ -49,6 +49,7 @@
       # Formatting
       esbenp.prettier-vscode
       redhat.ansible
+      tamasfe.even-better-toml
       # renan-msv.ac3d-syntax
       # maelvalais.autoconf
       mikestead.dotenv
