@@ -81,11 +81,12 @@
       docker-compose
       docker
 
-      # Node
+      # Languages
       nodejs
       rustup
+      nixd
+      nixpkgs-fmt
 
-      # Python
       ansible-lint
       ansible
       (python311.withPackages (ps: with ps; [

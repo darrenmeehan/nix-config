@@ -6,9 +6,12 @@
   programs.vscode = {
     enable = true;
     package = pkgs.vscode;
+    enableUpdateCheck = false;
+    enableExtensionUpdateCheck = false;
+    mutableExtensionsDir = false;
     extensions = with pkgs.vscode-extensions; [
       # Search with:
-      # https://search.nixos.org/packages?channel=22.05type=packages&query=vscode-extensions
+      # https://search.nixos.org/packages?channel=unstabletype=packages&query=vscode-extensions
       # Languages
       ms-vscode.makefile-tools # Makefile
       # Markdown
@@ -105,6 +108,16 @@
         "relme"
         "reqwest"
       ];
+
+      "nix.formatterPath" = "nixpkgs-fmt";
+      "nixpkgs-fmt" = "";
+      "nix.enableLanguageServer" = true;
+      "nix.serverPath" = "nixd";
+      "nix.serverSettings" = {
+        "formatting" = {
+          "command" = "nix fmt";
+        };
+      };
     };
   };
 }
