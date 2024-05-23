@@ -53,6 +53,7 @@
       # renan-msv.ac3d-syntax
       # maelvalais.autoconf
       mikestead.dotenv
+      jnoortheen.nix-ide
       # Spelling
       streetsidesoftware.code-spell-checker
       # Remote
