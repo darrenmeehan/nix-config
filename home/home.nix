@@ -57,6 +57,7 @@
       libreoffice # Office suite
       meld # Diff tools
       vlc # Media player
+      youtube-dl # Download videos from YouTube
 
       # Browsers
       chromium
@@ -102,6 +103,8 @@
       signal-desktop # Encryted messaging
       spotify
       vim
+      wireshark-cli
+      wireguard-go
     ];
   };
   # Allow fontconfig to discover installed fonts and configurations
