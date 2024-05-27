@@ -75,6 +75,7 @@
       "workbench.startupEditor" = "none";
       # Git config
       "git.confirmSync" = false;
+      "git.ignoreRebaseWarning" = true;
       # No confirm on drag and drop
       "explorer.confirmDragAndDrop" = false;
       # No confirm on delete
