@@ -1,4 +1,4 @@
-{ config, nix-colors, pkgs, ... }:
+{ pkgs, ... }:
 
 {
   targets.genericLinux.enable = true;
