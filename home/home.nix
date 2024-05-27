@@ -50,6 +50,7 @@
       tcpdump # Network packet analyzer
       tldr # Help pages
       tree # Display directory struture
+      wget # Download files
 
       # Apps
       tailscale # VPN
