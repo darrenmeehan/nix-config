@@ -47,6 +47,7 @@
       ruff # Fast Python linter
       taskwarrior # Task manager
       tig # git text-mode interface
+      tcpdump # Network packet analyzer
       tldr # Help pages
       tree # Display directory struture
 
