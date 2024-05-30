@@ -83,6 +83,8 @@
 
       docker-compose
       docker
+      podman
+      podman-compose
 
       # Languages
       nodejs
