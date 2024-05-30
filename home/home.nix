@@ -38,6 +38,7 @@
       gitleaks # Git repository secrets checker
       htop # Display process information (`top` alternative)
       jq # Command line JSON parser
+      just # Command runner
       neofetch # System information
       nixfmt-classic # Nix formatter
       # nixfmt-rfc-style new RFC 166-style formatter
