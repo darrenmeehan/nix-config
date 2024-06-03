@@ -110,6 +110,7 @@
       vim
       wireshark-cli
       wireguard-go
+      zola
     ];
   };
   # Allow fontconfig to discover installed fonts and configurations
