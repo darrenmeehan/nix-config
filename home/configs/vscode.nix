@@ -97,6 +97,7 @@
         "editor.formatOnPaste" = true;
       };
       "cSpell.userWords" = [
+        "appender"
         "nixpkgs"
         "nixos"
         "nixpkgs-mozilla"
