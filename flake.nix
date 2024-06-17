@@ -82,6 +82,19 @@
         ];
         # extraSpecialArgs = { inherit nix-colors; };
       };
+      "drn@dev" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        modules = [
+          ./home/home.nix
+        ];
+        users.drn = { pkgs, ... }: {
+          home.homeDirectory = "/home/drn";
+          home = {
+            username = "drn";
+            stateVersion = "24.05";
+          };
+        };
+      };
       "rocinante" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         modules = [ ./home/home.nix ];
