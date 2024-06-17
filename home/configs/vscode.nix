@@ -24,7 +24,7 @@
       # Python
       ms-python.python
       ms-python.vscode-pylance
-      matklad.rust-analyzer # Rust
+      rust-lang.rust-analyzer # Rust
       redhat.vscode-yaml # YAML
       # Git
       eamodio.gitlens
@@ -69,6 +69,8 @@
       ms-azuretools.vscode-docker
     ];
     userSettings = {
+      # Use podman instead of docker
+      "dev.containers.dockerPath" = "podman";
       # Material Icons
       "workbench.iconTheme" = "material-icon-theme";
       # No startup splashscreen

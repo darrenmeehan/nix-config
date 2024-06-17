@@ -12,7 +12,7 @@
       yzhang.markdown-all-in-one # Markdown
       bbenoist.nix # Nix
       ms-python.python # Python
-      matklad.rust-analyzer # Rust
+      rust-lang.rust-analyzer # Rust
       redhat.vscode-yaml # YAML
       # Git
       eamodio.gitlens
