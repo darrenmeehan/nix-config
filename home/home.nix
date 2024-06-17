@@ -35,6 +35,7 @@
       fd # Find files/folders (`find` alternative)
       feh # Command line image viewer
       flyctl # Fly.io CLI
+      gcc # C compiler
       gitleaks # Git repository secrets checker
       htop # Display process information (`top` alternative)
       jq # Command line JSON parser
