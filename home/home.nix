@@ -39,6 +39,8 @@
       htop # Display process information (`top` alternative)
       jq # Command line JSON parser
       just # Command runner
+      loco-cli # Loco CLI
+      sea-orm-cli # Sea ORM CLI
       neofetch # System information
       nixfmt-classic # Nix formatter
       # nixfmt-rfc-style new RFC 166-style formatter
@@ -87,8 +89,6 @@
       noto-fonts-emoji
       powerline-fonts
 
-      docker-compose
-      docker
       podman
       podman-compose
 
