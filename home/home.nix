@@ -53,6 +53,11 @@
       tree # Display directory struture
       wget # Download files
 
+      # For scones.ie
+      postgresql_16 # I just want to install libpq - waiting on https://github.com/NixOS/nixpkgs/issues/61580
+      libpqxx # C++ library for PostgreSQL. Needed for scones.ie for some reason
+      # shell doesnt seem to work
+      diesel-cli
       # Apps
       tailscale # VPN
       filezilla # FTP client
