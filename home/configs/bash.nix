@@ -10,6 +10,7 @@
       l = "eza --long --group --git --all";
       c = "code .";
       docker = "podman";
+      docker-compose = "podman-compose";
     };
   };
 }
