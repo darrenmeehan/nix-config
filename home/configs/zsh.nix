@@ -14,6 +14,7 @@
       diff = "diff --color=auto";
       l = "eza --long --group --git --all";
       c = "code .";
+      docker = "podman";
     };
 
     oh-my-zsh = {

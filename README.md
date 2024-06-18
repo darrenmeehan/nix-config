@@ -78,3 +78,7 @@ These insructions are based on the NixOS which page [Proxmox Virtual Environment
 ### Resources
 
 [Garbage Collection](https://nixos.org/manual/nix/stable/package-management/garbage-collection.html)
+
+
+
+nix run --extra-experimental-features nix-command --extra-experimental-features flakes --no-write-lock-file github:nix-community/home-manager/ -- --flake ".#$USER@$HOSTNAME" --extra-experimental-features nix-command --extra-experimental-features flakes switch -b backup
