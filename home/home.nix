@@ -69,7 +69,7 @@
       libreoffice # Office suite
       meld # Diff tools
       vlc # Media player
-      youtube-dl # Download videos from YouTube
+      yt-dlp # Download videos from YouTube
 
       # Browsers
       chromium
