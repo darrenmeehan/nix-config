@@ -43,7 +43,7 @@
       loco-cli # Loco CLI
       sea-orm-cli # Sea ORM CLI
       neofetch # System information
-      cinnamon.nemo # File manager
+      nemo # File manager
       nixfmt-classic # Nix formatter
       # nixfmt-rfc-style new RFC 166-style formatter
       niv # Nix dependency management
