@@ -73,7 +73,7 @@
 
       # Browsers
       chromium
-      firefox
+      # firefox
 
       # Fonts
       (nerdfonts.override {
