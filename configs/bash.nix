@@ -9,8 +9,10 @@
       diff = "diff --color=auto";
       l = "eza --long --group --git --all";
       c = "code .";
-      docker = "podman";
-      docker-compose = "podman-compose";
+      j = "just";
+      k = "kubectl";
+    #   docker = "podman";
+    #   docker-compose = "podman-compose";
     };
   };
 }

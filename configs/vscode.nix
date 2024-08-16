@@ -62,10 +62,13 @@
       # Remote
       ms-vscode-remote.remote-containers
       ms-vscode-remote.remote-ssh
+      ms-kubernetes-tools.vscode-kubernetes-tools
+      hashicorp.terraform
       # ms-vscode-remote.remote-wsl
       # ms-vscode-remote.vscode-remote-extensionpack
       # Containers
-      ms-azuretools.vscode-docker
+      ms-azuretools.vscode-docker    #   ms-kubernetes-tools-vscode-kubernetes-tools
+      nefrob.vscode-just-syntax
     ];
     userSettings = {
       # Use podman instead of docker
@@ -97,6 +100,18 @@
         "editor.formatOnSave" = true;
         "editor.formatOnPaste" = true;
       };
+      "[json]" = {
+        "editor.defaultFormatter" = "esbenp.prettier-vscode";
+        "editor.formatOnType" = true;
+        "editor.formatOnSave" = true;
+        "editor.formatOnPaste" = true;
+      };
+      "[jsonc]" = {
+        "editor.defaultFormatter" = "esbenp.prettier-vscode";
+        "editor.formatOnType" = true;
+        "editor.formatOnSave" = true;
+        "editor.formatOnPaste" = true;
+      };
       "cSpell.userWords" = [
         "appender"
         "nixpkgs"
@@ -110,6 +125,17 @@
         "healthcheck"
         "relme"
         "reqwest"
+        "localstack"
+        "boto"
+        "botocore"
+        "dynaconf"
+        "levelname"
+        "insureflow"
+        "onda"
+        "jsonify"
+        "ondacloud"
+        "scandata"
+        "panorays"
       ];
 
       "nix.formatterPath" = "nixpkgs-fmt";
