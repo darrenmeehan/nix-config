@@ -71,14 +71,27 @@
           memorySize = 1024 * 8;
         };
       };
+      # Single-node k3s cluster (curam-fitness app) on Proxmox.
+      # See hosts/fitness-node/README.md.
+      fitness-node = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./hosts/fitness-node
+        ];
+      };
     };
 
-    # Home-Manager Configurations
+    # Home-Manager Configurations (standalone — also the way non-NixOS
+    # machines like the Fedora laptop are brought under management)
     homeConfigurations = {
       "mac@personal" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         modules = [
           ./home/home.nix
+          {
+            home.username = "mac";
+            home.homeDirectory = "/home/mac";
+          }
         ];
         # extraSpecialArgs = { inherit nix-colors; };
       };
@@ -86,18 +99,48 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         modules = [
           ./home/home.nix
+          {
+            home.username = "drn";
+            home.homeDirectory = "/home/drn";
+          }
         ];
-        users.drn = { pkgs, ... }: {
-          home.homeDirectory = "/home/drn";
-          home = {
-            username = "drn";
-            stateVersion = "24.05";
-          };
-        };
       };
       "rocinante" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        modules = [ ./home/home.nix ];
+        modules = [
+          ./home/home.nix
+          {
+            home.username = "drn";
+            home.homeDirectory = "/home/drn";
+          }
+        ];
+      };
+      # This Fedora laptop (darrenmeehan@fedora)
+      "darrenmeehan@fedora" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        modules = [
+          ./home/home.nix
+          # Laptop-specific bits: keep the shell env and git auth that this
+          # machine already has, instead of throwing them away on switch.
+          {
+            home.username = "darrenmeehan";
+            home.homeDirectory = "/home/darrenmeehan";
+
+            # Preserve the environment the hand-written ~/.bashrc exports
+            programs.bash.bashrcExtra = ''
+              . /etc/bashrc
+              export ANDROID_HOME=/usr/local/android-sdk
+              export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+              export PATH=$PATH:$ANDROID_HOME/platform-tools
+              export CAPACITOR_ANDROID_STUDIO_PATH=$ANDROID_HOME/cmdline-tools/latest/bin
+              export FLYCTL_INSTALL="/home/darrenmeehan/.fly"
+              export PATH="$FLYCTL_INSTALL/bin:$PATH"
+              . "$HOME/.cargo/env"
+              export PODMAN_COMPOSE_WARNING_LOGS=false
+              export PATH="/home/darrenmeehan/.local/bin:$PATH"
+            '';
+          }
+        ];
       };
     };
 

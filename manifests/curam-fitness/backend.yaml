@@ -1,0 +1,108 @@
+# Backend — Rust axum API serving the fitness app.
+# Configured via ConfigMap (non-sensitive) + Secret (sensitive).
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: curam-fitness
+data:
+  HOST: "0.0.0.0"
+  PORT: "8080"
+  STATIC_DIR: "/app/static"
+  SIGNUPS_ENABLED: "true"
+  RUST_LOG: "info,fitness_api=debug"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: curam-fitness
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:18-alpine
+          command:
+            - sh
+            - -c
+            - >
+              timeout 60 sh -c
+              'until psql -h postgres -U fitness -c "SELECT 1"
+              > /dev/null 2>&1; do sleep 2; done'
+          env:
+            - name: PGUSER
+              value: fitness
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: curam-secrets
+                  key: db_password
+      containers:
+        - name: backend
+          image: curam-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: curam-secrets
+                  key: database_url
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: curam-secrets
+                  key: jwt_secret
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: curam-secrets
+                  key: anthropic_api_key
+            - name: SYNC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: curam-secrets
+                  key: sync_api_key
+            - name: RESEND_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: curam-secrets
+                  key: resend_api_key
+          envFrom:
+            - configMapRef:
+                name: backend-config
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 100m
+            limits:
+              memory: 512Mi
+              cpu: 500m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: curam-fitness
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: backend

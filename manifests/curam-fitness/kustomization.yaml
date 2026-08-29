@@ -1,0 +1,19 @@
+# Kustomization — apply all manifests for curam-fitness in one command.
+resources:
+    - namespace.yaml
+    - postgres.yaml
+    - backend.yaml
+    - cron-backup.yaml
+
+# Secrets are NOT managed via secretGenerator — sops-encrypted files cannot
+# be decrypted by kustomize. Apply secrets separately:
+#   sops --decrypt ../../secrets/curam-secrets.enc.yaml | kubectl apply -f -
+
+configMapGenerator:
+    - name: backend-config
+      literals:
+          - HOST=0.0.0.0
+          - PORT=8080
+          - STATIC_DIR=/app/static
+          - SIGNUPS_ENABLED=true
+          - RUST_LOG=info,fitness_api=debug

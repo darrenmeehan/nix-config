@@ -8,7 +8,6 @@
     syntaxHighlighting.enable = true;
     history = {
       size = 10000;
-      path = "/home/mac/.history";
     };
     shellAliases = {
       diff = "diff --color=auto";

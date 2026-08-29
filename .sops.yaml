@@ -1,0 +1,17 @@
+# sops encryption configuration.
+#
+# Generate an age key on your dev machine:
+#   age-keygen -o ~/.config/sops/age/keys.txt
+# sops encryption configuration.
+#
+# Generate an age key on your dev machine:
+#   age-keygen -o ~/.config/sops/age/keys.txt
+# Then copy your public key and paste it below, replacing the placeholder:
+#   cat ~/.config/sops/age/keys.txt | grep "public key:"
+#
+# Example age public key:
+#   age1abc123def456ghi789jkl0mno1pqr2stu3vwx4yz5
+
+creation_rules:
+  - path_regex: secrets/.*\.yaml
+    age: age1your-public-key-here-replace-this

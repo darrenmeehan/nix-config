@@ -16,10 +16,6 @@
     # Home Manager release
     stateVersion = "24.05";
 
-    # User info
-    username = "mac";
-    homeDirectory = "/home/mac";
-
     # Packages to be installed
     packages = with pkgs; [
       # Utils

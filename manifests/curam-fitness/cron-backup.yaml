@@ -1,0 +1,40 @@
+# Weekly database backup — pg_dump to host path.
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pg-backup
+  namespace: curam-fitness
+spec:
+  schedule: "0 3 * * 0" # 3am every Sunday
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: pg-dump
+              image: postgres:18-alpine
+              command:
+                - sh
+                - -c
+                - |
+                  DATE=$(date +%Y%m%d-%H%M%S)
+                  pg_dump "$DATABASE_URL" | gzip > /backups/curam-$DATE.sql.gz
+                  echo "Backup written: curam-$DATE.sql.gz"
+                  # Keep only last 4 backups
+                  ls -t /backups/curam-*.sql.gz | tail -n +5 | xargs -r rm
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: curam-secrets
+                      key: database_url
+              volumeMounts:
+                - name: backups
+                  mountPath: /backups
+          restartPolicy: OnFailure
+          volumes:
+            - name: backups
+              hostPath:
+                path: /var/backups/curam
+                type: DirectoryOrCreate

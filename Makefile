@@ -25,6 +25,10 @@ build-hm: ## Build Home-Manager configuration
 switch-hm: ## Switch Home-Manager configuration
 	home-manager switch --flake .#$(USER)@$(HOSTNAME)
 
+.PHONY: deploy-fitness
+fitness-node: ## Pull + switch the fitness-node VM (requires Tailscale)
+	ssh darren@fitness-node 'cd /opt/nix-config && git pull && sudo nixos-rebuild switch --flake /opt/nix-config#fitness-node'
+
 .PHONY: lock
 lock: ## Update lock file
 	nix flake update
