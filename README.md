@@ -100,26 +100,35 @@ nix flake update
 ## New Proxmox VM setup
 
 These instructions are based on the NixOS wiki page [Proxmox Virtual Environment](https://nixos.wiki/wiki/Proxmox_Virtual_Environment#Generating_VMA)
+and this flake's `proxmox-image.nix` wiring (see `hosts/*/proxmox.nix`).
 
 1. Create a new configuration for the machine
 1. Ensure to change the user password hash
-1. Generate the machine image using `nixos-generators` by running
+1. Generate the machine image using the host's `system.build.VMA` output
+   (media, rocinante and fitness-node all ship one):
 
     ```shell
-    nix run github:nix-community/nixos-generators -- --format proxmox --configuration hosts/media/default.nix
+    nix build .#nixosConfigurations.<host>.config.system.build.VMA
+    # → result/vzdump-qemu-<host>.vma.zst
     ```
 
 1. Upload the image to the Proxmox host
+
+    ```shell
+    scp result/vzdump-qemu-<host>.vma.zst root@pve:/var/lib/vz/dump/
+    ```
+
 1. Restore the image as a running VM
 
     ```shell
-    qmrestore /var/lib/vz/dump/vzdump-qemu-nixos-21.11.git.d41882c7b98M.vma.zst <vmid> --unique true
+    # on pve:
+    qmrestore vzdump-qemu-<host>.vma.zst <vmid> --unique true
+    qm start <vmid>
     ```
 
-    ```shell
-    root@proxmox-server:~# qm start <vmid>
-    root@proxmox-server:~# qm terminal <vmid>
-    ```
+> Machine-specific bits (bios/EFI, cores, memory, network bridge, disk size)
+> live in each host's `proxmox.nix`; see `hosts/fitness-node/README.md` for
+> the full deploy-and-login walkthrough for that node.
 
 ### Resources
 

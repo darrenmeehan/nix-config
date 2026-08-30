@@ -12,7 +12,7 @@ graph TB
     subgraph "Proxmox"
         subgraph "VM: fitness-node"
             direction TB
-            A[NixOS 26.05<br/>configuration.nix + flake.nix]
+            A[NixOS<br/>stateVersion 26.05<br/>hosts/fitness-node/default.nix + flake.nix]
             B[k3s server<br/>single-node<br/>embedded SQLite<br/>no etcd]
             C[Docker daemon<br/>for building images]
             D[Tailscale<br/>WireGuard VPN<br/>Tailscale Serve]
@@ -51,7 +51,7 @@ graph TB
 
 | Process | Type | Managed by |
 | --------- | ------ | ----------- |
-| NixOS | OS config | `configuration.nix` + `flake.nix` |
+| NixOS | OS config | `hosts/fitness-node/default.nix` + `flake.nix` |
 | k3s | Kubernetes server | systemd unit (`k3s.service`) |
 | Docker | Container daemon | systemd unit (`docker.service`) |
 | Tailscale | VPN + proxy | systemd units + `tailscale-serve.nix` |
@@ -66,10 +66,10 @@ graph TB
 ```mermaid
 graph TB
     subgraph "flake.nix"
-        A[nixpkgs<br/>nixos-26.05] --> B[nixosConfigurations.fitness-node]
+        A[nixpkgs<br/>nixos-unstable] --> B[nixosConfigurations.fitness-node]
     end
 
-    subgraph "configuration.nix"
+    subgraph "hosts/fitness-node/default.nix"
         direction TB
         C[imports]
         D[Host config]
@@ -85,15 +85,12 @@ graph TB
     B --> C
 
     subgraph "modules/"
-        L[k3s.nix<br/>systemd service]
-        M[taliscale-serve.nix<br/>Tailscale Serve proxy]
+        M[tailscale-serve.nix<br/>Tailscale Serve proxy]
         N[docker.nix<br/>Docker daemon + auto-prune]
     end
 
-    C --> L
     C --> M
     C --> N
-    K --> L
 
     D --> E
     D --> F
@@ -179,6 +176,25 @@ kubectl -n curam-fitness rollout restart deploy/backend
 The `docker save ... | k3s ctr images import -` pattern pushes the image into
 k3s's built-in containerd without a registry. No Docker Hub, no Harbor, no
 auth needed.
+
+---
+
+## 3b. Proxmox image builds
+
+Each NixOS host wired for image builds (`hosts/{media,rocinante,fitness-node}`
+import `proxmox-image.nix` and carry a `proxmox.nix`) exposes
+`system.build.VMA`, which produces a Proxmox backup archive:
+
+```bash
+nix build .#nixosConfigurations.<host>.config.system.build.VMA
+# → result/vzdump-qemu-<host>.vma.zst
+```
+
+Restore it on the PVE host with `qmrestore` (see `README.md` → "New Proxmox
+VM setup"). Note: the image module's `cptofs` step (LKL) has a hardcoded
+`mem=100M` that OOMs on large closures — `hosts/fitness-node/proxmox.nix`
+carries a small overlay patching it to 4G; port that to other hosts if their
+image builds hit "cptofs failed".
 
 ---
 
@@ -346,7 +362,7 @@ flowchart LR
 
 | In git | Not in git |
 | -------- | ----------- |
-| `flake.nix` + `configuration.nix` + `modules/` | Age private key |
+| `flake.nix` + `hosts/fitness-node/` + `modules/` | Age private key |
 | `manifests/curam-fitness/*.yaml` | Anthropic / Resend API keys |
 | `secrets/curam-secrets.enc.yaml` | Postgres data |
 | `docs/*.md` | k3s cluster state (snapshots) |
@@ -364,7 +380,7 @@ flowchart TB
     subgraph "Before you start"
         A[Install age] --> B[Generate age key]
         B --> C[Paste public key into .sops.yaml]
-        D[Generate SSH key] --> E[Paste public key into configuration.nix]
+        D[Generate SSH key] --> E[Paste public key into hosts/fitness-node/default.nix]
     end
 
     subgraph "Proxmox"

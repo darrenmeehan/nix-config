@@ -78,8 +78,66 @@ cat ~/.ssh/home-k8s.pub
 # → ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... home-k8s
 ```
 
-Copy that entire line, then open `hosts/fitness-node/default.nix` and replace
-the placeholder `"ssh-ed25519 ... REPLACE_ME ..."` with your public key.
+Copy that entire line, then open `hosts/fitness-node/default.nix` and make
+sure your public key is listed under `users.users.darren.openssh.authorizedKeys.keys`
+(it already is — only touch it if you rotate the key).
+
+## Alternative: deploy from a built Proxmox image (no ISO)
+
+Instead of installing from the ISO (steps 1 + 4 in "First-time setup"), you
+can build a ready-to-boot Proxmox image from this flake and restore it
+straight into a VM. Disk layout, users, SSH keys and services are all baked
+in — you don't touch the console.
+
+### 1. Build the image — *dev machine*
+
+```bash
+nix build .#nixosConfigurations.fitness-node.config.system.build.VMA
+# → result/vzdump-qemu-fitness-node.vma.zst
+```
+
+### 2. Deploy to Proxmox — *dev machine + PVE host*
+
+```bash
+scp result/vzdump-qemu-fitness-node.vma.zst root@pve:/var/lib/vz/dump/
+# on pve:
+qmrestore vzdump-qemu-fitness-node.vma.zst 100   # any free VMID
+qm start 100
+```
+
+### 3. Log in — *dev machine*
+
+SSH is key-only (`PasswordAuthentication = false`) and only `home-k8s` is
+authorized (see "Before you start — SSH keypair" above). On first boot the VM
+is reachable on its LAN IP (listed on the Proxmox summary; DHCP on `vmbr0`):
+
+```bash
+ssh -i ~/.ssh/home-k8s darren@<lan-ip>
+# darren has passwordless sudo
+```
+
+Make it reusable by adding `~/.ssh/config`:
+
+```
+Host fitness-node
+  HostName <lan-ip-or-tailscale-name>
+  User darren
+  IdentityFile ~/.ssh/home-k8s
+```
+
+### 4. Join Tailscale — *first SSH session on the VM*
+
+```bash
+sudo tailscale up        # prints an auth URL; approve once
+```
+
+After that, `ssh darren@fitness-node` works from anywhere via MagicDNS, and
+steps 6–8 of "First-time setup" (clone repo, secrets, app) apply as normal.
+
+> The built image is not automatically rebuilt when you change the flake —
+> re-run step 1 and redeploy to pick up config changes before first boot, or
+> use `sudo nixos-rebuild switch` on the VM once it's cloned (`git clone
+> <repo> /opt/nix-config`).
 
 ## The bash scripts — what they do
 
@@ -141,11 +199,9 @@ cat ~/.config/sops/age/keys.txt | grep "public key:"
 sudo nixos-install --flake github:darrenmeehan/nix-config#fitness-node
 ```
 
-Or build the ISO yourself — *dev machine, with nix installed* (then upload it to Proxmox):
-
-```bash
-nix build .#nixosConfigurations.fitness-node.config.system.build.iso
-```
+> This flake does **not** expose a `system.build.iso` for fitness-node — if
+> you'd rather skip the ISO dance entirely, use the prebuilt Proxmox image
+> flow in "Alternative: deploy from a built Proxmox image" above instead.
 
 ### 5. Authenticate Tailscale — *VM*
 

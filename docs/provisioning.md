@@ -5,6 +5,15 @@ Day-2 changes (OS updates, config, new apps) are declarative via
 `nixos-rebuild switch` + `kubectl apply`. This doc covers the one-time
 bootstrap only.
 
+> **Two ways to provision:** (A) the manual ISO install below, or (B) the
+> prebuilt Proxmox image — `nix build
+> .#nixosConfigurations.fitness-node.config.system.build.VMA`, restore the
+> `.vma.zst` with `qmrestore`, and the VM boots already configured (users,
+> SSH key, k3s, Docker all baked in). See `hosts/fitness-node/README.md` →
+> "Alternative: deploy from a built Proxmox image" for the exact steps. The
+> image path is faster and matches how this flake versions the host; the ISO
+> path below is the fallback when you want an interactive install.
+
 ---
 
 ## Prerequisites (before you start)
@@ -175,7 +184,8 @@ kubectl -n curam-fitness rollout restart deploy/backend
 ## If you need to redo the VM (disaster)
 
 1. Delete the VM in Proxmox
-2. Repeat steps 1-4 (create VM, boot ISO, nixos-install)
+2. Either repeat steps 1-4 (create VM, boot ISO, nixos-install) **or** build
+   and restore the prebuilt image (see the box at the top of this doc)
 3. Tailscale re-auth
 4. Clone repos
 5. `sops --decrypt secrets/curam-secrets.enc.yaml | kubectl apply -f -`

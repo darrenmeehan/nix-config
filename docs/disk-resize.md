@@ -1,8 +1,14 @@
-# How to resize VM Disks
+# How to resize VM disks
 
-I'm currently working around an issue where the VM disks are not declaritively set.
+Disk size is now **declarative** — each host's `proxmox.nix` sets
+`virtualisation.diskSize` (e.g. `hosts/media/proxmox.nix` → 10G,
+`hosts/rocinante/proxmox.nix` → 100G), so a freshly built image comes out
+with the right size. This page is only for **growing** an already-provisioned
+VM after you've bumped its disk on the Proxmox side (GUI/CLI), which the
+guest doesn't pick up automatically.
 
-The workaround is to standup the VM, and then resize it manually through the CLI.
+To resize inside the guest (this is the rocinante session that originally
+motivated the doc — disk grown 10G → 112GB at the PVE layer):
 
 ```shell
 [drn@rocinante:~]$ nix-shell -p parted
@@ -53,10 +59,10 @@ cat: /rtc/fstab: No such file or directory
 Run 'nixos-help' for the NixOS manual.
 
 rocinante login: drn
-Password: 
+Password:
 
 [drn@rocinante:~]$ sudo fdisk --l
-[sudo] password for drn: 
+[sudo] password for drn:
 fdisk: option '--l' is ambiguous; possibilities: '--list' '--list-details' '--lock'
 Try 'fdisk --help' for more information.
 
@@ -71,7 +77,7 @@ Disk identifier: 0x43f81001
 Device     Boot Start       End   Sectors   Size Id Type
 /dev/vda1        2048 218259455 218257408 104.1G 83 Linux
 
-[drn@rocinante:~]$ 
+[drn@rocinante:~]$
 
 ```
 
@@ -96,8 +102,6 @@ Device     Boot Start       End   Sectors   Size Id Type
    14  nix-shell -p parted
    15  history
 ```
-
-
 
 [nix-shell:~]$ history
     1  ls

@@ -31,9 +31,11 @@ kubectl -n curam-fitness scale deploy/backend --replicas=1
 
 ## k3s cluster state
 
+The cluster is single-node with the embedded SQLite datastore (no etcd), so
+snapshots are taken with `k3s snapshot`:
+
 ```bash
-# Snapshot (all k8s resources, not volume data)
-sudo k3s etcd-snapshot save
+sudo k3s snapshot save
 
 # Snapshots stored at:
 # /var/lib/rancher/k3s/server/db/snapshots/
@@ -59,4 +61,4 @@ Every piece of configuration is in this repo:
 | Postgres data gone | Latest `.sql.gz` from `/var/backups/curam/` | 5 min |
 | VM dies (disk intact) | New VM + k3s install + mount old disk + restore DB | 15 min |
 | VM dies (disk gone) | Git clone + k3s snapshot + DB dump from backup | 30 min |
-| Everything | Create VM, install NixOS, clone repos, restore DB, rebuild image | 1 hour |
+| Everything | Build/restore the Proxmox image (`.#nixosConfigurations.fitness-node.config.system.build.VMA`), clone repos, restore DB, rebuild image | 1 hour |
