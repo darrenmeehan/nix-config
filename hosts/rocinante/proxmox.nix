@@ -3,6 +3,9 @@
 
 { config, pkgs, nixpkgs, nix, lib, ... }:
 {
+  # diskSize lives at the canonical renamed path (was proxmox.qemuConf.diskSize)
+  virtualisation.diskSize = 102400; # 100g
+
   proxmox = {
     qemuConf = {
       # EFI support
@@ -10,9 +13,8 @@
       cores = 8;
       memory = 8192;
       net0 = "virtio=00:00:00:00:00:00,bridge=vmbr2,firewall=1";
-      diskSize = "102400"; # 10g
       additionalSpace = "10G";
-      agent = "1";
+      agent = true;
       bootSize = "512M";
       name = "rocinante";
     };
@@ -22,6 +24,6 @@
       cpu = "host";
       tags = "nixos";
     };
-    filenameSuffix = "media";
+    filenameSuffix = "rocinante"; # was "media" (copy-paste from hosts/media)
   };
 }

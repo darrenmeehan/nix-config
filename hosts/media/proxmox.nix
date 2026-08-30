@@ -3,6 +3,9 @@
 
 { config, pkgs, nixpkgs, nix, lib, ... }:
 {
+  # diskSize lives at the canonical renamed path (was proxmox.qemuConf.diskSize)
+  virtualisation.diskSize = 10240; # 10g
+
   proxmox = {
     qemuConf = {
       # EFI support
@@ -10,9 +13,8 @@
       cores = 4;
       memory = 4096;
       net0 = "virtio=00:00:00:00:00:00,bridge=vmbr2,firewall=1";
-      diskSize = "10240"; # 10g
       additionalSpace = "10G";
-      agent = "1";
+      agent = true;
       bootSize = "512M";
       name = "media";
     };

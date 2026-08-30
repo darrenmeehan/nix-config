@@ -77,6 +77,8 @@
         system = "x86_64-linux";
         modules = [
           ./hosts/fitness-node
+          "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
+          ./hosts/fitness-node/proxmox.nix
         ];
       };
     };
