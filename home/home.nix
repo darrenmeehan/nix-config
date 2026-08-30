@@ -3,6 +3,12 @@
 {
   targets.genericLinux.enable = true;
 
+  # Non-NixOS GPU driver env (mesa/libglvnd/… linked into /run/opengl-driver)
+  # is on by default when genericLinux is enabled — nothing we install needs
+  # it, and it only prints a setup hint on every switch. Disabled; re-enable
+  # if you start installing Nix apps that need their own GL drivers.
+  targets.genericLinux.gpu.enable = false;
+
   nixpkgs = {
     config = {
       allowUnfree = true;
@@ -21,12 +27,12 @@
       # Utils
       awscli2
       bat # `cat` clone
-      bitwarden # Password Manager
+      bitwarden-desktop # Password Manager
       bottom # Display process information (`top` alternative)
       caddy # Web server
       curl # I want a newer version than the one provided by Ubuntu
       dive # Docker image explorer
-      du-dust # Disk space usage (`du` alternative)
+      dust # Disk space usage (`du` alternative)
       eza # File listing (`ls` alternative)
       fd # Find files/folders (`find` alternative)
       feh # Command line image viewer
@@ -36,17 +42,17 @@
       htop # Display process information (`top` alternative)
       jq # Command line JSON parser
       just # Command runner
-      loco-cli # Loco CLI
+      loco # Loco CLI
       sea-orm-cli # Sea ORM CLI
-      neofetch # System information
+      fastfetch # System information
       nemo # File manager
-      nixfmt-classic # Nix formatter
+      nixfmt # Nix formatter
       # nixfmt-rfc-style new RFC 166-style formatter
       niv # Nix dependency management
       nmap # Network exploration
       ripgrep # Fast grep
       ruff # Fast Python linter
-      taskwarrior # Task manager
+      taskwarrior2 # Task manager
       tig # git text-mode interface
       tcpdump # Network packet analyzer
       tldr # Help pages
@@ -72,19 +78,16 @@
       # firefox
 
       # Fonts
-      (nerdfonts.override {
-        fonts = [
-          "DejaVuSansMono"
-          "DroidSansMono"
-          "FiraCode"
-          "Hack"
-          "JetBrainsMono"
-          "LiberationMono"
-          "Terminus"
-        ];
-      })
+      # 2026 nixpkgs: nerdfonts.override is gone; each family is its own
+      # package under pkgs.nerd-fonts. No Terminus family exists (dropped).
+      nerd-fonts.dejavu-sans-mono
+      nerd-fonts.droid-sans-mono
+      nerd-fonts.fira-code
+      nerd-fonts.hack
+      nerd-fonts.jetbrains-mono
+      nerd-fonts.liberation
       twitter-color-emoji
-      noto-fonts-emoji
+      noto-fonts-color-emoji
       powerline-fonts
 
       podman
@@ -98,7 +101,8 @@
 
       ansible-lint
       ansible
-      (python311.withPackages (ps: with ps; [
+      # python311 → sphinx 9.1 dropped py3.11 support; use python312
+      (python312.withPackages (ps: with ps; [
         packer
         pip
         tox

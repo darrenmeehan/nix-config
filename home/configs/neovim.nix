@@ -1,28 +1,17 @@
 { config, pkgs, ... }:
 
-let
-  # Vendored copy of nixpkgs' neovim-unwrapped derivation
-  # (./neovim-unwrapped/) with the `disallowedRequisites` attr removed:
-  # Nix ≥ 2.24 ignores it under structuredAttrs and warns on every build
-  # (the warning first surfaced when home-manager was switched here — the
-  # module wraps programs.neovim.package itself). The cc-reference removal
-  # is already done by the same package's postInstall remove-references-to
-  # step, so behaviour is unchanged.
-  fixedNeovim = pkgs.callPackage ./neovim-unwrapped/package.nix {
-    CoreServices = null; # darwin-only, unused on Linux
-    lua = pkgs.luajit;   # same choice all-packages.nix makes on x86_64-linux
-  };
-
-in {
-  # vim plugin builds pull neovim-unwrapped via their require-check hook;
-  # point the whole pkgs set at the fixed derivation so no code path
-  # instantiates the stock (warning-emitting) one.
-  nixpkgs.overlays = [ (final: prev: { neovim-unwrapped = fixedNeovim; }) ];
-
+{
+  # Vendored ./neovim-unwrapped copy removed (2026-08): it only carried a
+  # disallowedRequisites workaround for Nix ≥ 2.24 structuredAttrs warnings;
+  # 2026 nixpkgs sets __structuredAttrs itself, and the vendored 0.10.1 no
+  # longer compiles against 2026 libuv.
   programs.neovim = {
     enable = true;
-    package = fixedNeovim;
     vimAlias = true;
+    # stateVersion < 26.05 keeps legacy behaviour; pin explicitly to silence
+    # the default-change warnings.
+    withRuby = true;
+    withPython3 = true;
     coc.enable = true;
     coc.settings = {
       "python.linting.enabled" = true;
@@ -41,9 +30,7 @@ in {
       # CoC / Conquer of Completion
       vimPlugins.coc-pairs
       vimPlugins.coc-snippets
-      vimPlugins.coc-python
       vimPlugins.coc-pyright
-      vimPlugins.coc-go
       vimPlugins.coc-yaml
       vimPlugins.coc-json
       vimPlugins.coc-prettier

@@ -2,18 +2,24 @@
 
 {
   programs.git = {
-    package = pkgs.gitAndTools.gitFull;
+    package = pkgs.gitFull;
     enable = true;
-    userName = "Darren Meehan";
-    userEmail = "hi@drn.ie";
-    aliases = {
-      ci = "commit";
-      co = "checkout";
-      br = "branch";
-      st = "status";
+    # 2026 home-manager: settings is the one source of truth
+    # (aliases/userName/userEmail/extraConfig were merged into it).
+    settings = {
+      user = {
+        name = "Darren Meehan";
+        email = "hi@drn.ie";
+      };
+      alias = {
+        ci = "commit";
+        co = "checkout";
+        br = "branch";
+        st = "status";
+      };
+      # GitHub/Gist credential auth is handled by programs.gh (see gh.nix);
+      # libsecret stays as the general helper for other hosts.
+      credential = { helper = "libsecret"; };
     };
-    # GitHub/Gist credential auth is handled by programs.gh (see gh.nix);
-    # libsecret stays as the general helper for other hosts.
-    extraConfig = { credential = { helper = "libsecret"; }; };
   };
 }

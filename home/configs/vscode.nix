@@ -6,10 +6,10 @@
   programs.vscode = {
     enable = true;
     package = pkgs.vscode;
-    enableUpdateCheck = false;
-    enableExtensionUpdateCheck = false;
-    mutableExtensionsDir = false;
-    extensions = with pkgs.vscode-extensions; [
+    profiles.default = {
+      enableUpdateCheck = false;
+      enableExtensionUpdateCheck = false;
+      extensions = with pkgs.vscode-extensions; [
       # Search with:
       # https://search.nixos.org/packages?channel=unstabletype=packages&query=vscode-extensions
       # Languages
@@ -66,8 +66,8 @@
       # ms-vscode-remote.vscode-remote-extensionpack
       # Containers
       ms-azuretools.vscode-docker
-    ];
-    userSettings = {
+      ];
+      userSettings = {
       # Use podman instead of docker
       "dev.containers.dockerPath" = "podman";
       # Material Icons
@@ -121,6 +121,7 @@
           "command" = "nix fmt";
         };
       };
+    };
     };
   };
 }
