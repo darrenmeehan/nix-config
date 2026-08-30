@@ -137,6 +137,9 @@
               export PATH="$FLYCTL_INSTALL/bin:$PATH"
               . "$HOME/.cargo/env"
               export PODMAN_COMPOSE_WARNING_LOGS=false
+              # bun (was in the hand-written ~/.bash_profile)
+              export BUN_INSTALL="$HOME/.bun"
+              export PATH="$BUN_INSTALL/bin:$PATH"
               export PATH="/home/darrenmeehan/.local/bin:$PATH"
             '';
           }
