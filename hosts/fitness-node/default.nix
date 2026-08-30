@@ -9,6 +9,9 @@
 
   system.stateVersion = "26.05";
   networking.hostName = "fitness-node";
+  # DHCP on all interfaces (incl. the virtio NIC) — matches hosts/media,
+  # hosts/rocinante. Without this the fresh VM boots with no IP.
+  networking.networkmanager.enable = true;
 
   # ── Firewall ─────────────────────────────────────────────────────────────
   # Tailscale handles external access (encrypted WireGuard tunnel).
@@ -71,11 +74,32 @@
     ];
   };
 
-  security.sudo.extraRules = [
-    { users = [ "darren" ]; commands = [
-      { command = "ALL"; options = [ "NOPASSWD" ]; }
-    ]; }
-  ];
+  security.sudo.extraRules = [ ];
+
+  # Make the k3s admin kubeconfig world-readable (root-only by default) so
+  # the plain `kubectl` package works for all users without sudo. Runs once
+  # after k3s starts; idempotent.
+  systemd.services.make-k3s-kubeconfig-readable = {
+    description = "Make k3s admin kubeconfig readable by all users";
+    after = [ "k3s.service" ];
+    wants = [ "k3s.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+      if [ -f "$KUBECONFIG" ]; then
+        chmod 644 "$KUBECONFIG"
+        # Also expose for the user's ~/.kube/config (kubectl's default lookup)
+        mkdir -p /home/darren/.kube
+        cp "$KUBECONFIG" /home/darren/.kube/config
+        chown -R darren:users /home/darren/.kube
+        chmod 600 /home/darren/.kube/config
+      fi
+    '';
+  };
 
   #####################################################################
   # SERVICES
