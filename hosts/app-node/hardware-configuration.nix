@@ -1,4 +1,4 @@
-# Hardware configuration for the fitness-node Proxmox VM.
+# Hardware configuration for the app-node Proxmox VM.
 # SeaBIOS boot on the virtio disk, single ext4 root. The root device is
 # /dev/disk/by-label/nixos (matches what both nixos-install and the
 # proxmox-image module label the root partition); the mkDefault lets

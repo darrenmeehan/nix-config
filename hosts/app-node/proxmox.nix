@@ -1,6 +1,6 @@
-# Proxmox image settings for fitness-node.
+# Proxmox image settings for app-node.
 # Docs (docs/provisioning.md): 40GB virtio disk, 2 cores type host, vmbr0.
-# bios = seabios because hosts/fitness-node/hardware-configuration.nix uses
+# bios = seabios because hosts/app-node/hardware-configuration.nix uses
 # SeaBIOS grub on /dev/vda (no EFI) — an ovmf image would be unbootable.
 
 { config, pkgs, lib, ... }:
@@ -27,12 +27,12 @@
       additionalSpace = "10G";
       agent = true; # 2026 nixpkgs wants a bool, not "1"
       bootSize = "512M";
-      name = "fitness-node";
+      name = "app-node";
     };
     qemuExtraConf = {
       cpu = "host";
       tags = "nixos";
     };
-    filenameSuffix = "fitness-node";
+    filenameSuffix = "app-node";
   };
 }

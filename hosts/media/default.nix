@@ -1,107 +1,129 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
+# ============================================================================
+# Host — media (Media Server VM on Proxmox)
+#
+# Jellyfin + the *arr automation stack (Sonarr/Radarr/Prowlarr/Bazarr), with
+# Tailscale for remote access. Media lives under /data/media so a NAS can be
+# mounted there later without touching any service config.
+#
+# Sane defaults for a home VM:
+#   - Proxmox guest (seabios, virtio disk on vmbr0) — see proxmox.nix
+#   - LAN-only firewall + tailscale0 trusted (point-to-point remote access)
+#   - shared `media` group so all *arr apps + jellyfin can reach /data/media
+#   - stateVersion matches the pinned release (26.11)
+# ============================================================================
 
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
-  imports =
-    [
-      # Include the results of the hardware scan.
-      # ./hardware-configuration.nix
-    ];
+  imports = [ ./hardware-configuration.nix ];
 
+  # ── Identity ─────────────────────────────────────────────────────────────
+  system.stateVersion = "26.11";
   networking.hostName = "media";
-  networking.networkmanager.enable = true;
   time.timeZone = "Europe/Dublin";
 
-  # Select internationalisation properties.
-  # i18n.defaultLocale = "en_US.UTF-8";
-  # console = {
-  #   font = "Lat2-Terminus16";
-  #   keyMap = "us";
-  #   useXkbConfig = true; # use xkbOptions in tty.
-  # };
+  # ── Network ───────────────────────────────────────────────────────────────
+  # DHCP on the Proxmox bridge (same pattern as hosts/media) + Tailscale.
+  networking.networkmanager.enable = true;
+  services.tailscale.enable = true;
 
-  # Enable the X11 windowing system.
-  # services.xserver.enable = true;
-
-  services = {
-    # Enable Qemu guest support as this is a VM on Proxmox.
-    qemuGuest.enable = true;
-    # Enable systemd-networkd
-    # allowing cloud-init to set up network interfaces on boot. 
-    cloud-init.network.enable = true;
+  # ── Shared media user/group ────────────────────────────────────────────────
+  # All media services (jellyfin + the *arr apps) run as a single system user
+  # `media` so they share one library ownership under /data/media. Avoids
+  # per-service user juggling and keeps the NAS-mounted dirs readable by all.
+  users.groups.media = { };
+  users.users.media = {
+    isSystemUser = true;
+    group = "media";
+    description = "Shared media user (jellyfin + *arr)";
+    home = "/var/lib/media";
+    createHome = true;
   };
 
-  # Configure keymap in X11
-  # services.xserver.layout = "us";
-  # services.xserver.xkbOptions = {
-  #   "eurosign:e";
-  #   "caps:escape" # map caps to escape.
-  # };
+  # ── Media storage (NAS-expandable) ────────────────────────────────────────
+  # Services reference /data/media, NOT a specific mount. When a NAS arrives,
+  # mount it at /data/media (see README §Adding a NAS) and nothing else moves.
+  systemd.tmpfiles.rules = [
+    "d /data/media 0775 root media -"
+    "d /data/media/movies 0775 root media -"
+    "d /data/media/tv 0775 root media -"
+    "d /data/media/music 0775 root media -"
+    "d /data/media/downloads 0775 root media -"
+  ];
 
-  # Enable CUPS to print documents.
-  # services.printing.enable = true;
+  # ── Jellyfin ──────────────────────────────────────────────────────────────
+  services.jellyfin = {
+    enable = true;
+    openFirewall = true;          # starts 8096/tcp
+    user = "media";
+    group = "media";
+    # dataDir defaults to /var/lib/jellyfin (config/log); media is /data/media.
+  };
 
-  # Enable sound.
-  # sound.enable = true;
-  # hardware.pulseaudio.enable = true;
+  # ── *arr stack ─────────────────────────────────────────────────────────────
+  # Each opens its web UI port on the LAN (and via tailscale0, trusted below).
+  services.sonarr = {
+    enable = true;
+    openFirewall = true;          # 8989
+    user = "media";
+    group = "media";
+    # set download + library root folders in the Sonarr UI (e.g. /data/media/tv)
+  };
+  services.radarr = {
+    enable = true;
+    openFirewall = true;          # 7878
+    user = "media";
+    group = "media";
+  };
+  services.prowlarr = {
+    enable = true;
+    openFirewall = true;          # 9696
+    # prowlarr uses DynamicUser (no user/group options); grant it the media
+    # group so it can read indexers/download paths under /data/media.
+  };
+  # DynamicUser services need their supplementary group set at the unit level.
+  systemd.services.prowlarr.serviceConfig.SupplementaryGroups = [ "media" ];
+  services.bazarr = {
+    enable = true;
+    openFirewall = true;          # 6767
+    user = "media";
+    group = "media";
+  };
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
+  # ── Firewall ──────────────────────────────────────────────────────────────
+  # Trust tailscale0 so the box is reachable point-to-point from other tailnet
+  # machines; LAN ports are the only other exposure.
+  networking.firewall.enable = true;
+  networking.firewall.trustedInterfaces = [ "tailscale0" ];
+  # (jellyfin/sonarr/radarr/prowlarr/bazarr set openFirewall above, which adds
+  # their TCP ports; no extra allowedTCPPorts needed here.)
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
+  # ── Management + user ─────────────────────────────────────────────────────
+  services.openssh = {
+    enable = true;
+    settings = {
+      PermitRootLogin = "no";
+      PasswordAuthentication = false;
+      PubkeyAuthentication = true;
+    };
+    startWhenNeeded = true;
+  };
   users.users.drn = {
-    home = "/home/drn";
     isNormalUser = true;
-    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-    initialHashedPassword = "$y$j9T$Ua3zZctnVLe2shI6PbePh0$PGsx86ZGX/x8yu6lg4fWeB6VKL1LaL2qEyh89q4imeA";
-    openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKCothD9QCHn87gI2Mkcuoj7h9OKnlzN8icUe+bSx2Fz hi@drn.ie" ];
-    packages = with pkgs; [
-      curl
-      vim
+    extraGroups = [ "wheel" "media" ];
+    initialPassword = "changeme";
+    openssh.authorizedKeys.keys = [
+      # dev machine (darrenmeehan@fedora)
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK5LOFpTvGdlomaMjY33qWhvybAVYJLZ9efU6wny2NUq hi@drn.ie"
+      # ops (home-k8s, same key the app-node workflow uses)
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHSmchQ7JS1UcyBy2lMoYuBQs/6H/VgqB+TrArRE6QDW home-k8s"
     ];
   };
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  # environment.systemPackages = with pkgs; [
-  #   vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #   wget
-  # ];
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  programs.gnupg.agent = {
-    enable = true;
-    enableSSHSupport = true;
-  };
-
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # Copy the NixOS configuration file and link it from the resulting system
-  # (/run/current-system/configuration.nix). This is useful in case you
-  # accidentally delete configuration.nix.
-  # system.copySystemConfiguration = true;
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It’s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "24.05"; # Did you read the comment?
-
+  environment.systemPackages = with pkgs; [
+    vim
+    curl
+    jq
+    htop
+  ];
 }
-

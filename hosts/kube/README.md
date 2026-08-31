@@ -3,7 +3,7 @@
 > **⚠️ Obsolete.** This directory is leftover from an earlier k0s experiment and
 > is **not wired into the flake** (`hosts/kube` isn't referenced by
 > `flake.nix`). The current cluster is the single-node k3s on the
-> `fitness-node` VM — see `hosts/fitness-node/README.md` and
+> `app-node` VM — see `hosts/app-node/README.md` and
 > `docs/architecture.md`. Content below is historical only.
 
 Only running a single node cluster at the moment.

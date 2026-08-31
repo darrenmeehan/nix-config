@@ -8,7 +8,7 @@
   ];
 
   system.stateVersion = "26.05";
-  networking.hostName = "fitness-node";
+  networking.hostName = "app-node";
   # DHCP on all interfaces (incl. the virtio NIC) — matches hosts/media,
   # hosts/rocinante. Without this the fresh VM boots with no IP.
   networking.networkmanager.enable = true;
@@ -163,7 +163,7 @@
   systemd.tmpfiles.rules = [
     "d /opt/nix-config/manifests 0755 root root -"
     "d /opt/nix-config/secrets 0700 root root -"
-    "d /var/backups/curam 0755 root root -"
+    "d /var/backups/app 0755 root root -"
     "d /var/log/health 0755 root root -"
   ];
 

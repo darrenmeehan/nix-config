@@ -26,8 +26,12 @@ switch-hm: ## Switch Home-Manager configuration
 	home-manager switch --flake .#$(USER)@$(HOSTNAME)
 
 .PHONY: deploy-fitness
-fitness-node: ## Pull + switch the fitness-node VM (requires Tailscale)
-	ssh darren@fitness-node 'cd /opt/nix-config && git pull && sudo nixos-rebuild switch --flake /opt/nix-config#fitness-node'
+app-node: ## Pull + switch the app-node VM (requires Tailscale)
+	ssh darren@app-node 'cd /opt/nix-config && git pull && sudo nixos-rebuild switch --flake /opt/nix-config#app-node'
+
+.PHONY: deploy-media
+media: ## Pull + switch the media VM (requires Tailscale/ssh)
+	ssh drn@media 'cd /opt/nix-config && git pull && sudo nixos-rebuild switch --flake /opt/nix-config#media'
 
 .PHONY: lock
 lock: ## Update lock file

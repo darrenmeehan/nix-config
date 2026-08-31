@@ -46,7 +46,7 @@ sudo k3s snapshot save
 
 Every piece of configuration is in this repo:
 
-- NixOS flake: `flake.nix` + `hosts/fitness-node/`
+- NixOS flake: `flake.nix` + `hosts/app-node/`
 - K8s manifests: `manifests/curam-fitness/`
 - Encrypted secrets: `secrets/curam-secrets.enc.yaml`
 
@@ -61,4 +61,4 @@ Every piece of configuration is in this repo:
 | Postgres data gone | Latest `.sql.gz` from `/var/backups/curam/` | 5 min |
 | VM dies (disk intact) | New VM + k3s install + mount old disk + restore DB | 15 min |
 | VM dies (disk gone) | Git clone + k3s snapshot + DB dump from backup | 30 min |
-| Everything | Build/restore the Proxmox image (`.#nixosConfigurations.fitness-node.config.system.build.VMA`), clone repos, restore DB, rebuild image | 1 hour |
+| Everything | Build/restore the Proxmox image (`.#nixosConfigurations.app-node.config.system.build.VMA`), clone repos, restore DB, rebuild image | 1 hour |

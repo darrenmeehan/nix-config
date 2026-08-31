@@ -10,14 +10,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixos-generators = {
-      url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
   };
 
-  outputs = { self, nixpkgs, home-manager, nixos-generators, ... }@inputs: {
+  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
 
     # Install packages in /etc/profiles
     # Necessary to use 'nixos-rebuild build-vm'
@@ -40,8 +35,6 @@
         ];
       };
       # FIXME I'm not sure how to allow image creation, along with follow up configuration changes
-      # rocinante = nixos-generators.nixosGenerate {
-      # format = "proxmox";
       rocinante = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
@@ -54,7 +47,7 @@
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
-              users.drn = { pkgs, ... }: {
+              users.drn = {
                 home.homeDirectory = "/home/drn";
                 home = {
                   username = "drn";
@@ -71,16 +64,39 @@
           memorySize = 1024 * 8;
         };
       };
-      # Single-node k3s cluster (curam-fitness app) on Proxmox.
-      # See hosts/fitness-node/README.md.
-      fitness-node = nixpkgs.lib.nixosSystem {
+      # Application-agnostic single-node k3s platform (first app: fitness).
+      # See hosts/app-node/README.md.
+      app-node = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          ./hosts/fitness-node
+          ./hosts/app-node
           "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
-          ./hosts/fitness-node/proxmox.nix
+          ./hosts/app-node/proxmox.nix
         ];
       };
+
+      # Edge Router (CWT N18 Mini PC) — Data Plane. Firewall/NAT/DHCP/DNS.
+      # See hosts/edge-router/README.md.
+      edge-router = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./hosts/edge-router
+          ./hosts/edge-router/hardware-configuration.nix
+        ];
+      };
+
+      # Management Server (ThinkStation) — Management Plane.
+      # UniFi + Prometheus + Grafana. See hosts/mgmt/README.md.
+      mgmt = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./hosts/mgmt
+          ./hosts/mgmt/hardware-configuration.nix
+        ];
+      };
+
+      # Media Server (Proxmox VM) — Jellyfin + the *arr stack + Tailscale.
+      # See hosts/media/README.md.
     };
 
     # Home-Manager Configurations (standalone — also the way non-NixOS
@@ -151,5 +167,25 @@
 
     # Formatter Configuration
     formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixpkgs-fmt;
+
+    # Host 1 (edge-router) build artifacts.
+    #   nix build .#edge-router-iso        → bootable USB installer ISO
+    packages.x86_64-linux = {
+
+      # Bootable USB installer ISO — built natively by nixpkgs (the old
+      # `nixos-generators` input was dropped; `installation-cd-base.nix` is the
+      # same base the upstream `install-iso` format wraps).
+      edge-router-iso = (nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./hosts/edge-router
+          ./hosts/edge-router/hardware-configuration.nix
+          "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-base.nix"
+          # Silences the 26.11 `boot.zfs.forceImportRoot` default-warning (we
+          # don't use ZFS; false is also the new upstream-safe default).
+          { boot.zfs.forceImportRoot = false; }
+        ];
+      }).config.system.build.isoImage;
+    };
   };
 }

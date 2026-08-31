@@ -4,9 +4,11 @@ NixOS and Home-Manager configuration for the machines I run:
 
 | Host | What it is | Config |
 | --- | --- | --- |
-| `media` | Proxmox VM | `hosts/media` |
+| `edge-router` | CWT N18 Mini PC — Data Plane (NAT/DHCP/DNS) | `hosts/edge-router` |
+| `mgmt` | ThinkStation — Management Plane (UniFi/Prometheus/Grafana) | `hosts/mgmt` |
+| `media` | Proxmox VM — Jellyfin + *arr stack + Tailscale | `hosts/media` |
 | `rocinante` | Proxmox VM | `hosts/rocinante` |
-| `fitness-node` | k3s cluster VM (curam-fitness app) | `hosts/fitness-node` + `manifests/` |
+| `app-node` | k3s cluster VM (curam-fitness app) | `hosts/app-node` + `manifests/` |
 | `mac@personal` | Home-Manager (standalone) | `home/` |
 | `drn@dev` | Home-Manager (standalone) | `home/` |
 | `rocinante` | Home-Manager (standalone) | `home/` |
@@ -14,7 +16,7 @@ NixOS and Home-Manager configuration for the machines I run:
 
 The k3s cluster config was folded in from the old `home-k8s` repo; everything
 now shares this flake's single `nixpkgs`/`home-manager` lockfile. Setup and
-ops docs live with the node itself: `hosts/fitness-node/README.md`,
+ops docs live with the node itself: `hosts/app-node/README.md`,
 `docs/provisioning.md`, `docs/backup-restore.md`.
 
 Assumes use of Nix flakes.
@@ -105,7 +107,7 @@ and this flake's `proxmox-image.nix` wiring (see `hosts/*/proxmox.nix`).
 1. Create a new configuration for the machine
 1. Ensure to change the user password hash
 1. Generate the machine image using the host's `system.build.VMA` output
-   (media, rocinante and fitness-node all ship one):
+   (media, rocinante and app-node all ship one):
 
     ```shell
     nix build .#nixosConfigurations.<host>.config.system.build.VMA
@@ -127,7 +129,7 @@ and this flake's `proxmox-image.nix` wiring (see `hosts/*/proxmox.nix`).
     ```
 
 > Machine-specific bits (bios/EFI, cores, memory, network bridge, disk size)
-> live in each host's `proxmox.nix`; see `hosts/fitness-node/README.md` for
+> live in each host's `proxmox.nix`; see `hosts/app-node/README.md` for
 > the full deploy-and-login walkthrough for that node.
 
 ### Resources

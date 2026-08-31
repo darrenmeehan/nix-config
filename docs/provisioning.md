@@ -7,9 +7,9 @@ bootstrap only.
 
 > **Two ways to provision:** (A) the manual ISO install below, or (B) the
 > prebuilt Proxmox image — `nix build
-> .#nixosConfigurations.fitness-node.config.system.build.VMA`, restore the
+> .#nixosConfigurations.app-node.config.system.build.VMA`, restore the
 > `.vma.zst` with `qmrestore`, and the VM boots already configured (users,
-> SSH key, k3s, Docker all baked in). See `hosts/fitness-node/README.md` →
+> SSH key, k3s, Docker all baked in). See `hosts/app-node/README.md` →
 > "Alternative: deploy from a built Proxmox image" for the exact steps. The
 > image path is faster and matches how this flake versions the host; the ISO
 > path below is the fallback when you want an interactive install.
@@ -21,7 +21,7 @@ bootstrap only.
 | Item | Done? | Install command |
 | --- | --- | --- |
 | SSH keypair generated (`~/.ssh/home-k8s`) | ☐ | `ssh-keygen -t ed25519 -C "home-k8s" -f ~/.ssh/home-k8s` |
-| Public key pasted into `hosts/fitness-node/default.nix` | ☐ | — |
+| Public key pasted into `hosts/app-node/default.nix` | ☐ | — |
 | **age** installed (provides `age-keygen`) | ☐ | `nix shell nixpkgs#age` or `brew install age` or `sudo apt install age` |
 | Age key generated (`~/.config/sops/age/keys.txt`) | ☐ | `age-keygen -o ~/.config/sops/age/keys.txt` |
 | Public age key copied into `.sops.yaml` | ☐ | `cat ~/.config/sops/age/keys.txt \| grep "public key:"` |
@@ -36,7 +36,7 @@ bootstrap only.
 ## Step 1 — Create the VM in Proxmox
 
 1. Open Proxmox web UI → **Create VM** (top-right)
-2. General: name `fitness-node`, VM ID e.g. `100`
+2. General: name `app-node`, VM ID e.g. `100`
 3. OS: select the NixOS ISO (from local storage or upload it first)
 4. System: default (SeaBIOS or OVMF both work; match the ISO)
 5. Disk: 40GB, `virtio-scsi` or `virtio-blk`
@@ -71,7 +71,7 @@ The flake is on GitHub, so the installer can fetch it directly.
 # dhcpcd  (or: ip link set ens18 up && dhcpcd ens18)
 
 # Install from the flake
-nixos-install --flake github:darrenmeehan/nix-config#fitness-node
+nixos-install --flake github:darrenmeehan/nix-config#app-node
 
 # It will ask:
 #   - Which disk to partition (select /dev/vda — the 40GB virtio disk)
@@ -83,7 +83,7 @@ nixos-install --flake github:darrenmeehan/nix-config#fitness-node
 ```bash
 git clone https://github.com/darrenmeehan/nix-config /tmp/nix-config
 cd /tmp/nix-config
-nixos-install --flake .#fitness-node
+nixos-install --flake .#app-node
 ```
 
 ---
@@ -112,7 +112,7 @@ If the VM's IP changed after reboot, find it in the Proxmox console:
 If SSH doesn't work, check:
 
 - `systemctl status sshd`
-- `hosts/fitness-node/default.nix` has the right public key
+- `hosts/app-node/default.nix` has the right public key
 - The install actually applied the flake (it should have — authorizedKeys
   was baked in)
 
@@ -127,7 +127,7 @@ sudo tailscale up
 ```
 
 Once authenticated, you can reach the VM from any device:
-`ssh -i ~/.ssh/home-k8s darren@fitness-node` (MagicDNS name).
+`ssh -i ~/.ssh/home-k8s darren@app-node` (MagicDNS name).
 
 ---
 
@@ -160,7 +160,7 @@ curl -s http://localhost:8080/api/health
 # → {"database":"connected","status":"healthy"}
 
 # From your phone (Tailscale app installed, same account):
-# Open http://fitness-node/  (or the MagicDNS hostname)
+# Open http://app-node/  (or the MagicDNS hostname)
 ```
 
 ---
@@ -169,9 +169,9 @@ curl -s http://localhost:8080/api/health
 
 ```bash
 # Update the OS + config (from dev machine, after git push):
-ssh darren@fitness-node
+ssh darren@app-node
 cd /opt/nix-config && git pull
-sudo nixos-rebuild switch --flake /opt/nix-config#fitness-node
+sudo nixos-rebuild switch --flake /opt/nix-config#app-node
 
 # Update the app:
 cd /opt/curam/fitness && git pull

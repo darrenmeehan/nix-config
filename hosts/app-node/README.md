@@ -1,11 +1,18 @@
-# fitness-node — declarative NixOS + k3s cluster
+# app-node — declarative NixOS + k3s app platform
 
-Single-node k3s cluster on Proxmox, managed as part of this nix-config flake.
+**Application-agnostic** single-node k3s cluster on Proxmox, managed as part of
+this nix-config flake. The first app deployed on it is **Curam Fitness** (see
+below), but the host itself has no app-specific assumptions — any containers/
+manifests in `manifests/` can live here.
+
 Accessible from anywhere via Tailscale. Zero cloud bill, zero open ports.
 
 Consolidated here from the old `home-k8s` repo (which pinned its own nixpkgs
 and was never deployed). The host now follows this flake's single `nixpkgs`
 input, so there's one lockfile to maintain.
+
+> **Why the name:** the box runs k3s — a general app platform. `fitness-node`
+> implied it only hosted one app; `app-node` is what it actually is.
 
 ## Principles
 
@@ -32,7 +39,7 @@ input, so there's one lockfile to maintain.
 ## Structure
 
 ```
-hosts/fitness-node/
+hosts/app-node/
   default.nix                 # Host config: hostname, users, packages
   modules/
     tailscale-serve.nix       # Tailscale Serve proxy :80 → backend
@@ -69,7 +76,7 @@ This creates two files:
 | File | Purpose | Where it goes |
 | --- | --- | --- |
 | `~/.ssh/home-k8s` | **Private key** — never share, never commit | Stays on your dev machine |
-| `~/.ssh/home-k8s.pub` | **Public key** — safe to share | Pasted into `hosts/fitness-node/default.nix` |
+| `~/.ssh/home-k8s.pub` | **Public key** — safe to share | Pasted into `hosts/app-node/default.nix` |
 
 To see your public key:
 
@@ -78,7 +85,7 @@ cat ~/.ssh/home-k8s.pub
 # → ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... home-k8s
 ```
 
-Copy that entire line, then open `hosts/fitness-node/default.nix` and make
+Copy that entire line, then open `hosts/app-node/default.nix` and make
 sure your public key is listed under `users.users.darren.openssh.authorizedKeys.keys`
 (it already is — only touch it if you rotate the key).
 
@@ -92,16 +99,16 @@ in — you don't touch the console.
 ### 1. Build the image — *dev machine*
 
 ```bash
-nix build .#nixosConfigurations.fitness-node.config.system.build.VMA
-# → result/vzdump-qemu-fitness-node.vma.zst
+nix build .#nixosConfigurations.app-node.config.system.build.VMA
+# → result/vzdump-qemu-app-node.vma.zst
 ```
 
 ### 2. Deploy to Proxmox — *dev machine + PVE host*
 
 ```bash
-scp result/vzdump-qemu-fitness-node.vma.zst root@pve:/var/lib/vz/dump/
+scp result/vzdump-qemu-app-node.vma.zst root@pve:/var/lib/vz/dump/
 # on pve:
-qmrestore vzdump-qemu-fitness-node.vma.zst 100   # any free VMID
+qmrestore vzdump-qemu-app-node.vma.zst 100   # any free VMID
 qm start 100
 ```
 
@@ -113,13 +120,13 @@ is reachable on its LAN IP (listed on the Proxmox summary; DHCP on `vmbr0`):
 
 ```bash
 ssh -i ~/.ssh/home-k8s darren@<lan-ip>
-# darren has passwordless sudo
+passwd darren          # set a password first — sudo is NOT passwordless
 ```
 
 Make it reusable by adding `~/.ssh/config`:
 
 ```
-Host fitness-node
+Host app-node
   HostName <lan-ip-or-tailscale-name>
   User darren
   IdentityFile ~/.ssh/home-k8s
@@ -128,10 +135,11 @@ Host fitness-node
 ### 4. Join Tailscale — *first SSH session on the VM*
 
 ```bash
-sudo tailscale up        # prints an auth URL; approve once
+passwd darren          # required — sudo prompts for this
+sudo tailscale up      # prints an auth URL; approve once
 ```
 
-After that, `ssh darren@fitness-node` works from anywhere via MagicDNS, and
+After that, `ssh darren@app-node` works from anywhere via MagicDNS, and
 steps 6–8 of "First-time setup" (clone repo, secrets, app) apply as normal.
 
 > The built image is not automatically rebuilt when you change the flake —
@@ -181,7 +189,7 @@ NixOS minimal ISO (install medium)
 ```bash
 ssh-keygen -t ed25519 -C "home-k8s" -f ~/.ssh/home-k8s
 cat ~/.ssh/home-k8s.pub
-# Paste the output into hosts/fitness-node/default.nix
+# Paste the output into hosts/app-node/default.nix
 ```
 
 ### 3. Generate age key + add to .sops.yaml — *dev machine*
@@ -196,54 +204,85 @@ cat ~/.config/sops/age/keys.txt | grep "public key:"
 
 ```bash
 # Boot from NixOS minimal ISO, then:
-sudo nixos-install --flake github:darrenmeehan/nix-config#fitness-node
+sudo nixos-install --flake github:darrenmeehan/nix-config#app-node
 ```
 
-> This flake does **not** expose a `system.build.iso` for fitness-node — if
+> This flake does **not** expose a `system.build.iso` for app-node — if
 > you'd rather skip the ISO dance entirely, use the prebuilt Proxmox image
 > flow in "Alternative: deploy from a built Proxmox image" above instead.
 
-### 5. Authenticate Tailscale — *VM*
+### 5. Set a password, then authenticate Tailscale — *VM*
 
 ```bash
-ssh -i ~/.ssh/home-k8s darren@<vm-ip>
-sudo tailscale up
+passwd darren          # ← REQUIRED: sudo won't work until a password is set
+sudo tailscale up      # prompts for the password you just set
 # Follow the URL to authenticate
 ```
 
-### 6. Clone this repo + secrets — *VM*
+> **Why `passwd` first:** the image creates `darren` with **no password** and
+> **no NOPASSWD sudo** (removed deliberately). SSH is key-only, but `sudo`
+> needs a password — set one before any `sudo`.
 
-If you generated the age key on your dev machine (step 3), copy it to the VM
-first — `setup-secrets.sh` reads it locally:
+### 6. Confirm the baked kubectl fix — *VM*
 
 ```bash
-ssh -i ~/.ssh/home-k8s darren@<vm-ip> 'mkdir -p ~/.config/sops/age'
-scp -i ~/.ssh/home-k8s ~/.config/sops/age/keys.txt darren@<vm-ip>:~/.config/sops/age/keys.txt
+kubectl get nodes      # should list app-node — no sudo needed
 ```
 
+The image ships a systemd unit that copies k3s's admin kubeconfig to
+`/home/darren/.kube/config` after k3s starts, so the plain `kubectl` works
+for `darren`. If it errors, k3s may still be starting — check `systemctl
+status k3s` and retry.
+
+### 7. Clone this repo + secrets — *VM*
+
 ```bash
-sudo git clone https://github.com/darrenmeehan/nix-config /opt/nix-config
-cd /opt/nix-config
+sudo install -d -o darren -g darren /opt/nix-config
+cd /opt/nix-config && git clone https://github.com/darrenmeehan/nix-config /opt/nix-config
+```
+
+(If the clone hangs, the repo is private — use `git@github.com:darrenmeehan/nix-config` with an SSH key added on GitHub.)
+
+Generate an age key and put its public key into `.sops.yaml` (the repo copy
+still has a placeholder):
+
+```bash
+mkdir -p ~/.config/sops/age
+age-keygen -o ~/.config/sops/age/keys.txt
+grep "public key" ~/.config/sops/age/keys.txt   # copy the age1... line
+# Edit .sops.yaml: replace age1your-public-key-here-replace-this with yours,
+# then commit that change (the pubkey is safe to commit; keys.txt is NOT).
+```
+
+### 8. Deploy the app — *VM*
+
+```bash
+# secrets (prompts for Anthropic + Resend API keys)
 ./scripts/setup-secrets.sh
-```
 
-### 7. Clone + build the fitness app — *VM*
-
-```bash
-sudo git clone https://github.com/darrenmeehan/curam-fitness /opt/curam/fitness
-./scripts/build-app.sh /opt/curam/fitness
-```
-
-### 8. Deploy — *VM*
-
-```bash
+# cluster resources + the secret
 kubectl apply -k manifests/curam-fitness/
+sops --decrypt secrets/curam-secrets.enc.yaml | kubectl apply -f -
+
+# app image
+sudo git clone git@github.com:darrenmeehan/curam-fitness /opt/curam/fitness
+cd /opt/curam/fitness
+/opt/nix-config/scripts/build-app.sh /opt/curam/fitness   # sudo prompts → your password
+kubectl -n curam-fitness rollout restart deployment/backend
+kubectl -n curam-fitness get pods -w
 ```
 
-### 9. Access from phone
+### 9. Verify — *VM*
+
+```bash
+kubectl -n curam-fitness get pods          # all Running/Ready
+curl -s http://localhost:8080/api/health   # {"database":"connected",...}
+```
+
+### 10. Access from phone
 
 Install Tailscale, log in with the same account.
-Open `http://fitness-node/` (HTTPS via Tailscale magic).
+Open `http://app-node/` (HTTPS via Tailscale magic).
 
 ## Backup strategy
 
@@ -251,7 +290,7 @@ Open `http://fitness-node/` (HTTPS via Tailscale magic).
 
 | Data | Method | Frequency | Location |
 | --- | --- | --- | --- |
-| Postgres | `pg_dump` via CronJob | Weekly (Sun 3am) | `/var/backups/curam/` on VM |
+| Postgres | `pg_dump` via CronJob | Weekly (Sun 3am) | `/var/backups/app/` on VM |
 | k3s cluster state | Built-in snapshot | Every 12h | `/var/lib/rancher/k3s/server/db/snapshots/` |
 
 ### Options for database backups
@@ -306,7 +345,7 @@ git push
 
 # On the VM:
 cd /opt/nix-config && git pull
-sudo nixos-rebuild switch --flake /opt/nix-config#fitness-node
+sudo nixos-rebuild switch --flake /opt/nix-config#app-node
 ```
 
 ## Updating an app — *VM*
