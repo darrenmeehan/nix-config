@@ -1,0 +1,232 @@
+{
+  config,
+  outputs,
+  pkgs,
+  ...
+}:
+
+let
+  homepageDashboard = import ../common/homepage-dashboard.nix { };
+in
+{
+  imports = [
+    ../../modules
+    ../common
+    ./backups.nix
+    ./hardware-configuration.nix
+  ];
+
+  nixpkgs = {
+    overlays = [
+      # Allow unstable packages at unstable.<package>
+      outputs.overlays.unstable-packages
+      # Allow pinned packages at pinned.<package>
+      outputs.overlays.pinned-packages
+    ];
+    config = {
+      allowUnfree = true;
+    };
+  };
+
+  # Bootloader
+  boot = {
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+    };
+  };
+
+  # Filesystem support
+  boot = {
+    supportedFilesystems = [
+      "ntfs"
+      "zfs"
+    ];
+    zfs.forceImportRoot = false; # Recommended setting
+  };
+  services.zfs.autoScrub = {
+    enable = true;
+    interval = "*-*-1,15 04:00:00"; # 1st and 15th of every month at 4am
+  };
+
+  # Networking
+  networking = {
+    hostName = "opx7070";
+    networkmanager.enable = true;
+    # Required for ZFS
+    hostId = "6b3f7344"; # `head -c4 /dev/urandom | od -A none -t x4`
+  };
+
+  # Run unpatched dynamic binaries
+  programs.nix-ld.enable = true;
+
+  # Modules
+  modules = {
+    desktops.xfce.enable = true;
+    secrets.sops-nix.enable = true;
+    services = {
+      avahi.enable = true;
+      chrony = {
+        enable = true;
+        # Enable server functionality and allow access from local network
+        extraConfig = "allow 192.168.0.0/16";
+      };
+      freshrss = {
+        enable = true;
+        authType = "form";
+        inherit (config.custom) defaultUser;
+        extensions = with pkgs.unstable.freshrss-extensions; [
+          reading-time
+          title-wrap
+          youtube
+        ];
+        passwordFile = config.sops.secrets."freshrss/password".path;
+        webserver = "caddy";
+        # TODO - Remove `http://` from virtualHost when certs are setup
+        virtualHost = "http://freshrss.${config.custom.internalDomain}";
+        baseUrl = "http://freshrss.${config.custom.internalDomain}";
+      };
+      gatus = {
+        enable = true;
+        openFirewall = true;
+        package = pkgs.unstable.gatus;
+        configFile = config.sops.secrets."gatus".path;
+      };
+      glances.enable = true;
+      home-assistant = {
+        enable = true;
+        extraOptions = [
+          "--network=host"
+          "--dns=9.9.9.9" # WORKAROUND - HA can start before DNS is up on boot
+        ];
+        image = config.custom.images.homeAssistant;
+      };
+      music-assistant = {
+        enable = true;
+        openFirewall = true;
+        environmentFiles = [ config.sops.secrets."music_assistant_env".path ];
+        providers = [
+          "airplay"
+          "chromecast"
+          "dlna"
+          "hass"
+          "hass_players"
+          "radiobrowser"
+          "spotify"
+          "spotify_connect"
+          "squeezelite"
+        ];
+      };
+      mosquitto.enable = true;
+      zigbee2mqtt = {
+        enable = true;
+        package = pkgs.pinned.zigbee2mqtt;
+      };
+      esphome.enable = true;
+      homepage-dashboard = {
+        enable = true;
+        environmentFiles = [ config.sops.secrets."homepage_env".path ];
+        # See Reverse Proxy setup below
+        allowedHosts = "${config.custom.internalDomain}";
+        inherit (homepageDashboard) bookmarks;
+        inherit (homepageDashboard) settings;
+        inherit (homepageDashboard) services;
+        inherit (homepageDashboard) widgets;
+      };
+      podman = {
+        enable = true;
+        autoPrune = true;
+      };
+      slimserver = {
+        enable = false;
+        package = pkgs.unstable.slimserver;
+      };
+      ssh.enable = true;
+      tailscale = {
+        enable = true;
+        enableDNS = false;
+      };
+      vikunja = {
+        enable = true;
+      };
+    };
+    system = {
+      autoUpgrade = {
+        enable = true;
+        flake = "github:timhourigan/nix-config";
+      };
+      gc.enable = true;
+      optimise.enable = true;
+    };
+  };
+
+  # Secrets
+  sops = {
+    secrets = {
+      "freshrss/password" = {
+        owner = "freshrss";
+      };
+      gatus = { };
+      homepage_env = { };
+      music_assistant_env = { };
+      "mqtt/valetudo/larry/password" = { };
+      "mqtt/valetudo/harry/password" = { };
+    };
+  };
+
+  # Reverse Proxy
+  # TODO
+  # - Add `443` When certs are setup
+  # - Remove `http://` from virtualHosts when certs are setup
+  networking.firewall.allowedTCPPorts = [ 80 ];
+  services.caddy = {
+    enable = true;
+    virtualHosts = {
+      # ESPHome
+      "http://esphome.${config.custom.internalDomain}" = {
+        extraConfig = ''
+          reverse_proxy :${toString config.modules.services.esphome.port}
+        '';
+      };
+      # FreshRSS - Module has builtin configuration
+      # Gatus
+      "http://gatus.${config.custom.internalDomain}" = {
+        extraConfig = ''
+          reverse_proxy :${toString config.modules.services.gatus.port}
+        '';
+      };
+      # Home Assistant
+      "http://ha.${config.custom.internalDomain}" = {
+        extraConfig = ''
+          reverse_proxy :${toString config.modules.services.home-assistant.port}
+        '';
+      };
+      # Homepage
+      "http://${config.custom.internalDomain}" = {
+        extraConfig = ''
+          reverse_proxy :${toString config.modules.services.homepage-dashboard.listenPort}
+        '';
+      };
+      # Vikunja
+      "http://vikunja.${config.custom.internalDomain}" = {
+        extraConfig = ''
+          reverse_proxy :${toString config.modules.services.vikunja.port}
+        '';
+      };
+      "http://kanban.${config.custom.internalDomain}" = {
+        extraConfig = ''
+          reverse_proxy :${toString config.modules.services.vikunja.port}
+        '';
+      };
+      # zigbee2mqtt
+      "http://z2m.${config.custom.internalDomain}" = {
+        extraConfig = ''
+          reverse_proxy :${toString config.modules.services.zigbee2mqtt.port}
+        '';
+      };
+    };
+  };
+
+  # Release version of first install
+  system.stateVersion = "24.05";
+}

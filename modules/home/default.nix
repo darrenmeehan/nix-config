@@ -1,0 +1,38 @@
+{ ... }:
+
+{
+  imports = [
+    ./alacritty
+    ./atuin
+    ./autojump
+    ./awscli
+    ./bash
+    ./chromium
+    ./claude-code
+    ./copilot-cli
+    ./delta
+    ./direnv
+    ./distrobox
+    ./firefox
+    ./fzf
+    ./gh
+    ./ghostty
+    ./granted
+    ./git
+    ./mise
+    ./neovim
+    ./obs-studio
+    ./opencode
+    ./polybar
+    ./pyenv
+    ./rofi
+    ./ruff
+    ./ssh
+    ./starship
+    ./tenv
+    ./tmux
+    ./uv
+    ./vscode
+    ./zsh
+  ];
+}
