@@ -34,7 +34,10 @@ read -r ANTHROPIC_API_KEY
 echo "Enter RESEND_API_KEY (optional, for emails):"
 read -r RESEND_API_KEY
 
-cat >/tmp/curam-secrets.yaml <<EOF
+# Temp file lives in secrets/ so it matches the creation rules in .sops.yaml
+# (path_regex: secrets/.*\.yaml) — a /tmp path never matches and sops refuses.
+TMP_FILE="secrets/.tmp-curam-secrets.yaml"
+cat >"$TMP_FILE" <<EOF
 apiVersion: v1
 kind: Secret
 metadata:
@@ -52,8 +55,8 @@ stringData:
 EOF
 
 echo "==> Encrypting with sops"
-sops --encrypt /tmp/curam-secrets.yaml >"$SECRETS_FILE"
-rm /tmp/curam-secrets.yaml
+sops --encrypt "$TMP_FILE" >"$SECRETS_FILE"
+rm "$TMP_FILE"
 
 echo "✅ Encrypted secrets written to $SECRETS_FILE"
 echo ""
