@@ -4,11 +4,33 @@
 {
   programs.ssh = {
     enable = true;
+    # HM master deprecates its auto-generated defaults — own them explicitly
+    # (same values it generated, so behavior is unchanged, warning silenced).
+    enableDefaultConfig = false;
     settings = {
+      "*" = {
+        AddKeysToAgent = "no";
+        Compression = false;
+        ControlMaster = "no";
+        ControlPath = "~/.ssh/master-%r@%n:%p";
+        ControlPersist = "no";
+        ForwardAgent = false;
+        HashKnownHosts = false;
+        ServerAliveCountMax = 3;
+        ServerAliveInterval = 0;
+        UserKnownHostsFile = "~/.ssh/known_hosts";
+      };
       # Proxmox hypervisor
       pve = {
         HostName = "192.168.68.108";
         User = "root";
+      };
+      # app-node k3s VM — switch HostName to MagicDNS `app-node` once it has
+      # joined Tailscale; LAN IP can churn.
+      app-node = {
+        HostName = "192.168.68.139";
+        User = "darren";
+        IdentityFile = "~/.ssh/home-k8s";
       };
     };
   };
