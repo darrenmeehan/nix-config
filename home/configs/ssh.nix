@@ -10,6 +10,13 @@
         HostName = "192.168.68.108";
         User = "root";
       };
+      # app-node k3s VM — update HostName to its current LAN IP (DHCP churn)
+      # or to MagicDNS `app-node` once the VM has joined Tailscale.
+      app-node = {
+        HostName = "192.168.68.139";
+        User = "darren";
+        IdentityFile = "~/.ssh/home-k8s";
+      };
     };
   };
 }

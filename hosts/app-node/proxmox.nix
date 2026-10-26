@@ -23,7 +23,7 @@
       bios = "seabios";
       cores = 2;
       memory = 4096;
-      net0 = "virtio=00:00:00:00:00:00,bridge=vmbr0,firewall=1";
+      net0 = "virtio=02:00:00:00:00:02,bridge=vmbr0,firewall=1";
       additionalSpace = "10G";
       agent = true; # 2026 nixpkgs wants a bool, not "1"
       bootSize = "512M";
