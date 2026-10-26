@@ -14,4 +14,4 @@
 
 creation_rules:
   - path_regex: secrets/.*\.yaml
-    age: age1your-public-key-here-replace-this
+    age: age1qzn3ckgye9gas8egt25aml96xg59nccvvjwlc99t3rv9jh6fx4hq0lq672

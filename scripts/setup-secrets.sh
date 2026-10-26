@@ -12,15 +12,32 @@ set -euo pipefail
 SECRETS_FILE="secrets/curam-secrets.enc.yaml"
 
 if [ -f "$SECRETS_FILE" ]; then
-  echo "♻️  Secrets file exists. Regenerate? [y/N]"
-  read -r ans
-  if [ "$ans" != "y" ]; then
-    echo "Aborting."
-    exit 0
-  fi
+    echo "♻️  Secrets file exists. Regenerate? [y/N]"
+    read -r ans
+    if [ "$ans" != "y" ]; then
+        echo "Aborting."
+        exit 0
+    fi
 fi
 
 echo "==> Generating secrets"
+
+# Self-heal .sops.yaml: swap the placeholder age key for ours, so sops doesn't
+# fail with "malformed recipient"/"no matching creation rules" (the repo ships
+# with a dummy key on purpose; the real pubkey is safe to commit).
+AGE_KEY="$HOME/.config/sops/age/keys.txt"
+if [ ! -f "$AGE_KEY" ]; then
+    echo "❌ No age key at $AGE_KEY — generate one: age-keygen -o $AGE_KEY"
+    exit 1
+fi
+AGE_PUB=$(age-keygen -y "$AGE_KEY")
+if grep -q "age1your-public-key-here-replace-this" .sops.yaml; then
+    sed -i "s|age1your-public-key-here-replace-this|$AGE_PUB|" .sops.yaml
+    echo "==> .sops.yaml: placeholder replaced with your age key (safe to commit)"
+elif ! grep -q "$AGE_PUB" .sops.yaml; then
+    echo "❌ .sops.yaml doesn't list your age key ($AGE_PUB) — add it to creation_rules age:"
+    exit 1
+fi
 
 DB_PASSWORD=$(openssl rand -hex 32)
 JWT_SECRET=$(openssl rand -hex 64)
@@ -34,7 +51,10 @@ read -r ANTHROPIC_API_KEY
 echo "Enter RESEND_API_KEY (optional, for emails):"
 read -r RESEND_API_KEY
 
-cat >/tmp/curam-secrets.yaml <<EOF
+# Temp file lives in secrets/ so it matches the creation rules in .sops.yaml
+# (path_regex: secrets/.*\.yaml) — a /tmp path never matches and sops refuses.
+TMP_FILE="secrets/.tmp-curam-secrets.yaml"
+cat >"$TMP_FILE" <<EOF
 apiVersion: v1
 kind: Secret
 metadata:
@@ -52,8 +72,8 @@ stringData:
 EOF
 
 echo "==> Encrypting with sops"
-sops --encrypt /tmp/curam-secrets.yaml >"$SECRETS_FILE"
-rm /tmp/curam-secrets.yaml
+sops --encrypt "$TMP_FILE" >"$SECRETS_FILE"
+rm "$TMP_FILE"
 
 echo "✅ Encrypted secrets written to $SECRETS_FILE"
 echo ""
