@@ -131,25 +131,30 @@ Once authenticated, you can reach the VM from any device:
 
 ---
 
-## Step 7 — Clone the repos + deploy
+## Step 7 — Clone the repos, copy the age key, deploy
 
 ```bash
-sudo git clone https://github.com/darrenmeehan/nix-config /opt/nix-config
-cd /opt/nix-config
+sudo install -d -o darren -g users /opt/nix-config
+cd /opt/nix-config && git clone https://github.com/darrenmeehan/nix-config /opt/nix-config
 
-# Generate + encrypt secrets (asks for API keys)
-./scripts/setup-secrets.sh
+# Copy your existing age key — the committed secrets are encrypted to it:
+mkdir -p ~/.config/sops/age
+#   from your dev machine: scp ~/.config/sops/age/keys.txt app-node:~/.config/sops/age/keys.txt
+#   Do NOT generate a new key on the VM — it can't decrypt the committed secrets.
 
-# Build the fitness app image
+# App repo + full deploy (manifests + decrypted secrets + image + rollout):
 sudo git clone https://github.com/darrenmeehan/curam-fitness /opt/curam/fitness
-./scripts/build-app.sh /opt/curam/fitness
-
-# Deploy
-kubectl apply -k manifests/curam-fitness/
+/opt/nix-config/scripts/deploy-app.sh
 
 # Watch it come up
 kubectl -n curam-fitness get pods -w
 ```
+
+> Secrets live in the repo as `secrets/curam-secrets.enc.yaml` (sops-encrypted,
+> safe to commit). Regenerate/rotate them on your **dev machine** with
+> `./scripts/setup-secrets.sh`, commit + push, then `git pull` on the VM.
+> Running the generator on the VM instead rotates the DB password out of sync
+> with git and breaks the deployed database.
 
 ---
 

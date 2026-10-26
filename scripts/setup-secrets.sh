@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# One-time: generate secrets, encrypt with sops.
+# Generate + sops-encrypt the k8s secrets. Run on your DEV machine — the
+# resulting secrets/curam-secrets.enc.yaml is committed to git; VMs only ever
+# decrypt it (they copy the age key and deploy). Re-run to rotate API keys.
 # Usage: ./scripts/setup-secrets.sh
 #
 # Prerequisites:
 #   - sops installed
-#   - age key at ~/.config/sops/age/keys.txt
-#   - Public key copied to .sops.yaml
+#   - age key at ~/.config/sops/age/keys.txt (yours — created when you set up sops)
+#   - Public key already in .sops.yaml (this script replaces the placeholder)
 
 set -euo pipefail
 
@@ -27,7 +29,15 @@ echo "==> Generating secrets"
 # with a dummy key on purpose; the real pubkey is safe to commit).
 AGE_KEY="$HOME/.config/sops/age/keys.txt"
 if [ ! -f "$AGE_KEY" ]; then
-    echo "❌ No age key at $AGE_KEY — generate one: age-keygen -o $AGE_KEY"
+    echo "❌ No age key at $AGE_KEY"
+    echo ""
+    echo "   Copy YOUR existing key from the machine where you first set up sops:"
+    echo "   "
+    echo "     mkdir -p ~/.config/sops/age"
+    echo "     scp ~/.config/sops/age/keys.txt <dev-machine>:$HOME/.config/sops/age/keys.txt"
+    echo ""
+    echo "   Do NOT generate a new key here — the committed secrets are encrypted"
+    echo "   with the original key, and a new one cannot decrypt them."
     exit 1
 fi
 AGE_PUB=$(age-keygen -y "$AGE_KEY")

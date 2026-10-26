@@ -120,7 +120,7 @@ is reachable on its LAN IP (listed on the Proxmox summary; DHCP on `vmbr0`):
 
 ```bash
 ssh -i ~/.ssh/home-k8s darren@<lan-ip>
-passwd darren          # set a password first — sudo is NOT passwordless
+passwd darren          # current password = the baked bootstrap one → set your own
 ```
 
 Make it reusable by adding `~/.ssh/config`:
@@ -149,15 +149,16 @@ steps 6–8 of "First-time setup" (clone repo, secrets, app) apply as normal.
 
 ## The bash scripts — what they do
 
-### `scripts/setup-secrets.sh` (run once, first deploy) — **run on the VM**
+### `scripts/setup-secrets.sh` (when creating/rotating secrets) — **run on your DEV machine**
 
-One-time setup. Generates random passwords for the database, JWT signing,
-and webhook signing. Prompts for the Anthropic API key (AI coaching) and
-Resend API key (emails, optional). Assembles them into a k8s Secret YAML,
-then encrypts it with `sops` using your age key. The encrypted file
-(`secrets/curam-secrets.enc.yaml`) is safe to commit to git.
+Run once when first setting up (or later, to rotate API keys): generates
+random passwords for the database, JWT signing and webhook signing, prompts
+for the Anthropic API key (AI coaching) and Resend API key (emails,
+optional), assembles them into a k8s Secret YAML and sops-encrypts it. The
+encrypted file (`secrets/curam-secrets.enc.yaml`) is safe to commit.
 
-Does NOT touch the running cluster. Output is a file.
+VMs never run this — they just copy the age key and deploy (the encrypted
+secrets come down with the repo).
 
 ### `scripts/build-app.sh` (run every time you update the app) — **run on the VM**
 
@@ -237,14 +238,14 @@ sudo nixos-install --flake github:darrenmeehan/nix-config#app-node
 ### 5. Set a password, then authenticate Tailscale — *VM*
 
 ```bash
-passwd darren          # ← REQUIRED: sudo won't work until a password is set
-sudo tailscale up      # prompts for the password you just set
-# Follow the URL to authenticate
+passwd darren          # current password = the baked bootstrap one → set your own
+sudo tailscale up      # prompts for the password you just set; follow the URL
 ```
 
-> **Why `passwd` first:** the image creates `darren` with **no password** and
-> **no NOPASSWD sudo** (removed deliberately). SSH is key-only, but `sudo`
-> needs a password — set one before any `sudo`.
+> The image bakes a bootstrap password (`initialPassword` in
+> `hosts/app-node/default.nix`) so the first `passwd` can authenticate — but
+> it sits in git, so change it now. `sudo` has **no** NOPASSWD rule: it always
+> needs your password.
 
 ### 6. Confirm the baked kubectl fix — *VM*
 
@@ -257,43 +258,45 @@ The image ships a systemd unit that copies k3s's admin kubeconfig to
 for `darren`. If it errors, k3s may still be starting — check `systemctl
 status k3s` and retry.
 
-### 7. Clone this repo + secrets — *VM*
+### 7. Clone the repo + copy the age key — *VM*
 
 ```bash
-sudo install -d -o darren -g darren /opt/nix-config
+sudo install -d -o darren -g users /opt/nix-config   # /opt is root-owned; dir must be yours
 cd /opt/nix-config && git clone https://github.com/darrenmeehan/nix-config /opt/nix-config
 ```
 
-(If the repo is private, https will prompt for credentials — use a GitHub personal access token (PAT) as the password.)
+(If the repo is private, https will prompt for credentials — use a GitHub
+personal access token (PAT) as the password.)
 
-Generate an age key and put its public key into `.sops.yaml` (the repo copy
-still has a placeholder):
+Then copy your age key to the VM — **once**. The secrets are already in the
+repo as `secrets/curam-secrets.enc.yaml` (sops-encrypted); the VM only needs
+the key to *decrypt* them during deploy:
 
 ```bash
+# on the VM:
 mkdir -p ~/.config/sops/age
-age-keygen -o ~/.config/sops/age/keys.txt
-grep "public key" ~/.config/sops/age/keys.txt   # copy the age1... line
-# Edit .sops.yaml: replace age1your-public-key-here-replace-this with yours,
-# then commit that change (the pubkey is safe to commit; keys.txt is NOT).
+# from your DEV machine:
+scp ~/.config/sops/age/keys.txt app-node:~/.config/sops/age/keys.txt
 ```
+
+> Don't generate a new key on the VM and don't edit `.sops.yaml` there — the
+> committed secrets were encrypted with the key from step 3; a different key
+> can't decrypt them.
 
 ### 8. Deploy the app — *VM*
 
 ```bash
-# secrets (prompts for Anthropic + Resend API keys)
-./scripts/setup-secrets.sh
-
-# cluster resources + the secret
-kubectl apply -k manifests/curam-fitness/
-sops --decrypt secrets/curam-secrets.enc.yaml | kubectl apply -f -
-
-# app image
 sudo git clone https://github.com/darrenmeehan/curam-fitness /opt/curam/fitness
-cd /opt/curam/fitness
-/opt/nix-config/scripts/build-app.sh /opt/curam/fitness   # sudo prompts → your password
-kubectl -n curam-fitness rollout restart deployment/backend
-kubectl -n curam-fitness get pods -w
+cd /opt/nix-config
+./scripts/deploy-app.sh   # rebuilds config, applies manifests + decrypted secrets,
+                          # builds the image, restarts the backend (first build is slow)
 ```
+
+> Regenerating secrets is a **dev-machine** task (new API keys, etc.): run
+> `./scripts/setup-secrets.sh` there, commit the new
+> `secrets/curam-secrets.enc.yaml`, push, then `git pull` on the VM.
+> Re-running the generator on the VM rotates the DB password without touching
+> git and breaks the deployed database.
 
 ### 9. Verify — *VM*
 
