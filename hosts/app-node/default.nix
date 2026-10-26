@@ -41,8 +41,9 @@
     maxretry = 3;
     bantime = "1h";
     ignoreIP = [
-      "10.0.0.0/8"   # Proxmox LAN
-      "100.64.0.0/10" # Tailscale
+      "10.0.0.0/8"      # Proxmox LAN
+      "100.64.0.0/10"   # Tailscale
+      "192.168.68.0/24" # home LAN — don't lock out trusted hosts over typo'd auths
     ];
   };
 
