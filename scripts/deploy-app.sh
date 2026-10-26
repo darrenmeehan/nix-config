@@ -15,7 +15,7 @@ FLake_REF="app-node" # the host this script deploys to
 
 if [ ! -d "$APP_DIR" ]; then
     echo "❌ App repo not found at $APP_DIR — clone it first:"
-    echo "   sudo git clone git@github.com:darrenmeehan/curam-fitness $APP_DIR"
+    echo "   sudo git clone https://github.com/darrenmeehan/curam-fitness $APP_DIR"
     exit 1
 fi
 if [ ! -f "$NIX_CONFIG/secrets/curam-secrets.enc.yaml" ]; then

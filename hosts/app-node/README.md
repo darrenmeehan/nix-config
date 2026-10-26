@@ -264,7 +264,7 @@ sudo install -d -o darren -g darren /opt/nix-config
 cd /opt/nix-config && git clone https://github.com/darrenmeehan/nix-config /opt/nix-config
 ```
 
-(If the clone hangs, the repo is private — use `git@github.com:darrenmeehan/nix-config` with an SSH key added on GitHub.)
+(If the repo is private, https will prompt for credentials — use a GitHub personal access token (PAT) as the password.)
 
 Generate an age key and put its public key into `.sops.yaml` (the repo copy
 still has a placeholder):
@@ -288,7 +288,7 @@ kubectl apply -k manifests/curam-fitness/
 sops --decrypt secrets/curam-secrets.enc.yaml | kubectl apply -f -
 
 # app image
-sudo git clone git@github.com:darrenmeehan/curam-fitness /opt/curam/fitness
+sudo git clone https://github.com/darrenmeehan/curam-fitness /opt/curam/fitness
 cd /opt/curam/fitness
 /opt/nix-config/scripts/build-app.sh /opt/curam/fitness   # sudo prompts → your password
 kubectl -n curam-fitness rollout restart deployment/backend
