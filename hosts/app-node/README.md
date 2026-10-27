@@ -409,10 +409,20 @@ is added. sops-nix is wired in via the flake input and decrypts to
 
    ```bash
    sops secrets/hevy-env.yaml
-   # HEVY_API_KEY=<from hevy.com/settings>
-   # GARMIN_EMAIL=<garmin login>
-   # GARMIN_PASSWORD=<garmin password>
    ```
+
+   The file must have **one top-level key named exactly `hevy-env`** (sops-nix
+   looks secrets up by that name), whose value is the env-file block:
+
+   ```yaml
+   hevy-env: |
+     HEVY_API_KEY=<from hevy.com/settings>
+     GARMIN_EMAIL=<garmin login>
+     GARMIN_PASSWORD=<garmin password>
+   ```
+
+   The decrypted block is written verbatim to `/run/secrets/hevy-env`, which is
+   exactly the `EnvironmentFile` format the timer service reads.
 
 3. **Age key on the VM** — already needed for curam secrets (step 7 above);
    `sops.age.keyFile` points at `/home/darren/.config/sops/age/keys.txt`.
