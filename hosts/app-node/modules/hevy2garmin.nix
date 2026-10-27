@@ -31,6 +31,13 @@ in
 lib.mkIf (builtins.pathExists ../../../secrets/hevy-env.yaml) {
   sops.age.keyFile = "/home/${serviceUser}/.config/sops/age/keys.txt";
 
+  # WorkingDirectory must exist before the unit starts; declare it so a fresh
+  # box or reboot doesn't hit CHDIR failures (git clone cannot create it —
+  # systemd chdir's before ExecStart runs).
+  systemd.tmpfiles.rules = [
+    "d ${checkoutDir} 0755 ${serviceUser} ${serviceGroup} -"
+  ];
+
   sops.secrets.hevy-env = {
     sopsFile = ../../../secrets/hevy-env.yaml;
     owner = serviceUser;
