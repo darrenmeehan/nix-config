@@ -14,6 +14,10 @@
   # hosts/rocinante. Without this the fresh VM boots with no IP.
   networking.networkmanager.enable = true;
 
+  # This box uses NetworkManager, not networkd — the default networkd wait-online
+  # unit times out on every switch and makes `nixos-rebuild switch` exit 4.
+  systemd.network.wait-online.enable = false;
+
   # ── Firewall ─────────────────────────────────────────────────────────────
   # Tailscale handles external access (encrypted WireGuard tunnel).
   # Tailscale's virtual interface (tailscale0) is trusted — all other interfaces

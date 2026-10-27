@@ -49,7 +49,7 @@ lib.mkIf (builtins.pathExists ../../../secrets/hevy-env.yaml) {
     description = "Sync Hevy workouts to Garmin Connect";
     after = [ "network-online.target" "sops-nix.service" ];
     wants = [ "network-online.target" ];
-    path = [ pkgs.git pkgs.uv pkgs.python313 ];
+    path = [ pkgs.git pkgs.uv pkgs.python313 pkgs.openssh ]; # openssh: git clone over ssh needs the ssh binary in PATH
     serviceConfig = {
       Type = "oneshot";
       User = serviceUser;
