@@ -10,6 +10,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Declarative secrets at /run/secrets (hevy sync on app-node, future use)
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs: {
@@ -70,6 +76,7 @@
         system = "x86_64-linux";
         modules = [
           ./hosts/app-node
+          inputs.sops-nix.nixosModules.sops
           "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
           ./hosts/app-node/proxmox.nix
         ];

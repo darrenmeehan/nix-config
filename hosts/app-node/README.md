@@ -385,3 +385,54 @@ kubectl -n curam-fitness rollout restart deploy/backend
 # or the whole OS+app deploy in one go:
 # /opt/nix-config/scripts/deploy-app.sh
 ```
+
+## Hevy → Garmin sync (hevy2garmin)
+
+Every-2h workout sync from Hevy to Garmin Connect. Declared in
+`modules/hevy2garmin.nix` as a systemd timer (not crontab) — declarative,
+journald logs, `Persistent=true` catch-up. It runs the fitness repo's
+`uv run hevy2garmin sync` as the `darren` user from `/srv/fitness`.
+
+The module is **gated on `secrets/hevy-env.yaml` existing** — committing it
+alone doesn't affect `deploy-app.sh`; the timer only appears once the secret
+is added. sops-nix is wired in via the flake input and decrypts to
+`/run/secrets/hevy-env`.
+
+### One-time bootstrap
+
+1. **Fitness repo on GitHub** — the timer `git clone`s/`git pull`s
+   `git@github.com:darrenmeehan/fitness.git` into `/srv/fitness` (first run,
+   with `git clone`; afterwards a non-fatal `--ff-only` pull). Create the
+   (private) repo, push `~/code/fitness`, and give the box read access via an
+   SSH deploy key or PAT for the `darren` account.
+2. **Secrets** — dev machine:
+
+   ```bash
+   sops secrets/hevy-env.yaml
+   # HEVY_API_KEY=<from hevy.com/settings>
+   # GARMIN_EMAIL=<garmin login>
+   # GARMIN_PASSWORD=<garmin password>
+   ```
+
+3. **Age key on the VM** — already needed for curam secrets (step 7 above);
+   `sops.age.keyFile` points at `/home/darren/.config/sops/age/keys.txt`.
+4. **Tokens + sync state from the dev machine** — once:
+
+   ```bash
+   scp -r ~/.garminconnect app-node:~/
+   scp -r ~/.hevy2garmin app-node:~/
+   ```
+
+   `~/.hevy2garmin/sync.db` is the dedup DB — a fresh one would re-upload
+   already-synced workouts as Garmin duplicates. The Garmin tokens
+   auto-refresh; when they eventually stop (sync fails with `MFA Required`
+   in `journalctl -u hevy2garmin-sync`), ssh in and run
+   `uv run garmin-auth login` once.
+
+### Deploy + verify
+
+```bash
+make deploy-app-node            # or: cd /opt/nix-config && git pull && sudo nixos-rebuild switch --flake /opt/nix-config#app-node
+ssh darren@app-node systemctl list-timers hevy2garmin-sync.timer
+ssh darren@app-node journalctl -u hevy2garmin-sync -e
+```

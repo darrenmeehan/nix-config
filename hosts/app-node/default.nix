@@ -5,6 +5,7 @@
     ./hardware-configuration.nix
     ./modules/tailscale-serve.nix
     ./modules/docker.nix
+    ./modules/hevy2garmin.nix # Hevy → Garmin sync timer (gated on secrets/hevy-env.yaml)
   ];
 
   system.stateVersion = "26.05";
@@ -20,8 +21,8 @@
   networking.firewall.enable = true;
   networking.firewall.trustedInterfaces = [ "tailscale0" ];
   networking.firewall.allowedTCPPorts = [
-    22    # SSH
-    6443  # k3s API (accessed via Tailscale)
+    22 # SSH
+    6443 # k3s API (accessed via Tailscale)
   ];
   networking.firewall.allowedUDPPorts = [ ];
   networking.firewall.allowPing = false;
@@ -41,8 +42,8 @@
     maxretry = 3;
     bantime = "1h";
     ignoreIP = [
-      "10.0.0.0/8"      # Proxmox LAN
-      "100.64.0.0/10"   # Tailscale
+      "10.0.0.0/8" # Proxmox LAN
+      "100.64.0.0/10" # Tailscale
       "192.168.68.0/24" # home LAN — don't lock out trusted hosts over typo'd auths
     ];
   };
@@ -62,7 +63,7 @@
       ClientAliveInterval = 300;
       ClientAliveCountMax = 2;
     };
-    startWhenNeeded = true;  # socket-activated, not always running
+    startWhenNeeded = true; # socket-activated, not always running
   };
 
   # ── User ─────────────────────────────────────────────────────────────────
@@ -118,8 +119,10 @@
       "--disable=traefik"
       "--disable=servicelb"
       # Bind the k8s control-plane components to loopback, never the network
-      "--kube-controller-manager-arg" "bind-address=127.0.0.1"
-      "--kube-scheduler-arg" "bind-address=127.0.0.1"
+      "--kube-controller-manager-arg"
+      "bind-address=127.0.0.1"
+      "--kube-scheduler-arg"
+      "bind-address=127.0.0.1"
     ];
   };
 
@@ -189,7 +192,7 @@
     vim
     k9s
     kubectl
-    k3s      # CLI used by scripts/build-app.sh (`k3s ctr images import`)
+    k3s # CLI used by scripts/build-app.sh (`k3s ctr images import`)
     sops
     age
     htop
