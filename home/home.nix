@@ -1,5 +1,14 @@
 { pkgs, ... }:
-
+let
+  # nixpkgs wraps pi with nodejs 24.21.0, which predates the Oct 2026 TLS
+  # fixes (Plannotator warns). Run the same bundle on nodejs_26 (26.13.0).
+  # Drop this wrapper once nixpkgs' `nodejs` is >= 24.22.1.
+  pi = pkgs.writeShellScriptBin "pi" ''
+    export PI_SKIP_VERSION_CHECK=1 PI_TELEMETRY=0
+    export PATH=${pkgs.lib.makeBinPath [ pkgs.ripgrep pkgs.fd ]}:$PATH
+    exec ${pkgs.nodejs_26}/bin/node ${pkgs.pi-coding-agent}/lib/node_modules/pi-monorepo/dist/bundle/cli.js "$@"
+  '';
+in
 {
   targets.genericLinux.enable = true;
 
@@ -101,7 +110,8 @@
       librecad
 
       # Languages
-      nodejs
+      # 24.21.0 predates the Oct 2026 TLS fixes; 26.13.0 has them.
+      nodejs_26
       rustup
       nixd
       nixpkgs-fmt
@@ -109,7 +119,7 @@
       # Coding agent (pi) — replaces the stray global npm install in
       # ~/.local/lib/node_modules. Extensions still live in ~/.pi/agent/npm/
       # and are updated via `pi update --extensions`.
-      pi-coding-agent
+      pi
 
       ansible-lint
       ansible
@@ -147,6 +157,8 @@
     ./configs/gh.nix
     ./configs/git.nix
     ./configs/neovim.nix
+    ./configs/pi-bolt.nix
+    ./configs/pi-sdk-peer.nix
     ./configs/polybar.nix
     ./configs/rofi.nix
     ./configs/ssh.nix

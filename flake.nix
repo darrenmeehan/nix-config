@@ -16,6 +16,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # nixpkgs carrying the in-progress `pi-bolt` package (see
+    # home/configs/pi-bolt.nix). Update with:
+    #   nix flake update pi-bolt-nixpkgs
+    pi-bolt-nixpkgs.url = "github:darrenmeehan/nixpkgs/pi-bolt-src-init";
+
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs: {
@@ -110,7 +115,9 @@
     # machines like the Fedora laptop are brought under management)
     homeConfigurations = {
       "mac@personal" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        pkgs = nixpkgs.legacyPackages.x86_64-linux.extend (final: prev: {
+          pi-bolt = inputs.pi-bolt-nixpkgs.legacyPackages.${prev.stdenv.hostPlatform.system}.pi-bolt;
+        });
         modules = [
           ./home/home.nix
           {
@@ -121,7 +128,9 @@
         # extraSpecialArgs = { inherit nix-colors; };
       };
       "drn@dev" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        pkgs = nixpkgs.legacyPackages.x86_64-linux.extend (final: prev: {
+          pi-bolt = inputs.pi-bolt-nixpkgs.legacyPackages.${prev.stdenv.hostPlatform.system}.pi-bolt;
+        });
         modules = [
           ./home/home.nix
           {
@@ -131,7 +140,9 @@
         ];
       };
       "rocinante" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        pkgs = nixpkgs.legacyPackages.x86_64-linux.extend (final: prev: {
+          pi-bolt = inputs.pi-bolt-nixpkgs.legacyPackages.${prev.stdenv.hostPlatform.system}.pi-bolt;
+        });
         modules = [
           ./home/home.nix
           {
@@ -142,7 +153,9 @@
       };
       # This Fedora laptop (darrenmeehan@fedora)
       "darrenmeehan@fedora" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        pkgs = nixpkgs.legacyPackages.x86_64-linux.extend (final: prev: {
+          pi-bolt = inputs.pi-bolt-nixpkgs.legacyPackages.${prev.stdenv.hostPlatform.system}.pi-bolt;
+        });
         modules = [
           ./home/home.nix
           # Laptop-specific bits: keep the shell env and git auth that this
