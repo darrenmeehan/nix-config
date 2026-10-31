@@ -120,6 +120,7 @@ in
       # ~/.local/lib/node_modules. Extensions still live in ~/.pi/agent/npm/
       # and are updated via `pi update --extensions`.
       pi
+      herdr # Agent multiplexer that lives in your terminal
 
       ansible-lint
       ansible
