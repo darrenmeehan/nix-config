@@ -13,10 +13,10 @@ in
   targets.genericLinux.enable = true;
 
   # Non-NixOS GPU driver env (mesa/libglvnd/… linked into /run/opengl-driver)
-  # is on by default when genericLinux is enabled — nothing we install needs
-  # it, and it only prints a setup hint on every switch. Disabled; re-enable
-  # if you start installing Nix apps that need their own GL drivers.
-  targets.genericLinux.gpu.enable = false;
+  # is on by default when genericLinux is enabled. Ghostty needs it (EGL), so
+  # it is left on. First run per host: `sudo non-nixos-gpu-setup` (installs a
+  # Fedora tmpfiles.d rule that recreates /run/opengl-driver at boot).
+  targets.genericLinux.gpu.enable = true;
 
   nixpkgs = {
     config = {
@@ -156,6 +156,7 @@ in
     ./configs/firefox.nix
     ./configs/fzf.nix
     ./configs/gh.nix
+    ./configs/ghostty.nix
     ./configs/git.nix
     ./configs/neovim.nix
     ./configs/pi-bolt.nix
