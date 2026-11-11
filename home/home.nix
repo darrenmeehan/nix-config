@@ -71,7 +71,7 @@ in
       wget # Download files
 
       # For scones.ie
-      postgresql_16 # I just want to install libpq - waiting on https://github.com/NixOS/nixpkgs/issues/61580
+      postgresql_17 # libpq + server; replaces dnf postgresql17
       libpqxx # C++ library for PostgreSQL. Needed for scones.ie for some reason
       sqlite # SQLite database CLI
       # shell doesnt seem to work
@@ -84,6 +84,24 @@ in
       meld # Diff tools
       vlc # Media player
       yt-dlp # Download videos from YouTube
+
+      # Fedora tools moved from dnf (previously RPM-installed).
+      # The Oct 30 lock still has older wezterm/go; `nix flake update nixpkgs`
+      # first if you want the same versions as the RPMs.
+      wezterm # was copr wezfurlong/wezterm-nightly
+      go_1_27 # was dnf golang 1.27.3
+      cmake # 4.4.4, newer than dnf's 4.3.0
+      jdk25 # was dnf java-latest-openjdk 27 EA; nixpkgs has 25, no 27 yet
+      perl # 5.42.3, older than dnf's 5.44.0 - leave in dnf if you need 5.44
+      flex
+      bison
+      gperf
+      ccache
+      ninja
+      google-chrome # was the google-chrome repo
+      zoom-us # was dnf zoom; nixpkgs' `zoom` is a Z-Code game interpreter
+      mediawriter # Fedora Media Writer
+      libredwg # was copr tadej/libredwg 0.12.4 (fc35, five releases stale)
 
       # Browsers
       chromium
