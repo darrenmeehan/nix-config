@@ -7,6 +7,7 @@
       font-size = 12;
       window-padding-x = 4;
       window-padding-y = 4;
+      theme = "Carbonfox";
     };
   };
 }
