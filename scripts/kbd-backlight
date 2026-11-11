@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Cycle the ThinkPad keyboard backlight: 0 -> 1 -> 2 -> 0.
+# Needs the udev rule from scripts/setup-laptop-hardware.sh (group-write on
+# the LED). Works on the level file directly, so no brightnessctl required.
+#
+# Usage: kbd-backlight [0|1|2]   (no argument = cycle)
+
+set -euo pipefail
+
+# Overridable so the cycle logic can be tested against a temp dir.
+DEV=${KBD_LED_DIR:-/sys/class/leds/tpacpi::kbd_backlight}
+cur=$(cat "$DEV/brightness")
+max=$(cat "$DEV/max_brightness")
+
+if [ $# -ge 1 ]; then
+  next=$1
+else
+  next=$(( cur >= max ? 0 : cur + 1 ))
+fi
+
+echo "$next" > "$DEV/brightness"
+echo "keyboard backlight: $next/$max"
