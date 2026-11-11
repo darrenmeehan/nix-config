@@ -89,16 +89,16 @@
     },
     "pi-bolt-nixpkgs": {
       "locked": {
-        "lastModified": 1794321136,
-        "narHash": "sha256-giVTWZl1XG4SIVaT47L/z6gdRNmx3dwfQnV3AqEykkQ=",
+        "lastModified": 1794398476,
+        "narHash": "sha256-F16vCdxCXbAY5x6IonPd+/uvPZkjg12MD3mM6wX/SmI=",
         "owner": "darrenmeehan",
         "repo": "nixpkgs",
-        "rev": "f1c8fd27bf82ef592e4deb08333c78cd1af887a2",
+        "rev": "6b9f2a4793463fce029dd6c852ece2b65e2dca9e",
         "type": "github"
       },
       "original": {
         "owner": "darrenmeehan",
-        "ref": "pi-bolt-src-init",
+        "ref": "pi-bolt-nixpkgs",
         "repo": "nixpkgs",
         "type": "github"
       }
