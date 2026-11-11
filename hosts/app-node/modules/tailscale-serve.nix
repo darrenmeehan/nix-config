@@ -40,8 +40,9 @@
       wantedBy = [ "multi-user.target" ];
       script = ''
         ${pkgs.tailscale}/bin/tailscale serve --bg \
-          --http ${toString config.services.tailscale-serve.port} \
-          / http://${config.services.tailscale-serve.target}
+          --http=${toString config.services.tailscale-serve.port} \
+          --set-path=/ \
+          http://${config.services.tailscale-serve.target}
       '';
       serviceConfig = {
         Type = "oneshot";
