@@ -17,7 +17,9 @@ NixOS and Home-Manager configuration for the machines I run:
 The k3s cluster config was folded in from the old `home-k8s` repo; everything
 now shares this flake's single `nixpkgs`/`home-manager` lockfile. Setup and
 ops docs live with the node itself: `hosts/app-node/README.md`,
-`docs/provisioning.md`, `docs/backup-restore.md`.
+`docs/provisioning.md`, `docs/backup-restore.md`. The Fedora laptop's
+system-level hardware bits (keyboard backlight, fingerprint for sudo — and why
+Home-Manager can't own them) are in `docs/fedora-laptop-hardware.md`.
 
 Assumes use of Nix flakes.
 
