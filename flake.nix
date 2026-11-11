@@ -17,9 +17,11 @@
     };
 
     # nixpkgs carrying the in-progress `pi-bolt` package (see
-    # home/configs/pi-bolt.nix). Update with:
+    # home/configs/pi-bolt.nix). Points at the open PR branch
+    # (https://github.com/NixOS/nixpkgs/pull/586143); drop this input and use
+    # `nixpkgs` once the PR is merged. Update with:
     #   nix flake update pi-bolt-nixpkgs
-    pi-bolt-nixpkgs.url = "github:darrenmeehan/nixpkgs/pi-bolt-src-init";
+    pi-bolt-nixpkgs.url = "github:darrenmeehan/nixpkgs/pi-bolt-nixpkgs";
 
   };
 
