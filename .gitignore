@@ -23,3 +23,7 @@ curam-poc/work/
 # Python caches
 __pycache__/
 .ruff_cache/
+
+# Local nixpkgs working clones (pi-bolt PR / staging)
+/nixpkgs-pr/
+/nixpkgs-prep/
