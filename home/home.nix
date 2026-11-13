@@ -53,7 +53,12 @@ in
       jq # Command line JSON parser
       just # Command runner
       loco # Loco CLI
-      sea-orm-cli # Sea ORM CLI
+      # sea-orm-cli # Sea ORM CLI
+      # Commented out until its build works on the current nixpkgs pin (f4a03c0): it
+      # links without -lsqlite3 and the activation build fails with
+      # `ld.bfd: cannot find -lsqlite3`. That blocks every home-manager
+      # switch, not just the package. Put it back when nixpkgs is bumped or
+      # the package is overridden with sqlite in its build inputs.
       sops # Encrypt/decrypt secrets (home-k8s, .sops.yaml)
       fastfetch # System information
       nemo # File manager
