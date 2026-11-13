@@ -112,7 +112,8 @@ in
       # Languages
       # 24.21.0 predates the Oct 2026 TLS fixes; 26.13.0 has them.
       nodejs_26
-      rustup
+      # No global rust toolchain: each project gets rustc/cargo/rust-analyzer
+      # from its own flake devShell via direnv. See templates/rust.
       nixd
       nixpkgs-fmt
 
