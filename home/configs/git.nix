@@ -11,6 +11,8 @@
         name = "Darren Meehan";
         email = "hi@drn.ie";
       };
+      # Previously in the hand-written ~/.gitconfig, which shadowed this file.
+      init.defaultBranch = "main";
       alias = {
         ci = "commit";
         co = "checkout";
