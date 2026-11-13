@@ -179,6 +179,7 @@ in
     ./configs/neovim.nix
     ./configs/pi-bolt.nix
     ./configs/pi-sdk-peer.nix
+    ./configs/podman.nix
     ./configs/polybar.nix
     ./configs/rofi.nix
     ./configs/ssh.nix
