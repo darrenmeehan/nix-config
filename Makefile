@@ -53,6 +53,10 @@ pi-bolt-aot: ## Rebuild pi-bolt with the installed extensions compiled in (~3 mi
 	pi-bolt compile
 	$${XDG_CACHE_HOME:-$$HOME/.cache}/pi-bolt-aot/pi doctor
 
+.PHONY: check-pi-bolt
+check-pi-bolt: ## Start pi-bolt on a pty and fail if an extension does not load (no model call)
+	./scripts/check-pi-bolt.sh
+
 .PHONY: help
 help: ## This menu
 	@grep -P "##\s(.*)$$" $(MAKEFILE_LIST) | sed 's/:.*##/:/'
