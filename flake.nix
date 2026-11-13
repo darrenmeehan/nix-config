@@ -23,13 +23,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # nixpkgs carrying the in-progress `pi-bolt` package (see
-    # home/configs/pi-bolt.nix). Points at the open PR branch
-    # (https://github.com/NixOS/nixpkgs/pull/586143); drop this input and use
-    # `nixpkgs` once the PR is merged. Update with:
-    #   nix flake update pi-bolt-nixpkgs
-    pi-bolt-nixpkgs.url = "github:darrenmeehan/nixpkgs/pi-bolt-nixpkgs";
-
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs: {
@@ -136,7 +129,8 @@
     homeConfigurations = {
       "mac@personal" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux.extend (final: prev: {
-          pi-bolt = inputs.pi-bolt-nixpkgs.legacyPackages.${prev.stdenv.hostPlatform.system}.pi-bolt;
+          pi-bolt = final.callPackage ./pkgs/pi-bolt/package.nix { };
+          pi-extensions = final.callPackage ./pkgs/pi-extensions/default.nix { };
         });
         modules = [
           ./home/home.nix
@@ -149,7 +143,8 @@
       };
       "drn@dev" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux.extend (final: prev: {
-          pi-bolt = inputs.pi-bolt-nixpkgs.legacyPackages.${prev.stdenv.hostPlatform.system}.pi-bolt;
+          pi-bolt = final.callPackage ./pkgs/pi-bolt/package.nix { };
+          pi-extensions = final.callPackage ./pkgs/pi-extensions/default.nix { };
         });
         modules = [
           ./home/home.nix
@@ -161,7 +156,8 @@
       };
       "rocinante" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux.extend (final: prev: {
-          pi-bolt = inputs.pi-bolt-nixpkgs.legacyPackages.${prev.stdenv.hostPlatform.system}.pi-bolt;
+          pi-bolt = final.callPackage ./pkgs/pi-bolt/package.nix { };
+          pi-extensions = final.callPackage ./pkgs/pi-extensions/default.nix { };
         });
         modules = [
           ./home/home.nix
@@ -174,7 +170,8 @@
       # This Fedora laptop (darrenmeehan@fedora)
       "darrenmeehan@fedora" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux.extend (final: prev: {
-          pi-bolt = inputs.pi-bolt-nixpkgs.legacyPackages.${prev.stdenv.hostPlatform.system}.pi-bolt;
+          pi-bolt = final.callPackage ./pkgs/pi-bolt/package.nix { };
+          pi-extensions = final.callPackage ./pkgs/pi-extensions/default.nix { };
         });
         modules = [
           ./home/home.nix

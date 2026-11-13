@@ -48,6 +48,11 @@ lock: ## Update lock file
 gc: ## Garbage collect
 	nix-collect-garbage
 
+.PHONY: pi-bolt-aot
+pi-bolt-aot: ## Rebuild pi-bolt with the installed extensions compiled in (~3 min, needs network on first run)
+	pi-bolt compile
+	$${XDG_CACHE_HOME:-$$HOME/.cache}/pi-bolt-aot/pi doctor
+
 .PHONY: help
 help: ## This menu
 	@grep -P "##\s(.*)$$" $(MAKEFILE_LIST) | sed 's/:.*##/:/'

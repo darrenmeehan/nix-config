@@ -1,0 +1,23 @@
+{
+  "name": "pi-extensions",
+  "private": true,
+  "dependencies": {
+    "@aliou/pi-guardrails": "^0.23.0",
+    "@anthropic-ai/claude-agent-sdk": "^0.3.323",
+    "@dietrichgebert/ponytail": "^5.3.3",
+    "@heyhuynhgiabuu/pi-diff": "^0.9.3",
+    "@melihmucuk/leash": "^1.0.11",
+    "@mjasnikovs/pi-task": "^0.42.66",
+    "@ollama/pi-web-search": "^0.0.5",
+    "@opencode-ai/sdk": "^1.19.5",
+    "@plannotator/pi-extension": "^0.28.62",
+    "bigpowers": "^2.96.1",
+    "gentle-pi": "^1.2.0",
+    "linkedom": "^0.18.12",
+    "opensec-pi-fff": "^0.11.2",
+    "opensec-pi-todo": "^2.13.1",
+    "pi-agent-browser-native": "^0.9.24",
+    "pi-messenger-bridge": "^0.4.0",
+    "pi-simplify": "^0.2.3"
+  }
+}
