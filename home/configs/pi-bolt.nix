@@ -1,65 +1,87 @@
 { pkgs, ... }:
 let
-  inherit (pkgs) coreutils;
+  # The extensions installed on this machine, compiled into the executable
+  # instead of loaded from their files at run time. Each is named in the
+  # manifest, so pi lists it as a built-in extension (`builtin:<name>`) and a
+  # run-time copy of the same extension replaces it rather than registering its
+  # tools twice. Herdr's integration file is not here: pi-bolt has Herdr support
+  # of its own and skips that file, while `pi` still finds it in
+  # ~/.pi/agent/extensions.
+  #
+  # Left out, each still loading from its files at run time as before:
+  # pi-agent-browser-native, whose entry module's top-level bytecode is over
+  # pi-bolt's AOT candidate limit; @dietrichgebert/ponytail, which imports
+  # ../hooks/ponytail-config.js from its own folder, which a compiled executable
+  # does not have; @plannotator/pi-extension, whose diagram engine imports
+  # node-canvas, a native addon nothing here builds; and the curam-membrane
+  # driver, which is a checkout in ~/code, not a flake input.
+  #
+  # A compiled-in extension loads whether or not it is enabled, so anything that
+  # cannot be compiled in fails the start for every session, not just its own.
+  extensions = [
+    "${pkgs.pi-extensions}/node_modules/@aliou/pi-guardrails"
+    "${pkgs.pi-extensions}/node_modules/@heyhuynhgiabuu/pi-diff"
+    "${pkgs.pi-extensions}/node_modules/@melihmucuk/leash"
+    "${pkgs.pi-extensions}/node_modules/@mjasnikovs/pi-task"
+    "${pkgs.pi-extensions}/node_modules/bigpowers"
+    "${pkgs.pi-extensions}/node_modules/opensec-pi-fff"
+    "${pkgs.pi-extensions}/node_modules/opensec-pi-todo"
+  ];
+  # Pi's package list, untouched: `pi` loads all nine from their files.
+  piPackages = [
+    "npm:bigpowers"
+    "npm:@dietrichgebert/ponytail"
+    "npm:@plannotator/pi-extension"
+    "npm:@mjasnikovs/pi-task"
+    "npm:pi-agent-browser-native"
+    "npm:@heyhuynhgiabuu/pi-diff"
+    "npm:@aliou/pi-guardrails"
+    "npm:@melihmucuk/leash"
+    "/home/darrenmeehan/code/curam-membrane/drivers/pi"
+  ];
 
-  # pi-bolt's package wrapper disables jiti's filesystem cache to avoid stale
-  # cache segfaults, but that re-transpiles every extension on every start
-  # (~40s with this extension set). Keep a persistent cache keyed by the
-  # pi-bolt version and the extension lock instead; a stale entry gets a new
-  # directory rather than a crash.
-  pi-bolt = pkgs.writeShellScriptBin "pi-bolt" ''
-    store=${pkgs.pi-bolt}
-    version=${pkgs.pi-bolt.version}
-
-    lock="$HOME/.pi/agent/npm/package-lock.json"
-    key="$version-none"
-    if [ -f "$lock" ]; then
-      key="$version-$(${coreutils}/bin/sha256sum "$lock" | ${coreutils}/bin/cut -c1-16)"
-    fi
-    export TMPDIR="''${XDG_CACHE_HOME:-$HOME/.cache}/pi-bolt/$key"
-    ${coreutils}/bin/mkdir -p "$TMPDIR"
-    export JITI_FS_CACHE=true
-
-    # `pi-bolt compile` builds in place only when the executable sits in
-    # <dir>/pi-bolt-<os>-<arch>/pi (a pure directory-name test in
-    # piBoltInstallDir()). A store path can never match, and /nix/store is
-    # read-only anyway, so default it to `--out` in a writable cache dir.
-    # Override the location with PI_BOLT_AOT_DIR.
-    aot="''${PI_BOLT_AOT_DIR:-''${XDG_CACHE_HOME:-$HOME/.cache}/pi-bolt-aot}"
-    if [ "''${1-}" = compile ]; then
-      shift
-      # `--status` reports the installation's pi-bolt.txt; the AOT build's is
-      # in the out dir, so answer from there when that is all that was asked.
-      if [ "$#" = 1 ] && [ "$1" = --status ]; then
-        if [ -f "$aot/pi-bolt.txt" ]; then
-          ${coreutils}/bin/grep -m1 '^Extensions compiled in' "$aot/pi-bolt.txt" ||
-            echo "No extensions are compiled into $aot."
-        else
-          echo "No AOT build at $aot (run: pi-bolt compile)."
-        fi
-        exit 0
-      fi
-      # Anything the caller decided for itself is left alone.
-      for arg in "$@"; do
-        case "$arg" in
-          --out | --out=* | --status | --list | --help | -h) exec "$store/bin/pi-bolt" compile "$@" ;;
-        esac
-      done
-      exec "$store/bin/pi-bolt" compile --out "$aot" "$@"
-    fi
-
-    # Prefer the compiled build when it was built from this exact pi-bolt
-    # version. A stale one would run an old engine against the current
-    # settings, so the stamp in its pi-bolt.txt decides, not its presence.
-    # Rebuild after a version bump or an extension change with
-    # `make pi-bolt-aot`.
-    if [ -x "$aot/pi" ] && ${coreutils}/bin/grep -q "^Pi-Bolt $version " "$aot/pi-bolt.txt"; then
-      exec "$aot/pi" "$@"
-    fi
-
-    exec "$store/bin/pi-bolt" "$@"
-  '';
+  # `piBolt.packages` is an overlay on that list, so pi-bolt keeps the four that
+  # are not compiled in and excludes the five that are: a run-time copy of an
+  # extension replaces the compiled-in one, so loading it would be interpreted
+  # anyway. `pi` ignores the piBolt section. The Pi-Bolt-only opensec packages
+  # are compiled in and listed nowhere, so nothing loads them a second time.
+  piBoltExclusions = [
+    "-npm:bigpowers"
+    "-npm:@mjasnikovs/pi-task"
+    "-npm:@heyhuynhgiabuu/pi-diff"
+    "-npm:@aliou/pi-guardrails"
+    "-npm:@melihmucuk/leash"
+  ];
+  # `--jit on`: opensec-pi-fff's `watch()` reaches its native library through
+  # bun:ffi, whose calls are generated by the JIT (its search and grep fall back
+  # to ffi-rs without one), and the four extensions left at run time are compiled
+  # by it instead of interpreted. Pi and the compiled-in extensions are AOT
+  # machine code either way; the cost is the JIT's code cache and threads.
+  piBolt = (pkgs.pi-bolt.withExtensions extensions).override { jitSupport = true; };
 in
 {
-  home.packages = [ pi-bolt ];
+  home.packages = [ piBolt ];
+
+  # Pi's settings, shared by `pi` and `pi-bolt`. A store file is read-only, so
+  # neither can save settings changes from inside a session (`/model` and the
+  # like show the change but do not keep it): edit this and switch.
+  # `lastChangelogVersion` and `extensionChangelogVersions` are only bookkeeping
+  # and are left to fail.
+  home.file.".pi/agent/settings.json" = {
+    source = (pkgs.formats.json { }).generate "settings.json" {
+      defaultModel = "deepseek/deepseek-v4.1-flash-1017";
+      defaultProvider = "openrouter";
+      defaultThinkingLevel = "high";
+      hideThinkingBlock = true;
+      theme = "dark";
+      enableInstallTelemetry = false;
+      packages = piPackages;
+      piBolt = {
+        packages = piBoltExclusions;
+        packagesOverlay = true;
+      };
+    };
+    # It is a regular file on this machine already.
+    force = true;
+  };
 }
