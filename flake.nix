@@ -10,6 +10,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Rust toolchains for project devShells (templates/rust). Deliberately not a
+    # global toolchain: each project's flake takes its own from this overlay.
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Declarative secrets at /run/secrets (hevy sync on app-node, future use)
     sops-nix = {
       url = "github:Mic92/sops-nix";
@@ -41,6 +48,7 @@
         modules = [
           "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
           ./hosts/media
+          ./hosts/nix-ld.nix
           ./hosts/media/proxmox.nix
           {
             nixpkgs.hostPlatform = "x86_64-linux";
@@ -52,6 +60,7 @@
         system = "x86_64-linux";
         modules = [
           ./hosts/rocinante
+          ./hosts/nix-ld.nix
           "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
           ./hosts/rocinante/proxmox.nix
           #   ./home/home.nix
@@ -83,6 +92,7 @@
         system = "x86_64-linux";
         modules = [
           ./hosts/app-node
+          ./hosts/nix-ld.nix
           inputs.sops-nix.nixosModules.sops
           "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
           ./hosts/app-node/proxmox.nix
@@ -95,6 +105,7 @@
         system = "x86_64-linux";
         modules = [
           ./hosts/edge-router
+          ./hosts/nix-ld.nix
           ./hosts/edge-router/hardware-configuration.nix
         ];
       };
@@ -105,12 +116,19 @@
         system = "x86_64-linux";
         modules = [
           ./hosts/mgmt
+          ./hosts/nix-ld.nix
           ./hosts/mgmt/hardware-configuration.nix
         ];
       };
 
       # Media Server (Proxmox VM) — Jellyfin + the *arr stack + Tailscale.
       # See hosts/media/README.md.
+    };
+
+    # Project scaffolds: `nix flake init -t ~/code/nix-config#rust`
+    templates.rust = {
+      path = ./templates/rust;
+      description = "Rust devShell (rust-overlay: rustc, cargo, rust-analyzer, clippy) for direnv";
     };
 
     # Home-Manager Configurations (standalone — also the way non-NixOS
@@ -179,7 +197,8 @@
               export CAPACITOR_ANDROID_STUDIO_PATH=$ANDROID_HOME/cmdline-tools/latest/bin
               export FLYCTL_INSTALL="/home/darrenmeehan/.fly"
               export PATH="$FLYCTL_INSTALL/bin:$PATH"
-              . "$HOME/.cargo/env"
+              # No rustup shim on PATH: cargo/rustc/rust-analyzer come from each
+              # project's devShell through direnv (see templates/rust).
               export PODMAN_COMPOSE_WARNING_LOGS=false
               # bun (was in the hand-written ~/.bash_profile)
               export BUN_INSTALL="$HOME/.bun"
@@ -202,7 +221,7 @@
                 export FLYCTL_INSTALL="/home/darrenmeehan/.fly"
                 export PATH="$FLYCTL_INSTALL/bin:$PATH"
                 export PODMAN_COMPOSE_WARNING_LOGS=false
-                [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+                # No rustup shim on PATH — devShells provide the toolchain.
                 export BUN_INSTALL="$HOME/.bun"
                 export PATH="$BUN_INSTALL/bin:$PATH"
                 export PATH="/home/darrenmeehan/.local/bin:$PATH"

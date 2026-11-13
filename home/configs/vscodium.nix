@@ -12,7 +12,8 @@
       yzhang.markdown-all-in-one # Markdown
       bbenoist.nix # Nix
       ms-python.python # Python
-      rust-lang.rust-analyzer # Rust
+      rust-lang.rust-analyzer # Rust (server from the project devShell, see below)
+      mkhl.direnv # loads .envrc into the editor, so rust-analyzer is on PATH
       redhat.vscode-yaml # YAML
       # Git
       eamodio.gitlens
@@ -36,6 +37,11 @@
       # github.vscode-github-actions
     ];
     userSettings = {
+      # Rust tooling comes from the project's devShell (direnv), not a global
+      # install or the extension's own download. Open the folder, let the direnv
+      # extension load .envrc, and this resolves to the flake's rust-analyzer.
+      "rust-analyzer.server.path" = "rust-analyzer";
+      "rust-analyzer.check.command" = "clippy";
       # Material Icons
       "workbench.iconTheme" = "material-icon-theme";
       # No startup splashscreen

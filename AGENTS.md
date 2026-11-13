@@ -21,6 +21,16 @@ per-node docs in `README.md`; ops docs live in `docs/` or each host's README.
 - `home/` — shared Home-Manager config; `configs/*.nix` imported from `home/home.nix`
 - `scripts/`, `manifests/` — node-specific tooling and k3s manifests
 
+## Project scaffolds
+
+`nix flake init -t ~/code/nix-config#rust` — Rust devShell (rust-overlay:
+rustc, cargo, rust-analyzer, clippy) with `use flake` in `.envrc`. Details in
+`templates/rust/README.md`.
+
+There is no global Rust toolchain any more (`home/configs/direnv.nix`): every
+Rust repo carries its own devShell, and agents must run cargo as
+`nix develop -c cargo …` — a bare `cargo` is not on `PATH`.
+
 ## Conventions
 
 - Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`)

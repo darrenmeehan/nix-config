@@ -24,7 +24,8 @@
       # Python
       ms-python.python
       ms-python.vscode-pylance
-      rust-lang.rust-analyzer # Rust
+      rust-lang.rust-analyzer # Rust (server from the project devShell, see below)
+      mkhl.direnv # loads .envrc into the editor, so rust-analyzer is on PATH
       redhat.vscode-yaml # YAML
       # Git
       eamodio.gitlens
@@ -68,6 +69,11 @@
       ms-azuretools.vscode-docker
       ];
       userSettings = {
+      # Rust tooling comes from the project's devShell (direnv), not a global
+      # install or the extension's own download. Open the folder, let the direnv
+      # extension load .envrc, and this resolves to the flake's rust-analyzer.
+      "rust-analyzer.server.path" = "rust-analyzer";
+      "rust-analyzer.check.command" = "clippy";
       # Use podman instead of docker
       "dev.containers.dockerPath" = "podman";
       # Material Icons
