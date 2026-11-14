@@ -17,9 +17,13 @@ let
   # Left out for other reasons, also loading from their files as before:
   # pi-agent-browser-native, whose entry module's top-level bytecode is over
   # pi-bolt's AOT candidate limit; @dietrichgebert/ponytail, which imports
-  # ../hooks/ponytail-config.js from its own folder; @plannotator/pi-extension,
-  # whose diagram engine imports node-canvas, a native addon nothing here builds;
-  # and the curam-membrane driver, a checkout in ~/code, not a flake input.
+  # ../hooks/ponytail-config.js from its own folder; and
+  # @plannotator/pi-extension, whose diagram engine imports node-canvas, a native
+  # addon nothing here builds.
+  #
+  # The curam-membrane driver is here: it is a flake input now (a store path, not
+  # a checkout in ~/code), so there is something to compile, and it reads no
+  # files of its own at run time — only the engine's path, which it finds on PATH.
   #
   # A compiled-in extension loads whether or not it is enabled, so anything that
   # cannot be compiled in fails the start for every session, not just its own.
@@ -28,6 +32,7 @@ let
     "${pkgs.pi-extensions}/node_modules/@heyhuynhgiabuu/pi-diff"
     "${pkgs.pi-extensions}/node_modules/@melihmucuk/leash"
     "${pkgs.pi-extensions}/node_modules/@mjasnikovs/pi-task"
+    "${pkgs.curam-membrane-driver}/drivers/pi"
   ];
   # Pi's package list, untouched: `pi` loads all nine from their files.
   piPackages = [
@@ -39,7 +44,7 @@ let
     "npm:@heyhuynhgiabuu/pi-diff"
     "npm:@aliou/pi-guardrails"
     "npm:@melihmucuk/leash"
-    "/home/darrenmeehan/code/curam-membrane/drivers/pi"
+    "${pkgs.curam-membrane-driver}/drivers/pi"
   ];
 
   # `piBolt.packages` is an overlay on that list: an exclusion takes out an
@@ -51,6 +56,7 @@ let
     "-npm:@heyhuynhgiabuu/pi-diff"
     "-npm:@aliou/pi-guardrails"
     "-npm:@melihmucuk/leash"
+    "-${pkgs.curam-membrane-driver}/drivers/pi"
     "npm:opensec-pi-todo"
     "npm:opensec-pi-fff"
   ];
@@ -67,7 +73,10 @@ let
   };
 in
 {
-  home.packages = [ piBolt ];
+  # The engine the driver spawns: `curam-membrane` on PATH is discovery rule 2,
+  # ahead of the ~/code workspace-build fallbacks, so a missing engine is a
+  # broken install rather than a silently older binary.
+  home.packages = [ piBolt pkgs.curam-membrane ];
 
   # Pi's settings, shared by `pi` and `pi-bolt`. A store file is read-only, so
   # neither can save settings changes from inside a session (`/model` and the
@@ -89,6 +98,34 @@ in
       };
     };
     # It is a regular file on this machine already.
+    force = true;
+  };
+
+  # Guardrails' global config — the same file `pi` loads from npm and `pi-bolt`
+  # loads compiled in. `gh` writes to GitHub are auto-denied: no prompt, and
+  # `terminate` ends the turn so the agent asks instead of retrying. Reads
+  # (`gh pr view`/`diff`/`list`/`checks`) and `git` are untouched. `gh api` is
+  # denied wholesale, since it is the escape hatch around the verb list.
+  #
+  # A denylist over the literal command, not a sandbox: `curl` to
+  # api.github.com, or any other client, still gets through.
+  home.file.".pi/agent/extensions/guardrails.json" = {
+    source = (pkgs.formats.json { }).generate "guardrails.json" {
+      permissionGate.autoDenyPatterns = [
+        {
+          pattern = "\\bgh\\s+(pr|issue|release|repo|secret|variable|workflow|gist|label|ruleset|cache|project|discussion)\\s+(create|edit|merge|comment|close|reopen|ready|review|delete|set|run|sync|upload|download|rename|transfer|pin|unpin|lock|unlock|update|add|remove|clear)\\b";
+          regex = true;
+          terminate = true;
+          description = "GitHub write through the gh CLI. Ask the user to run it.";
+        }
+        {
+          pattern = "\\bgh\\s+api\\b";
+          regex = true;
+          terminate = true;
+          description = "gh api is the bypass around the gh write gate. Ask the user to run it.";
+        }
+      ];
+    };
     force = true;
   };
 }

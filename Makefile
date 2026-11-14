@@ -44,6 +44,10 @@ media: ## Pull + switch the media VM (requires Tailscale/ssh)
 lock: ## Update lock file
 	nix flake update
 
+.PHONY: pin-curam
+pin-curam: ## Move pkgs/curam/pins.nix to the checkouts' current HEADs
+	./scripts/pin-curam.sh
+
 .PHONY: gc
 gc: ## Garbage collect
 	nix-collect-garbage

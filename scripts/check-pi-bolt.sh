@@ -8,6 +8,11 @@
 # found" and then fails every session with "Failed to load extension". This
 # starts a real one, the way the TUI does, with no model call.
 #
+# It also fails when the curam-membrane driver is not `on` in the footer: that
+# layer fails open by design, so a missing engine (`membrane: off`) or a dead one
+# (`membrane: degraded`) leaks tool results without failing a turn. The footer is
+# the only place that says which it is.
+#
 # Usage: ./scripts/check-pi-bolt.sh [RUNS]     (RUNS defaults to 1; >1 prints
 #                                               min/median/max time to prompt)
 #        PI_BOLT=/nix/store/…-pi-bolt/bin/pi-bolt ./scripts/check-pi-bolt.sh
@@ -58,6 +63,21 @@ def once():
         out += chunk
         if ready_marker in ansi.sub(b"", out):
             ready = time.time() - start
+            # The status line (membrane's, among others) is drawn by extension
+            # factories just after the prompt box, so read on briefly or the
+            # text checks below see a footer that is still empty.
+            settle = time.time() + 1.5
+            while time.time() < settle:
+                readable, _, _ = select.select([fd], [], [], 0.05)
+                if not readable:
+                    continue
+                try:
+                    more = os.read(fd, 65536)
+                except OSError:
+                    break
+                if not more:
+                    break
+                out += more
             break
 
     try:
@@ -80,6 +100,24 @@ for attempt in range(runs):
         for line in failed:
             print(line, file=sys.stderr)
         sys.exit(1)
+    # A run-time copy of an extension that is also compiled in: the built-in one
+    # is dropped and the interpreted copy runs instead, which is the thing
+    # compiling in is meant to avoid (the piBolt.packages exclusions).
+    duplicates = [
+        line.strip()
+        for line in text.splitlines()
+        if "was not loaded" in line and "built-in extension" in line
+    ]
+    if duplicates:
+        for line in duplicates:
+            print(line, file=sys.stderr)
+        sys.exit(1)
+    if "membrane: on" not in text:
+        print("curam-membrane is not on: expected `membrane: on` in the footer", file=sys.stderr)
+        for line in text.splitlines():
+            if "membrane:" in line:
+                print(f"  footer: {line.strip()}", file=sys.stderr)
+        sys.exit(1)
     if ready is None:
         print(f"run {attempt + 1}: no prompt after {limit:.0f}s", file=sys.stderr)
         print(text[-800:], file=sys.stderr)
@@ -87,10 +125,10 @@ for attempt in range(runs):
     times.append(ready)
 
 if runs == 1:
-    print(f"ok: prompt ready in {times[0]:.2f}s, every extension loaded")
+    print(f"ok: prompt ready in {times[0]:.2f}s, every extension loaded, membrane on")
 else:
     print(
         f"ok: prompt ready min {min(times):.2f}s / median {statistics.median(times):.2f}s / "
-        f"max {max(times):.2f}s over {runs} runs, every extension loaded"
+        f"max {max(times):.2f}s over {runs} runs, every extension loaded, membrane on"
     )
 PY

@@ -13,7 +13,8 @@ per-node docs in `README.md`; ops docs live in `docs/` or each host's README.
   `#<user>@<hostname>`)
 - `nixos-rebuild switch --flake .#<host>` — NixOS hosts (proxmox nodes, router)
 - `nix build .#nixosConfigurations.<host>.config.system.build.VMA` — Proxmox VM image
-- `nix flake update` — bump lockfile
+- `make lock` — bump lockfile
+- `make pin-curam` — move `pkgs/curam/pins.nix` to the two curam checkouts' HEADs
 
 ## Layout
 

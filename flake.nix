@@ -17,6 +17,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # The curam engine links rusqlite's bundled sqlite3. nixpkgs-unstable's
+    # cargo builds it but fails to link it (`cannot find -lsqlite3`, dynamic
+    # `-lsqlite3` with no sqlite in the link path), while this rev builds and
+    # runs it: the same nixpkgs curam-security pins in its own flake.lock, so the
+    # engine is built in the environment its repo expects. Pinned by rev rather
+    # than by branch so a nixos-25.05 advance cannot move the engine's build.
+    nixpkgs-curam.url = "github:NixOS/nixpkgs/ac62194c3917d5f474c1a844b6fd6da2db95077d";
+
     # Declarative secrets at /run/secrets (hevy sync on app-node, future use)
     sops-nix = {
       url = "github:Mic92/sops-nix";
@@ -131,6 +139,13 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux.extend (final: prev: {
           pi-bolt = final.callPackage ./pkgs/pi-bolt/package.nix { };
           pi-extensions = final.callPackage ./pkgs/pi-extensions/default.nix { };
+          # Local checkouts pinned by rev, built lazily — see pkgs/curam. Not
+          # flake inputs: nix fetches those for every output of the flake, so
+          # hosts without the checkouts could not evaluate any configuration.
+          curam-membrane = final.callPackage ./pkgs/curam/engine.nix {
+            rustPlatform = inputs.nixpkgs-curam.legacyPackages.x86_64-linux.rustPlatform;
+          };
+          curam-membrane-driver = final.callPackage ./pkgs/curam/driver.nix { };
         });
         modules = [
           ./home/home.nix
@@ -145,6 +160,13 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux.extend (final: prev: {
           pi-bolt = final.callPackage ./pkgs/pi-bolt/package.nix { };
           pi-extensions = final.callPackage ./pkgs/pi-extensions/default.nix { };
+          # Local checkouts pinned by rev, built lazily — see pkgs/curam. Not
+          # flake inputs: nix fetches those for every output of the flake, so
+          # hosts without the checkouts could not evaluate any configuration.
+          curam-membrane = final.callPackage ./pkgs/curam/engine.nix {
+            rustPlatform = inputs.nixpkgs-curam.legacyPackages.x86_64-linux.rustPlatform;
+          };
+          curam-membrane-driver = final.callPackage ./pkgs/curam/driver.nix { };
         });
         modules = [
           ./home/home.nix
@@ -158,6 +180,13 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux.extend (final: prev: {
           pi-bolt = final.callPackage ./pkgs/pi-bolt/package.nix { };
           pi-extensions = final.callPackage ./pkgs/pi-extensions/default.nix { };
+          # Local checkouts pinned by rev, built lazily — see pkgs/curam. Not
+          # flake inputs: nix fetches those for every output of the flake, so
+          # hosts without the checkouts could not evaluate any configuration.
+          curam-membrane = final.callPackage ./pkgs/curam/engine.nix {
+            rustPlatform = inputs.nixpkgs-curam.legacyPackages.x86_64-linux.rustPlatform;
+          };
+          curam-membrane-driver = final.callPackage ./pkgs/curam/driver.nix { };
         });
         modules = [
           ./home/home.nix
@@ -172,6 +201,13 @@
         pkgs = nixpkgs.legacyPackages.x86_64-linux.extend (final: prev: {
           pi-bolt = final.callPackage ./pkgs/pi-bolt/package.nix { };
           pi-extensions = final.callPackage ./pkgs/pi-extensions/default.nix { };
+          # Local checkouts pinned by rev, built lazily — see pkgs/curam. Not
+          # flake inputs: nix fetches those for every output of the flake, so
+          # hosts without the checkouts could not evaluate any configuration.
+          curam-membrane = final.callPackage ./pkgs/curam/engine.nix {
+            rustPlatform = inputs.nixpkgs-curam.legacyPackages.x86_64-linux.rustPlatform;
+          };
+          curam-membrane-driver = final.callPackage ./pkgs/curam/driver.nix { };
         });
         modules = [
           ./home/home.nix
