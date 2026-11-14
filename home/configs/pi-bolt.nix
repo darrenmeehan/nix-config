@@ -115,8 +115,15 @@ in
   #
   # A denylist over the literal command, not a sandbox: `curl` to
   # api.github.com, or any other client, still gets through.
+  #
+  # `version` is the @aliou/pi-guardrails release this file is written for
+  # (pkgs/pi-extensions/npm/package-lock.json). Without it guardrails runs its
+  # migrations on every load, stamps the version and tries to save the result —
+  # into a read-only store file, so it fails with EACCES and repeats the next
+  # session. Bump it when the extension's own migrations change this file.
   home.file.".pi/agent/extensions/guardrails.json" = {
     source = (pkgs.formats.json { }).generate "guardrails.json" {
+      version = "0.23.0";
       permissionGate.autoDenyPatterns = [
         {
           pattern = "\\bgh\\s+(pr|issue|release|repo|secret|variable|workflow|gist|label|ruleset|cache|project|discussion)\\s+(create|edit|merge|comment|close|reopen|ready|review|delete|set|run|sync|upload|download|rename|transfer|pin|unpin|lock|unlock|update|add|remove|clear)\\b";
