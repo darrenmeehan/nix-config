@@ -1,5 +1,10 @@
 # Pi-Bolt extension set and startup cost
 
+**Partly superseded (2026-11-13).** The wrapper this describes is gone, most
+of the set is compiled into the executable, and startup is timed with
+`make bench-pi-bolt`. The current set, costs and reasons:
+[pi-bolt-extensions.md](pi-bolt-extensions.md).
+
 **Last updated:** 2026-11-11.
 
 What loads at startup, what it costs, what was removed and why, and how to

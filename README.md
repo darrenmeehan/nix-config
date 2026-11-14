@@ -20,6 +20,8 @@ ops docs live with the node itself: `hosts/app-node/README.md`,
 `docs/provisioning.md`, `docs/backup-restore.md`. The Fedora laptop's
 system-level hardware bits (keyboard backlight, fingerprint for sudo — and why
 Home-Manager can't own them) are in `docs/fedora-laptop-hardware.md`.
+Pi-Bolt's extensions — what is compiled in, what loads from its files, and the
+three guard layers — are in `docs/pi-bolt-extensions.md`.
 
 Assumes use of Nix flakes.
 

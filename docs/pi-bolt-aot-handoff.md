@@ -1,5 +1,10 @@
 # Handoff: Pi-Bolt AOT compile (nixpkgs + nix-config)
 
+**Superseded (2026-11-13).** Extensions are compiled into the executable by
+the Nix build now; `pi-bolt compile`, `~/.cache/pi-bolt-aot` and the wrapper
+that made it work from a store path are gone. Current picture:
+[pi-bolt-extensions.md](pi-bolt-extensions.md).
+
 **Status:** ready for implementation.
 **Last updated:** 2026-11-11.
 **Context:** curam-membrane's pi driver (`~/code/curam-membrane/drivers/pi`)

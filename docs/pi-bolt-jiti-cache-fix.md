@@ -1,5 +1,10 @@
 # Plan: fix the stale jiti cache crash in Pi-Bolt
 
+**Superseded (2026-11-13).** The wrapper and its `TMPDIR`/`JITI_FS_CACHE`
+workaround are gone: the package salts jiti's cache directory with its own
+version (`cache/jiti/<version>`) and no longer sets `JITI_FS_CACHE`. See
+[pi-bolt-extensions.md](pi-bolt-extensions.md).
+
 **Status:** investigation and plan. Short-term workaround: disable jiti's cache
 or use a versioned cache.
 **Last updated:** 2026-11-09.
