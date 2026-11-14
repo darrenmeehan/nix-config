@@ -1,31 +1,36 @@
-{
-  lib,
-  stdenv,
-  fetchFromGitHub,
-  fetchNpmDeps,
-  fetchurl,
-  npmHooks,
-  nodejs,
-  patchelf,
-  autoPatchelfHook,
-  python3,
-  rsync,
-  libxcb,
-  ripgrep,
-  fd,
-  makeWrapper,
-  testers,
-  runCommand,
-  versionCheckHook,
-  writableTmpDirAsHomeHook,
-  # Off is the smallest and fastest start, but an extension left to load from
+{ lib
+, stdenv
+, fetchFromGitHub
+, fetchNpmDeps
+, fetchurl
+, npmHooks
+, nodejs
+, patchelf
+, autoPatchelfHook
+, python3
+, rsync
+, libxcb
+, ripgrep
+, fd
+, makeWrapper
+, testers
+, runCommand
+, versionCheckHook
+, writableTmpDirAsHomeHook
+, # Off is the smallest and fastest start, but an extension left to load from
   # its files then runs in JSC's interpreter instead of the JIT.
-  jitSupport ? false,
-  # Extension directories or entry files to compile into the executable.
-  extensions ? [ ],
-  # This package itself, which is where passthru.withExtensions gets the
+  jitSupport ? false
+, # Extension directories or entry files to compile into the executable.
+  extensions ? [ ]
+, # null: baseline on Linux (code for any CPU Bun runs on) and native on macOS.
+  # "native" compiles for this CPU's instruction set (AVX2 class on x86-64) and
+  # falls back to bytecode where it is not there: faster, but the executable
+  # then runs properly only on CPUs like this one.
+  cpu ? null
+, # This package itself, which is where passthru.withExtensions gets the
   # `.override` that re-calls this file with other extensions.
-  pi-bolt,
+  pi-bolt
+,
 }:
 let
   inherit (stdenv) hostPlatform;
@@ -309,7 +314,14 @@ stdenv.mkDerivation (finalAttrs: {
     PIBOLT_BUN=$TMPDIR/runtime/bun \
     PIBOLT_RUNTIME_STAMP=${runtimeStamp} \
       ./scripts/build-pi.sh \
-        --cpu ${if hostPlatform.isDarwin then "native" else "baseline"} \
+        --cpu ${
+          if cpu != null then
+            cpu
+          else if hostPlatform.isDarwin then
+            "native"
+          else
+            "baseline"
+        } \
         --jit ${if jitSupport then "on" else "off"} \
         "''${pluginArgs[@]}" \
         --out $out/lib/pi-bolt

@@ -59,7 +59,12 @@ let
   # to ffi-rs without one), and the seven extensions left at run time are
   # compiled by it instead of interpreted. Pi and the compiled-in extensions are
   # AOT machine code either way; the cost is the JIT's code cache and threads.
-  piBolt = (pkgs.pi-bolt.withExtensions extensions).override { jitSupport = true; };
+  # cpu = "native": compile Pi and the extensions for this CPU (AVX2 class)
+  # instead of any x86-64. This build is only used on this machine.
+  piBolt = (pkgs.pi-bolt.withExtensions extensions).override {
+    jitSupport = true;
+    cpu = "native";
+  };
 in
 {
   home.packages = [ piBolt ];
