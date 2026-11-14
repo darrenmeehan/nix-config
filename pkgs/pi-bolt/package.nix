@@ -13,7 +13,6 @@
 , ripgrep
 , fd
 , makeWrapper
-, testers
 , runCommand
 , versionCheckHook
 , writableTmpDirAsHomeHook
@@ -104,8 +103,6 @@ stdenv.mkDerivation (finalAttrs: {
     versionCheckHook
   ];
   versionCheckKeepEnvironment = [ "HOME" ];
-  versionCheckProgram = "${placeholder "out"}/bin/pi-bolt";
-  versionCheckProgramArg = "--version";
 
   postUnpack = ''
     mkdir -p $TMPDIR/runtime
@@ -289,26 +286,6 @@ stdenv.mkDerivation (finalAttrs: {
     # into Pi's tree and then removes the copy.
     chmod -R u+rwX $TMPDIR/plugins
 
-    # copytree keeps the store's read-only modes; the build rsyncs this folder
-    # into Pi's tree and then removes the copy.
-    chmod -R u+rwX $TMPDIR/plugins
-
-    # copytree keeps the store's read-only modes; the build rsyncs this folder
-    # into Pi's tree and then removes the copy.
-    chmod -R u+rwX $TMPDIR/plugins
-
-    # copytree keeps the store's read-only modes; the build rsyncs this folder
-    # into Pi's tree and then removes the copy.
-    chmod -R u+rwX $TMPDIR/plugins
-
-    # copytree keeps the store's read-only modes; the build rsyncs this folder
-    # into Pi's tree and then removes the copy.
-    chmod -R u+rwX $TMPDIR/plugins
-
-    # copytree keeps the store's read-only modes; the build rsyncs this folder
-    # into Pi's tree and then removes the copy.
-    chmod -R u+rwX $TMPDIR/plugins
-
     pluginArgs=()
     if [ -f $TMPDIR/plugins/plugins.ts ]; then
       pluginArgs=(--plugins $TMPDIR/plugins/plugins.ts)
@@ -366,7 +343,6 @@ stdenv.mkDerivation (finalAttrs: {
     withExtensions = exts: pi-bolt.override { extensions = exts; };
 
     tests = {
-      version = testers.testVersion { package = finalAttrs.finalPackage; };
       # A `--version` string alone does not prove the AOT payload was loaded:
       # the Bun runtime prints its own version too. Bun reports whether the
       # static heap image was registered.
