@@ -1,0 +1,11 @@
+# The only place this repo's Rust version is written. flake.nix reads it via
+# rust-bin.fromRustupToolchainFile, so changing the channel here — and nothing
+# else — moves this repo to a different toolchain.
+#
+# Any stable >= 1.29.0 or nightly back to 2025-01-01 is already in the pinned
+# rust-overlay rev and needs no network. For anything outside that range, run
+# `nix flake update rust-overlay` in this repo (its own flake.lock, so other
+# repos are unaffected).
+[toolchain]
+channel = "1.100.0"
+components = [ "rust-src", "rust-analyzer", "clippy", "rustfmt" ]

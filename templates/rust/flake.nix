@@ -9,12 +9,7 @@
     };
   };
 
-  outputs =
-    {
-      self,
-      nixpkgs,
-      rust-overlay,
-    }:
+  outputs = { self, nixpkgs, rust-overlay }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs {
@@ -22,17 +17,16 @@
         overlays = [ (import rust-overlay) ];
       };
 
-      # Pin the toolchain in the flake, or — if you already keep a
-      # rust-toolchain.toml (from rustup projects) — switch to:
-      #   toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
-      # which honours channel/components/targets in that file.
-      toolchain = pkgs.rust-bin.stable.latest.default.override {
-        extensions = [
-          "rust-src" # needed by rust-analyzer for std sources
-          "rust-analyzer"
-          "clippy"
-        ];
-      };
+      # The version is in rust-toolchain.toml, never here: change that channel
+      # and nothing else to move this repo to a different Rust. Each repo gets
+      # its own copy of this file, so different projects can sit on different
+      # versions at the same time.
+      #
+      # The pinned rust-overlay rev ships stable 1.29.0+ and nightly back to
+      # 2025-01-01 as vendored manifests — picking any of those is offline and
+      # needs no coordination. A version outside that range needs
+      # `nix flake update rust-overlay` in this repo only (own flake.lock).
+      toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
     in
     {
       devShells.${system}.default = pkgs.mkShell {
@@ -46,14 +40,14 @@
           pkgs.openssl
         ];
 
-        # rust-analyzer runs `cargo check`/`clippy` in the background; keep the
-        # target dir out of the repo and off the GC-radar of nix-direnv.
         env = {
           RUST_BACKTRACE = "1";
-          # Point rust-analyzer at the overlay's std sources for "go to
-          # definition" into the standard library.
+          # rust-analyzer runs `cargo check`/`clippy` in the background and uses
+          # this for "go to definition" into the standard library (rust-src).
           RUST_SRC_PATH = "${toolchain}/lib/rustlib/src/rust/library";
         };
       };
+
+      formatter.${system} = pkgs.nixpkgs-fmt;
     };
 }
