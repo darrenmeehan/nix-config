@@ -22,6 +22,10 @@
   jitSupport ? false
 , # Extension directories or entry files to compile into the executable.
   extensions ? [ ]
+, # Bytecode size above which a function is left to the interpreter rather than
+  # compiled; Bun's default is 262144. Compiling a bigger one takes minutes and
+  # tens of GB of memory, so it is opt-in per build.
+  aotBytecodeLimit ? null
 , # null: baseline on Linux (code for any CPU Bun runs on) and native on macOS.
   # "native" compiles for this CPU's instruction set (AVX2 class on x86-64) and
   # falls back to bytecode where it is not there: faster, but the executable
@@ -310,10 +314,14 @@ stdenv.mkDerivation (finalAttrs: {
       pluginArgs=(--plugins $TMPDIR/plugins/plugins.ts)
     fi
 
+    ${lib.optionalString (
+      aotBytecodeLimit != null
+    ) "export BUN_JSC_maximumAOTCandidateBytecodeSize=${toString aotBytecodeLimit}"}
+
     PIBOLT_WORK=$TMPDIR/work \
     PIBOLT_BUN=$TMPDIR/runtime/bun \
     PIBOLT_RUNTIME_STAMP=${runtimeStamp} \
-      ./scripts/build-pi.sh \
+    ./scripts/build-pi.sh \
         --cpu ${
           if cpu != null then
             cpu
