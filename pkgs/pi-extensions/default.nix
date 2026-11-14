@@ -20,7 +20,7 @@ stdenv.mkDerivation {
 
   npmDeps = fetchNpmDeps {
     src = ./npm;
-    hash = "sha256-p3P0JEoUU0lZ8N2Jn4aww/H0DsYNOmwS1zeyOtLh8ww=";
+    hash = "sha256-3U6W2Co2hPZTRKzzZsMxT/t59aI+zf9YgGmiC3uWuGg=";
   };
 
   # Nothing here runs at build time: the extensions are compiled by pi-bolt.

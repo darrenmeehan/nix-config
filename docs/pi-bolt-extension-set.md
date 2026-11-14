@@ -72,6 +72,7 @@ does not lazy-load extensions and `expose`/`deferred` only defers *tools*.
 | `@heyhuynhgiabuu/pi-diff` | 0.9.3 | diff rendering — **broken**: its factory throws `Cannot find package '@earendil-works/pi-coding-agent'` on every start. Remove it or fix it upstream. |
 | `~/code/curam-membrane/drivers/pi` | 0.1.0 | local, in development |
 | `opensec-pi-todo`, `opensec-pi-fff` | via `piBolt.packages` | todo panel, fuzzy find/grep |
+| `opensec-pi-subagents` | 0.20.12, via `piBolt.packages` | named subagents in separate sessions (`Agent`, background runs, `SubagentWorkflow`) |
 
 Built-ins (`builtin:mcp`, `llama.cpp`, `codemode`, `tool-search`, `usage`)
 cost ~0 ms and are left alone.

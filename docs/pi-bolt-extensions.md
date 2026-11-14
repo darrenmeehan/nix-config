@@ -3,7 +3,7 @@
 **Last updated:** 2026-11-13.
 
 How this machine's Pi-Bolt is built, which extensions are compiled into it and
-which load from their files, why six cannot be compiled in, and what the three
+which load from their files, why seven cannot be compiled in, and what the three
 guard layers each do.
 
 Built by `pkgs/pi-bolt` (a copy of the nixpkgs PR branch) loaded from
@@ -29,6 +29,7 @@ make bench-pi-bolt    # ten starts: min / median / max time to the prompt
 | `pi-agent-browser-native` | 0.9.24 in the Nix tree (0.9.30 installed) | run time, JIT | 53 ms |
 | `opensec-pi-fff` | 0.11.2 | run time, JIT (`bun:ffi`, so the JIT build is required) | 4 ms |
 | `opensec-pi-todo` | 2.13.1 | run time, JIT | 5 ms |
+| `opensec-pi-subagents` | 0.20.12 | run time, JIT | 41 ms |
 | curam-membrane driver | `~/code/curam-membrane/drivers/pi` (flake input) | **compiled in** | 0 ms |
 | herdr's `herdr-agent-state.ts` | herdr 0.9.5 | **skipped** — Pi-Bolt has Herdr support of its own | 0 ms |
 
@@ -40,25 +41,25 @@ nothing loads them): `gentle-pi` 1.2.0, `pi-messenger-bridge` 0.4.0,
 entries, and `piBolt.packages` is an *overlay* on it — an exclusion
 (`-npm:x`, or `-<store path>` for a local extension) takes out what is compiled
 in, an addition brings in what only pi-bolt has. `pi-bolt list` therefore shows
-six packages, `pi list` nine.
+seven packages, `pi list` nine.
 
-## Why six are not compiled in
+## Why seven are not compiled in
 
 Compiled-in extensions load whether or not they are enabled, so one that cannot
 work from inside the executable fails the start of every session. Each of the
-six has a concrete blocker:
+seven has a concrete blocker:
 
 | extension | blocker |
 |---|---|
 | `bigpowers` | reads a directory listing at load: `readdirSync(<package>/skills)`; in the executable that is `/$bunfs/skills` |
-| `opensec-pi-fff`, `opensec-pi-todo` | thin entries that `createRequire` → `./core.cjs` beside themselves on every factory call, by design, so `/reload` and package upgrades re-evaluate |
+| `opensec-pi-fff`, `opensec-pi-todo`, `opensec-pi-subagents` | thin entries that `createRequire` → `./core.cjs` beside themselves on every factory call, by design, so `/reload` and package upgrades re-evaluate. `opensec-pi-subagents` also discovers agents from `.pi/agents/*.md` and `~/.pi/agent/agents/*.md` at run time |
 | `@dietrichgebert/ponytail` | imports `../hooks/ponytail-config.js` from its own folder at run time |
 | `pi-agent-browser-native` | its entry module is 1.77 MB; the top-level bytecode (282 620 B) is over Pi-Bolt's AOT candidate limit of 262 144 B. `aotBytecodeLimit` raises the limit and it does build (1m35s) and start (0.21 s), but the extension finds its package root from `import.meta.url` to point the model at `README.md` and `docs/COMMAND_REFERENCE.md`, which inside the executable are `/$bunfs/…` paths — not enabled for that reason |
 | `@plannotator/pi-extension` | (a) its diagram engine imports node-canvas; (b) with that stubbed it imports `Type` from `@earendil-works/pi-ai`, which Pi 1.5.2 no longer exports (`No matching export`) |
 
 Anything above is a fix upstream could make: embed the files
 (`import … with { type: "text" }`), skip discovery when `import.meta.url`
-starts with `/$bunfs/`, or split the oversized module. All six compiled in
+starts with `/$bunfs/`, or split the oversized module. All seven compiled in
 would put startup at about 0.10 s.
 
 ## The three guard layers
@@ -128,7 +129,7 @@ PTY, `--no-approve`, no model call):
 
 | extension set | time to prompt |
 |---|---|
-| six run-time extensions, membrane compiled in (today) | 0.22–0.50 s, median 0.33 s (two runs of 10) |
+| seven run-time extensions, membrane compiled in (today) | 0.22–0.50 s, median 0.33 s (two runs of 10) |
 | without `@plannotator/pi-extension` | 0.17 s |
 | without plannotator and `pi-agent-browser-native` | 0.12 s |
 | compiled-in extensions only | 0.08 s |

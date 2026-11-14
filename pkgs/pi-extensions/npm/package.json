@@ -15,6 +15,7 @@
     "gentle-pi": "^1.2.0",
     "linkedom": "^0.18.12",
     "opensec-pi-fff": "^0.11.2",
+    "opensec-pi-subagents": "^0.20.12",
     "opensec-pi-todo": "^2.13.1",
     "pi-agent-browser-native": "^0.9.24",
     "pi-messenger-bridge": "^0.4.0",
