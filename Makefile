@@ -48,14 +48,13 @@ lock: ## Update lock file
 gc: ## Garbage collect
 	nix-collect-garbage
 
-.PHONY: pi-bolt-aot
-pi-bolt-aot: ## Rebuild pi-bolt with the installed extensions compiled in (~3 min, needs network on first run)
-	pi-bolt compile
-	$${XDG_CACHE_HOME:-$$HOME/.cache}/pi-bolt-aot/pi doctor
-
 .PHONY: check-pi-bolt
-check-pi-bolt: ## Start pi-bolt on a pty and fail if an extension does not load (no model call)
+check-pi-bolt: ## Start pi-bolt on a pty, fail if an extension does not load (no model call)
 	./scripts/check-pi-bolt.sh
+
+.PHONY: bench-pi-bolt
+bench-pi-bolt: ## Time to first prompt, min/median/max over 10 starts
+	./scripts/check-pi-bolt.sh 10
 
 .PHONY: help
 help: ## This menu
