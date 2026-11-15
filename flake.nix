@@ -124,6 +124,38 @@
 
       # Media Server (Proxmox VM) — Jellyfin + the *arr stack + Tailscale.
       # See hosts/media/README.md.
+
+      # dev-1 (Proxmox VM) — pi sessions that outlive the laptop, plus the
+      # rust / npm / fly / docker dev box. See hosts/dev-1/README.md.
+      # Quoted: the attribute name has a hyphen.
+      "dev-1" = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./hosts/dev-1
+          ./hosts/nix-ld.nix
+          "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
+          ./hosts/dev-1/proxmox.nix
+          # Only pi's settings + guardrails file are managed here (declared
+          # rather than hand-edited); pi-bolt itself is a systemPackage so the
+          # remote-control unit's /run/current-system/sw/bin/pi-bolt still
+          # resolves. See hosts/dev-1/pi.nix.
+          home-manager.nixosModules.home-manager
+          {
+            home-manager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              users.drn = {
+                imports = [ ./hosts/dev-1/pi.nix ];
+                home = {
+                  username = "drn";
+                  homeDirectory = "/home/drn";
+                  stateVersion = "26.11";
+                };
+              };
+            };
+          }
+        ];
+      };
     };
 
     # Project scaffolds: `nix flake init -t ~/code/nix-config#rust`

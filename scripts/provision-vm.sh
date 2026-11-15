@@ -3,7 +3,7 @@
 # workflow from hosts/app-node/README.md, scripted). Run on your dev machine.
 #
 # Usage: ./scripts/provision-vm.sh <host> [vmid] [pve]
-#   host  NixOS configuration to build the image from (app-node, media, rocinante)
+#   host  NixOS configuration to build the image from (app-node, media, rocinante, dev-1)
 #   vmid  VMID to restore into (default: 100)
 #   pve   SSH target for the Proxmox host (default: root@pve)
 #

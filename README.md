@@ -9,6 +9,7 @@ NixOS and Home-Manager configuration for the machines I run:
 | `media` | Proxmox VM — Jellyfin + *arr stack + Tailscale | `hosts/media` |
 | `rocinante` | Proxmox VM | `hosts/rocinante` |
 | `app-node` | k3s cluster VM (curam-fitness app) | `hosts/app-node` + `manifests/` |
+| `dev-1` | Proxmox VM — pi sessions that outlive the laptop; rust/npm/fly/docker dev box | `hosts/dev-1` |
 | `mac@personal` | Home-Manager (standalone) | `home/` |
 | `drn@dev` | Home-Manager (standalone) | `home/` |
 | `rocinante` | Home-Manager (standalone) | `home/` |
