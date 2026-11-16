@@ -151,7 +151,7 @@
                   # drift. gh's credential helper takes precedence over the
                   # generic libsecret one for github.com, so the missing keyring
                   # on this headless box never matters.
-                  ./home/configs/git.nix
+                  ./hosts/dev-1/git.nix
                   ./home/configs/gh.nix
                 ];
                 home = {
