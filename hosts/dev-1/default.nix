@@ -13,12 +13,12 @@
 
 let
   # The extension set, settings and guardrails file shared with the laptop —
-  # see pkgs/pi-bolt/pi-config.nix. dev-1 leaves curam out (work in progress),
-  # so it compiles in the same four extensions the laptop does and none of the
-  # curam ones.
+  # see pkgs/pi-bolt/pi-config.nix. dev-1 leaves curam-membrane out (work in
+  # progress), so it compiles in the same four extensions the laptop does and
+  # none of the curam-membrane ones.
   piConfig = import ../../pkgs/pi-bolt/pi-config.nix {
     inherit pkgs;
-    curam = false;
+    curam-membrane = false;
   };
   # jit on, for the same reason the laptop has it: opensec-pi-fff reaches its
   # native library through bun:ffi, whose calls a JIT generates. `cpu` stays at
@@ -164,7 +164,7 @@ in
     flyctl
     docker-compose
     herdr # agent multiplexer: the durable pi session lives in its background server
-    piBolt # this box's build: the laptop's extensions minus curam (see the let)
+    piBolt # this box's build: the laptop's extensions minus curam-membrane (see the let)
     pi-coding-agent # node pi: cached by nixpkgs, useful when pi-bolt misbehaves
   ];
 }

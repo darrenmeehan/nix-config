@@ -2,13 +2,13 @@
 # (home/configs/pi-bolt.nix) and dev-1 (hosts/dev-1). One list, two consumers,
 # so the machines cannot drift.
 #
-# `curam = false` leaves out everything curam: the membrane driver extension and
-# the `curam-membrane` engine it spawns. dev-1 gets that variant because it is
-# still work in progress.
+# `curam-membrane = false` leaves out the membrane driver extension and the
+# `curam-membrane` engine it spawns. dev-1 gets that variant because it is still
+# work in progress.
 #
 # `pkgs` must carry `pi-bolt`, `pi-extensions` (and `curam-membrane-driver` when
-# `curam = true`) — the flake's overlay adds them; they are not in nixpkgs.
-{ pkgs, curam ? true }:
+# `curam-membrane = true`) — the flake's overlay adds them; they are not in nixpkgs.
+{ pkgs, curam-membrane ? true }:
 let
   inherit (pkgs) lib;
   curamDriver = "${pkgs.curam-membrane-driver}/drivers/pi";
@@ -39,7 +39,7 @@ rec {
     "${pkgs.pi-extensions}/node_modules/@heyhuynhgiabuu/pi-diff"
     "${pkgs.pi-extensions}/node_modules/@melihmucuk/leash"
     "${pkgs.pi-extensions}/node_modules/@mjasnikovs/pi-task"
-  ] ++ lib.optional curam curamDriver;
+  ] ++ lib.optional curam-membrane curamDriver;
 
   # Pi's own package list, untouched: `pi` loads every entry from its files.
   packages = [
@@ -51,7 +51,7 @@ rec {
     "npm:@heyhuynhgiabuu/pi-diff"
     "npm:@aliou/pi-guardrails"
     "npm:@melihmucuk/leash"
-  ] ++ lib.optional curam curamDriver;
+  ] ++ lib.optional curam-membrane curamDriver;
 
   # `piBolt.packages` is an overlay on that list: an exclusion takes out an
   # extension compiled into the executable (a run-time copy would replace it, and
@@ -64,7 +64,7 @@ rec {
     "-npm:@heyhuynhgiabuu/pi-diff"
     "-npm:@aliou/pi-guardrails"
     "-npm:@melihmucuk/leash"
-  ] ++ lib.optional curam "-${curamDriver}" ++ [
+  ] ++ lib.optional curam-membrane "-${curamDriver}" ++ [
     "npm:opensec-pi-todo"
     "npm:opensec-pi-fff"
     "npm:opensec-pi-subagents"

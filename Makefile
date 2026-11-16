@@ -40,14 +40,6 @@ provision-vm: ## Provision a VM on PVE from a built VMA image (PROVISION_HOST=me
 media: ## Pull + switch the media VM (requires Tailscale/ssh)
 	ssh drn@media 'cd /opt/nix-config && git pull && sudo nixos-rebuild switch --flake /opt/nix-config#media'
 
-.PHONY: deploy-dev-1
-# `pi-bolt service` runs a systemd --user unit whose ExecStart is a /nix/store
-# path, so a pi-bolt bump leaves it pointing at the old one (which GC may then
-# delete). Restarting it after the switch re-execs the new binary; no-op when
-# the service was never installed.
-dev-1: ## Pull + switch the dev-1 VM (requires ssh)
-	ssh drn@dev-1 'cd /opt/nix-config && git pull && sudo nixos-rebuild switch --flake /opt/nix-config#dev-1; pi-bolt service restart || true'
-
 .PHONY: lock
 lock: ## Update lock file
 	nix flake update

@@ -4,10 +4,10 @@
 # control unit points at /run/current-system/sw/bin/pi-bolt), so it is not
 # installed again here.
 let
-  # Same shared config as the laptop, with curam left out.
+  # Same shared config as the laptop, with curam-membrane left out.
   piConfig = import ../../pkgs/pi-bolt/pi-config.nix {
     inherit pkgs;
-    curam = false;
+    curam-membrane = false;
   };
   # Remote control on: the phone drives sessions on this box, and a store-path
   # settings file cannot be edited by `pi-bolt remote-control enable`, so it has

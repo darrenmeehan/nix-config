@@ -73,7 +73,7 @@ pi-bolt service status                                   # local + tailscale add
 - `ExecStart` names `/run/current-system/sw/bin/pi-bolt`, not a `/nix/store`
   path, so a pi-bolt upgrade does not leave the unit pointing at a store path
   that GC can delete. The running daemon keeps the old code until it is
-  restarted — which is what `make dev-1` does at the end.
+  restarted — which is what the day-2 switch on dev-1 does at the end.
 - The service is a **systemd --user** unit, so it needs
   `users.users.<user>.linger = true` on a headless box; without lingering the
   user manager only exists while an SSH session does.

@@ -50,10 +50,10 @@ runs `qm*`.
 | `qmrestore … 200 --storage local-lvm`, `qm start 200`, `qm set 200 --onboot 1` | **pve** (or `ssh root@pve '<cmd>'` from the laptop) | Proxmox commands, not NixOS |
 | `make provision-vm PROVISION_HOST=dev-1 VMID=200` | laptop, repo root | the three rows above in one step — use it *instead of* them |
 | `qm guest cmd 200 network-get-interfaces` | pve, or `ssh root@pve '…'` | to find the VM's DHCP address |
-| `passwd`, `sudo git clone … /opt/nix-config` | **dev-1**, over `ssh drn@<ip>` | first login only |
+| `passwd`, `git clone … ~/code/nix-config` | **dev-1**, over `ssh drn@<ip>` | first login only |
 | `scp -r ~/.pi/agent/… dev-1:~/.pi/agent/` | laptop | needs the ssh alias below to have a real `HostName` |
-| `make dev-1` | laptop, repo root | day-2: ssh's in, `git pull`, `nixos-rebuild switch` (needs `/opt/nix-config` on the VM) |
-| `rebuild-dev` (shell alias) | laptop, anywhere | day-2 without `/opt/nix-config`: builds the local tree, copies the closure, activates. Asks for drn's sudo password. |
+| `sudo nixos-rebuild switch --flake ~/code/nix-config#dev-1` | **dev-1** | day-2: pull the VM's own checkout, then switch. Follow with `pi-bolt service restart` |
+| `rebuild-dev` (shell alias) | laptop, anywhere | escape hatch only: builds the local tree and activates it over ssh. Normal path is on the VM. Asks for drn's sudo password. |
 | `ssh -t dev-1 herdr` | laptop | daily use — the herdr server runs on dev-1 |
 
 ## Deploy (first time)
@@ -100,7 +100,7 @@ Host dev-1
 ```shell
 ssh drn@dev-1
 passwd            # replace the bootstrap hash from git
-sudo mkdir -p /opt && sudo git clone <this repo> /opt/nix-config   # `make dev-1` deploys from it
+git clone <this repo> ~/code/nix-config   # the VM switches from this checkout
 sudo tailscale up   # prints a URL; approve the device in the tailnet
 ```
 
@@ -131,8 +131,8 @@ pi's own config is **declared, not hand-edited**: `~/.pi/agent/settings.json`
 and `~/.pi/agent/extensions/guardrails.json` come from home-manager
 (`hosts/dev-1/pi.nix`), built from the file both machines share —
 [`pkgs/pi-bolt/pi-config.nix`](../../pkgs/pi-bolt/pi-config.nix). One list, two
-consumers, so the boxes cannot drift: the laptop imports it with curam, dev-1
-with `curam = false`.
+consumers, so the boxes cannot drift: the laptop takes the default
+(`curam-membrane = true`), dev-1 passes `curam-membrane = false`.
 
 `pi-bolt` itself is built here with the same four extensions the laptop
 compiles in — `@aliou/pi-guardrails`, `@heyhuynhgiabuu/pi-diff`,
@@ -151,7 +151,7 @@ Two deliberate differences from the laptop build:
 - **`remoteControl.enabled = true`** is in the declared settings (the laptop
   leaves it off). A store-path settings file is read-only, so
   `pi-bolt remote-control enable` cannot persist anything here — change it in
-  `hosts/dev-1/pi.nix` and `make dev-1`.
+  `hosts/dev-1/pi.nix` and rebuild on the VM.
 
 Both files are store paths, so `pi` cannot save settings changes on this box
 either (`/model` shows the change but does not keep it). That is the same
@@ -159,11 +159,13 @@ trade-off as the laptop.
 
 ## Day-2
 
-```shell
-make dev-1        # from the laptop: git pull + nixos-rebuild switch on the VM
-```
+On the VM, from its own checkout:
 
-Or, on the VM: `cd /opt/nix-config && git pull && sudo nixos-rebuild switch --flake .#dev-1`.
+```shell
+cd ~/code/nix-config && git pull
+sudo nixos-rebuild switch --flake .#dev-1
+pi-bolt service restart   # re-exec the new binary; no-op if the service is uninstalled
+```
 
 ## Working on it from the laptop
 
@@ -235,7 +237,7 @@ already open).
 absolute" — [`docs/pi-bolt-service-unit.md`](../../docs/pi-bolt-service-unit.md)
 has the symptom, the root cause and the `sed` fix; every `pi-bolt service
 install` re-breaks it. Separately, the running daemon keeps the code it started
-with, so `make dev-1` ends with `pi-bolt service restart` to re-exec the new
+with, so the day-2 switch ends with `pi-bolt service restart` to re-exec the new
 binary (a no-op when the service is not installed). `ExecStart` names
 `/run/current-system/sw/bin/pi-bolt`, so an upgrade cannot leave it pointing at
 a GC'd store path.
@@ -248,7 +250,7 @@ guessing those is worse than the restart line.
 ## Toolchains
 
 - **Rust** — none installed globally, by design. Each repo carries its own
-  devShell: `nix flake init -t /opt/nix-config#rust`, `direnv allow`, and
+  devShell: `nix flake init -t ~/code/nix-config#rust`, `direnv allow`, and
   `rustc`/`cargo`/`rust-analyzer`/`clippy` come from that flake. See
   `templates/rust/README.md`.
 - **npm/node** — `nodejs_26` (npm included).
@@ -263,6 +265,6 @@ guessing those is worse than the restart line.
 - **`pi-bolt service` as a declared unit** — machine-local by design; see the
   wart above.
 - **autoUpgrade** — a dev box should not rebuild itself mid-task; switching is
-  explicit (`make dev-1`).
+  explicit (`nixos-rebuild switch` on the VM).
 - **Global rust toolchain** — AGENTS.md: never. The VM follows the same rule as
   every other machine here.

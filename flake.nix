@@ -145,7 +145,15 @@
               useGlobalPkgs = true;
               useUserPackages = true;
               users.drn = {
-                imports = [ ./hosts/dev-1/pi.nix ];
+                imports = [
+                  ./hosts/dev-1/pi.nix
+                  # Identity and gh, shared with the laptop so the two cannot
+                  # drift. gh's credential helper takes precedence over the
+                  # generic libsecret one for github.com, so the missing keyring
+                  # on this headless box never matters.
+                  ./home/configs/git.nix
+                  ./home/configs/gh.nix
+                ];
                 home = {
                   username = "drn";
                   homeDirectory = "/home/drn";
