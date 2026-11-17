@@ -92,7 +92,10 @@ own. `qrcode-terminal` alone also loads fine.
 ## Workaround
 
 Removed `npm:pi-messenger-bridge` from `~/.pi/agent/settings.json` `packages` on
-2026-10-31.
+2026-10-31, and from the Nix extension tree
+(`pkgs/pi-extensions/npm/package.json`) on 2026-11-18 — it was still installed
+but never loaded, and its deprecated `request`/`qs`/`tough-cookie` chain was
+the source of every critical Dependabot alert on this repo.
 
 Backup: `~/.pi/agent/settings.json.bak-20261031172549`.
 
