@@ -21,8 +21,8 @@
       # Removed from packages/settings.json for startup cost; load per session
       # with an exact pin so no registry check runs. See
       # docs/pi-bolt-extension-set.md
-      pi-lens = "pi-bolt -e npm:pi-lens@4.4.12";
-      pi-web = "pi-bolt -e npm:pi-web-access@0.47.0";
+      pi-lens = "pi-bolt -e npm:pi-lens@4.5.1";
+      pi-web = "pi-bolt -e npm:pi-web-access@0.48.0";
       # Pay the cold-transpile cost now instead of on the next session's first
       # prompt. Run after any pi install/remove/update --extensions.
       pi-warm = "pi-bolt -p ping";
