@@ -251,6 +251,8 @@
         });
         modules = [
           ./home/home.nix
+          # GNOME power/lock policy — only this machine runs GNOME.
+          ./home/configs/gnome-laptop.nix
           # Laptop-specific bits: keep the shell env and git auth that this
           # machine already has, instead of throwing them away on switch.
           {
