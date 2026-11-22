@@ -69,7 +69,7 @@ comment = "in the sqlite3 CLI's .recover command; this closure ships the lib out
 ["dhcpcd-10.3.2"]
 cve = ["CVE-2026-56113", "CVE-2026-56114", "CVE-2026-56116", "CVE-2026-56117"]
 until = "2026-12-15"
-comment = "fixed in commits 5733d3c/2f00c7b/708b4a5/78ea09e, no release. edge-router runs dhcpcd on the WAN interface, so the same-link attacker is the ISP segment"
+comment = "FIX RELEASED upstream: v10.5.0/10.5.1/10.5.2 all postdate these fixes, but nixpkgs (pinned and master) still ships 10.3.2 with no patches. Fixable here by bumping/overriding to 10.5.2 - needs WAN-DHCP testing on the router. edge-router runs dhcpcd on the WAN interface, so the same-link attacker is the ISP segment"
 
 ["libssh2-1.11.1"]
 cve = [
@@ -84,17 +84,17 @@ cve = [
   "CVE-2026-66035",
   "CVE-2026-7598",
 ]
-until = "2026-12-15"
-comment = "all 'through 1.11.1, fixed in commit <sha>'; 1.11.1 is the latest release. Client side: needs a hostile SSH/SFTP server, and here libssh2 is only pulled in by curl"
+until = "2027-02-01"
+comment = "ALREADY PATCHED by nixpkgs: upstream released no fix (1.11.1 is latest), so nixpkgs backports all 10 - verified in the drv this closure uses, which lists every one of these CVE patch names. vulnix matches name+version and cannot see patches"
 
 # CVE-2026-6238 is noise (affected 2.0.1 through 2.43, this is 2.44).
 # CVE-2026-5435 is open in 2.44 and newer with no patch release.
 ["glibc-2.44-57"]
 cve = ["CVE-2026-5435", "CVE-2026-6238"]
 until = "2026-12-15"
-comment = "fixes are upstream commits, no release. Both hit the deprecated BIND-derived ns_printrrf/ns_printrr/fp_nquery debug functions, which no normal program calls"
+comment = "CVE-2026-5435 has no released fix; nixpkgs' 2.44-master.patch carries only the GLIBC-SA-2026-0012 advisory text, no ns_print.c hunk. Hits deprecated BIND-derived ns_printrrf/ns_printrr/fp_nquery debug functions, which no normal program calls"
 
 ["bison-3.8.2"]
 cve = ["CVE-2026-56389", "CVE-2026-56390"]
 until = "2027-05-01"
-comment = "fixed in commits 3169c1e/8d101c1, no release. Needs bison --html run on an attacker-supplied grammar; build-time only, no service does this"
+comment = "fixed in commits 3169c1e/8d101c1; 3.8.2 is still the newest release (2021), and nixpkgs' bison is a bootstrap package that cannot use fetchpatch. Needs bison --html run on an attacker-supplied grammar: build-time only"
