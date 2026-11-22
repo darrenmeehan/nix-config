@@ -1,0 +1,51 @@
+name: "Vulnerability Scan"
+
+# vulnix matches published CVEs against what each host actually ships. A new
+# advisory appears against a version that is already built and running, so this
+# belongs on a schedule — a per-PR run would only re-report yesterday's
+# findings and make every PR red. Triaged CVEs live in
+# specs/security/vulnix-whitelist.toml; anything not listed there fails the job.
+on:
+  schedule:
+    - cron: "17 4 * * *" # nightly; off the hour to dodge the runner stampede
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Let a nightly run finish before the next starts, and keep a manual run from
+# colliding with it.
+concurrency:
+  group: vulnix
+  cancel-in-progress: false
+
+jobs:
+  vulnix:
+    runs-on: ubuntu-latest
+    # A cold cache build of a NixOS toplevel is the slow part; the Cachix
+    # cache usually substitutes it. Raise this if a host starts timing out.
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        # Every host in flake.nix's nixosConfigurations. Removing one silently
+        # drops coverage, so the list stays complete and explicit.
+        host: [edge-router, mgmt, media, rocinante, app-node, dev-1]
+    steps:
+      # Supply-chain hardening: actions pinned to immutable SHAs (floating @vX
+      # tags are MUTABLE). Same pins as test.yml; bump by changing the SHA.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: cachix/install-nix-action@8887e596b4ee1134dae06b98d573bd674693f47c
+        # v26
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+      - uses: cachix/cachix-action@18cf96c7c98e048e10a83abd92116114cd8504be
+        # v14
+        with:
+          name: mycache
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+
+      # The Makefile recipe, not a copy of it, so CI and a local run cannot
+      # drift. Exit 2 means advisories not in the whitelist were found.
+      - name: Scan ${{ matrix.host }}
+        run: make vulnix VULNIX_HOST=${{ matrix.host }}
