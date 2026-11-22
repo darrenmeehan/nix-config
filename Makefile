@@ -60,6 +60,17 @@ check-pi-bolt: ## Start pi-bolt on a pty, fail if an extension does not load (no
 bench-pi-bolt: ## Time to first prompt, min/median/max over 10 starts
 	./scripts/check-pi-bolt.sh 10
 
+# vulnix scans the runtime closure of a host's system build for known CVEs.
+# It exits 2 when advisories exist, 0 when clean, 1 on error. Triaged CVEs go
+# in the whitelist; scanning the machine you are on instead:
+#   nix run .#vulnix -- -S
+VULNIX_HOST ?= $(HOSTNAME)
+VULNIX_WHITELIST ?= specs/security/vulnix-whitelist.toml
+.PHONY: vulnix
+vulnix: ## Scan a host's closure for CVEs (VULNIX_HOST=media; default current host)
+	@toplevel=$$(nix build --no-link --print-out-paths .#nixosConfigurations.$(VULNIX_HOST).config.system.build.toplevel) || exit 1; \
+	LANG=C.UTF-8 nix run .#vulnix -- -C "$$toplevel" -w $(VULNIX_WHITELIST)
+
 .PHONY: help
 help: ## This menu
 	@grep -P "##\s(.*)$$" $(MAKEFILE_LIST) | sed 's/:.*##/:/'

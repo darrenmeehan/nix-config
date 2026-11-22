@@ -312,6 +312,10 @@
     #   nix build .#edge-router-iso        → bootable USB installer ISO
     packages.x86_64-linux = {
 
+      # Vulnerability scanner (`make vulnix`), pinned to this flake's nixpkgs
+      # rather than the flake registry's, so the scan matches what hosts build.
+      vulnix = nixpkgs.legacyPackages.x86_64-linux.vulnix;
+
       # Bootable USB installer ISO — built natively by nixpkgs (the old
       # `nixos-generators` input was dropped; `installation-cd-base.nix` is the
       # same base the upstream `install-iso` format wraps).

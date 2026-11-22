@@ -15,6 +15,9 @@ per-node docs in `README.md`; ops docs live in `docs/` or each host's README.
 - `nix build .#nixosConfigurations.<host>.config.system.build.VMA` — Proxmox VM image
 - `make lock` — bump lockfile
 - `make pin-curam` — move `pkgs/curam/pins.nix` to the two curam checkouts' HEADs
+- `make vulnix VULNIX_HOST=<host>` — scan a host's system closure for known
+  CVEs (vulnix; exits 2 when advisories exist). Triaged CVEs are whitelisted in
+  `specs/security/vulnix-whitelist.toml`
 
 ## Layout
 

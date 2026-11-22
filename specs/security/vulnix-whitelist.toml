@@ -1,0 +1,101 @@
+# vulnix whitelist — CVEs that vulnix must stop reporting for a package.
+# `make vulnix` passes this file (-w). One table per package, named the way
+# vulnix prints it (name-version, or just the name to match any version);
+# "*" whitelists a CVE everywhere. Keys: cve, until (YYYY-MM-DD), issue_url,
+# comment.
+#
+# Baseline established 2026-11-22 against flake.lock nixpkgs d5cc683. Every
+# entry lists explicit CVE ids rather than a bare package name, so a NEW
+# advisory on the same package still gets reported. `until` is deliberate:
+# when it passes, vulnix reports the CVE again and someone re-checks whether a
+# fixed version has reached nixpkgs.
+#
+# Verify a claim before extending one:
+#   nix eval --raw .#nixosConfigurations.edge-router.pkgs.<pkg>.version
+#   nix eval --raw github:NixOS/nixpkgs/nixos-unstable#<pkg>.version
+
+# --- False positive: the name is not the software ---------------------------
+# This is NixOS's generated dbus documentation output (buildCommand runs
+# xsltproc over the man page source), not the dbus daemon. vulnix matches the
+# literal name "dbus-1" against dbus 1.x advisories. The real daemon in the
+# closure (dbus 1.16.2) is not flagged, which is the evidence.
+["dbus-1"]
+cve = ["CVE-2022-42010", "CVE-2022-42011", "CVE-2022-42012"]
+until = "2027-02-01"
+comment = "doc output, not the daemon; matched on the name 'dbus-1'"
+
+# --- Network-facing: short expiry, needs a human decision -------------------
+# Both reach this box from the network, so the risk is accepted only until the
+# near-date — extend deliberately or pin a patched version, do not let it ride.
+["dhcpcd-10.3.2"]
+cve = ["CVE-2026-56113", "CVE-2026-56114", "CVE-2026-56116", "CVE-2026-56117"]
+until = "2026-12-15"
+comment = "network-facing; nixpkgs master still ships 10.3.2 (2026-11-22)"
+
+["libssh2-1.11.1"]
+cve = [
+  "CVE-2025-15661",
+  "CVE-2026-55199",
+  "CVE-2026-55200",
+  "CVE-2026-58050",
+  "CVE-2026-58051",
+  "CVE-2026-66032",
+  "CVE-2026-66033",
+  "CVE-2026-66034",
+  "CVE-2026-66035",
+  "CVE-2026-7598",
+]
+until = "2026-12-15"
+comment = "network-facing; nixpkgs master still ships 1.11.1 (2026-11-22)"
+
+# --- Runtime libraries: no fixed version in nixpkgs yet ---------------------
+# Checked nixos-unstable on 2026-11-22: same version as the pin, so there is
+# nothing to bump to. Re-check when the lock advances.
+["glibc-2.44-57"]
+cve = ["CVE-2026-5435", "CVE-2026-6238"]
+until = "2027-02-01"
+comment = "no newer glibc in nixpkgs master (still 2.44)"
+
+["zlib-1.3.2"]
+cve = ["CVE-2023-6992", "CVE-2026-27820"]
+until = "2027-02-01"
+comment = "no newer zlib in nixpkgs master (still 1.3.2)"
+
+["sqlite-3.54.0"]
+cve = ["CVE-2026-119586"]
+until = "2027-02-01"
+comment = "no newer sqlite in nixpkgs master (still 3.54.0)"
+
+["brotli-1.2.1"]
+cve = ["CVE-2026-111497"]
+until = "2027-02-01"
+comment = "no newer brotli in nixpkgs master (still 1.2.1)"
+
+["jq-1.8.2"]
+cve = ["CVE-2026-44777"]
+until = "2027-02-01"
+comment = "no newer jq in nixpkgs master (still 1.8.2)"
+
+# --- Build-time only: present in the closure, never fed runtime input -------
+# These are toolchain entries (compilers/interpreters). The advisories need
+# attacker-controlled input handed to the tool, which no service on these
+# hosts does. Long expiry: this is a stable judgement, not a waiting game.
+["bison-3.8.2"]
+cve = ["CVE-2026-56389", "CVE-2026-56390"]
+until = "2027-05-01"
+comment = "build-time parser generator; --html report path not used at runtime"
+
+["gcc-16.2.0"]
+cve = ["CVE-2023-4039"]
+until = "2027-05-01"
+comment = "compiler; aarch64 -fstack-protector issue, x86_64 hosts"
+
+["perl-5.42.3"]
+cve = ["CVE-2026-13221", "CVE-2026-57432", "CVE-2026-8376"]
+until = "2027-05-01"
+comment = "interpreter used by build/activation scripts, not exposed input"
+
+["perl-5.42.3-env"]
+cve = ["CVE-2026-13221", "CVE-2026-57432", "CVE-2026-8376"]
+until = "2027-05-01"
+comment = "same perl, wrapper output"
