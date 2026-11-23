@@ -153,6 +153,9 @@
                   # on this headless box never matters.
                   ./home/configs/git.nix
                   ./home/configs/gh.nix
+                  # Obsidian + Syncthing over the tailnet, same file the laptop
+                  # uses. See home/configs/notes.nix.
+                  ./home/configs/notes.nix
                 ];
                 home = {
                   username = "drn";
@@ -251,6 +254,9 @@
         });
         modules = [
           ./home/home.nix
+          # Obsidian + Syncthing over the tailnet, shared with dev-1.
+          # See home/configs/notes.nix.
+          ./home/configs/notes.nix
           # Laptop-specific bits: keep the shell env and git auth that this
           # machine already has, instead of throwing them away on switch.
           {

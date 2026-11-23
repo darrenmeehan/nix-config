@@ -41,6 +41,10 @@ in
     })
   ];
 
+  # Obsidian (home/configs/notes.nix) is unfree; allow that one package rather
+  # than every unfree licence on the box.
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "obsidian" ];
+
   # ── Identity ─────────────────────────────────────────────────────────────
   system.stateVersion = "26.11";
   networking.hostName = "dev-1";
