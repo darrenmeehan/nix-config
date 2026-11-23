@@ -56,6 +56,21 @@ broken without the definitions at the bottom. Body draft: `docs/pi-bolt-nixpkgs-
 - *Package tests at `passthru.tests`* → the `pi-bolt.passthru.tests` build above.
 - *NixOS tests, lib tests, release notes* → N/A for a new package; leave unchecked.
 
+## Version bump
+
+Run the package's own script from the nixpkgs root — it bumps version, source, `npmDepsHash`, the
+three runtime hashes and `RUNTIME_STAMP`:
+
+```bash
+NIX_PATH=nixpkgs=$PWD ./pkgs/by-name/pi/pi-bolt/update.sh
+```
+
+`NIX_PATH` is required (no channel on this machine; the shebang's `nix-shell` cannot find
+`<nixpkgs>` without it). Then: build `-A pi-bolt.passthru.tests`, rebuild the extensions/native
+variant, fix any comment that names the old version, update the commit message (version, Pi version,
+changelog URL) and ask Darren to retitle the PR — `gh pr edit --title` is a `gh` write.
+If `RUNTIME_STAMP` changed, the engine layout changed: say so, it is the interesting part of the bump.
+
 ## Git traps in this clone
 
 - `git fetch origin master` never completes (shallow, 3.1 G `.git`). Use
@@ -65,6 +80,12 @@ broken without the definitions at the bottom. Body draft: `docs/pi-bolt-nixpkgs-
 - Keep the PR at two commits (`maintainers: add …`, package init): amend locally, never add
   fixup commits — the force-push is Darren's.
 - Re-run vet whenever master has moved; a stale base produces false findings both ways.
+- Rebasing this branch is unreliable: plain `rebase`, `rebase --onto` and `cherry-pick` of the init
+  commit all misbehave (whole-tree add/add conflicts that revert upstream). The working recipe:
+  `git checkout -B <new> origin/master`, then recreate the two files with
+  `git show <old-sha>:pkgs/by-name/pi/pi-bolt/<file> > <file>`, re-insert the `darrenmeehan` block
+  into `maintainers/maintainer-list.nix` by hand, and commit with `-C <old-sha>` to keep the
+  messages. `git checkout <sha> -- <path>` is guard-blocked; the `git show` redirect is not.
 
 ## Do not do — hand over instead
 
