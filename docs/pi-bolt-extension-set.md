@@ -82,7 +82,7 @@ cost ~0 ms and are left alone.
 Both were removed for startup cost, not for being unused. They are **real
 capability gaps**, listed below.
 
-### `pi-lens` 4.4.12 (26 MB)
+### `pi-lens` (26 MB, measured on 4.4.12)
 
 LSP, linters, formatters, type-checking, structural analysis, proactive
 diagnostics.
@@ -100,13 +100,13 @@ manual: you find out at the next check, not at the edit.
 **Back on demand:**
 
 ```sh
-pi-bolt -e npm:pi-lens@4.4.12
+pi-bolt -e npm:pi-lens@4.5.1
 ```
 
 Exact pin means no registry check at startup (documented in
 `docs/packages.md`); the package is cached under `~/.pi/agent/tmp/extensions`.
 
-### `pi-web-access` 0.47.0 (15 MB, 31 dependencies)
+### `pi-web-access` (15 MB, 31 dependencies, measured on 0.47.0)
 
 `web_search`, URL fetch, GitHub repo cloning, PDF extraction, YouTube
 understanding.
@@ -119,14 +119,14 @@ current documentation or a live page now needs the extension loaded.
 **Back on demand:**
 
 ```sh
-pi-bolt -e npm:pi-web-access@0.47.0
+pi-bolt -e npm:pi-web-access@0.48.0
 ```
 
 ### Restoring either permanently
 
 ```sh
-pi-bolt install npm:pi-lens@4.4.12
-pi-bolt install npm:pi-web-access@0.47.0
+pi-bolt install npm:pi-lens@4.5.1
+pi-bolt install npm:pi-web-access@0.48.0
 ```
 
 Then budget one ~2 min cold start before the next session, or warm it with

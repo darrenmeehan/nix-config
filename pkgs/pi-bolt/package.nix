@@ -37,27 +37,27 @@
 }:
 let
   inherit (stdenv) hostPlatform;
-  version = "1.2.1";
+  version = "1.3.0";
 
   # Kept separate so update.sh can bump it like runtimeStamp.
-  npmDepsHash = "sha256-clSwqY+pfiFyVXwlTOd1Y1f3tsGZE0X3ffamtLpkUX0=";
+  npmDepsHash = "sha256-ZDw5kD817dyRlz4POQgk3ftdG+BQxEi63rmExUkTDxM=";
 
   # The AOT engine (patched Bun + WebKit) is released as a signed binary; the
   # application is compiled from source against it. Its stamp is the release's
-  # RUNTIME_STAMP (unchanged since 1.0.7).
-  runtimeStamp = "9606e2f852e92ee9";
+  # RUNTIME_STAMP.
+  runtimeStamp = "13ef7565ee8ee6b5";
   runtimeAssets = {
     x86_64-linux = fetchurl {
-      url = "https://github.com/opensec-git/Pi-Bolt/releases/download/bolt-v1.2.1/pi-bolt-runtime-linux-x64.tar.gz";
-      hash = "sha256-JdfExfjaUb0hzY7ChOmbDa22u0f6nO7QcS6eMJPckzc=";
+      url = "https://github.com/opensec-git/Pi-Bolt/releases/download/bolt-v1.3.0/pi-bolt-runtime-linux-x64.tar.gz";
+      hash = "sha256-iBab0pNzmQXFpQSORdpmvMaAi0fm2fgkgeKLiSlcgvQ=";
     };
     aarch64-linux = fetchurl {
-      url = "https://github.com/opensec-git/Pi-Bolt/releases/download/bolt-v1.2.1/pi-bolt-runtime-linux-arm64.tar.gz";
-      hash = "sha256-gKVweKbshoBqtbpOTYM2yo1Sz0IV7YjMl8ef+3YMaeI=";
+      url = "https://github.com/opensec-git/Pi-Bolt/releases/download/bolt-v1.3.0/pi-bolt-runtime-linux-arm64.tar.gz";
+      hash = "sha256-bJkGyXSBcIL9Vv7PeSYQrbo6KIP9CzkfrKppIJkDIyY=";
     };
     aarch64-darwin = fetchurl {
-      url = "https://github.com/opensec-git/Pi-Bolt/releases/download/bolt-v1.2.1/pi-bolt-runtime-darwin-arm64.tar.gz";
-      hash = "sha256-bvWiB5AkoZGs1c80Ehtl/EEg+yqxB1+M5YLt2hMkt70=";
+      url = "https://github.com/opensec-git/Pi-Bolt/releases/download/bolt-v1.3.0/pi-bolt-runtime-darwin-arm64.tar.gz";
+      hash = "sha256-dwHyX/Nyr/IXt3F70d5ZCnxe+OEEyyIZAYQtLL0gcVE=";
     };
   };
   runtimeSrc =
@@ -72,7 +72,7 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "opensec-git";
     repo = "Pi-Bolt";
     tag = "bolt-v${version}";
-    hash = "sha256-Dx5i+i9nbPKQ4mdBye2V6GA0NPD/I2hAzN0ZAqhPKms=";
+    hash = "sha256-NXVzdKUQN2bMCn1RMwTCLEUlgIckPVqZH+UA8XSbWxI=";
   };
 
   inherit runtimeSrc;
@@ -115,7 +115,7 @@ stdenv.mkDerivation (finalAttrs: {
     patchelf --set-interpreter ${stdenv.cc.bintools.dynamicLinker} $TMPDIR/runtime/bun
   '';
 
-  # 1.2.0's build runs a biome-based schema check. The generated files are
+  # The build runs a biome-based schema check. The generated files are
   # committed, and the npm deps are installed without lifecycle scripts, so
   # biome's platform binary is not usable.
   # Skip the check; tsc still compiles the committed generated files.

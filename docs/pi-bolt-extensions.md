@@ -25,8 +25,8 @@ make bench-pi-bolt    # ten starts: min / median / max time to the prompt
 | `@mjasnikovs/pi-task` | 0.42.66 | **compiled in** | 0 ms |
 | `bigpowers` | 2.96.1 | run time, JIT | 7 ms |
 | `@dietrichgebert/ponytail` | 5.3.3 | run time, JIT | 2 ms |
-| `@plannotator/pi-extension` | 0.28.62 in the Nix tree (0.28.64 installed) | run time, JIT | 36–60 ms |
-| `pi-agent-browser-native` | 0.9.24 in the Nix tree (0.9.30 installed) | run time, JIT | 53 ms |
+| `@plannotator/pi-extension` | 0.28.67 | run time, JIT | 36–60 ms |
+| `pi-agent-browser-native` | 0.9.34 | run time, JIT | 53 ms |
 | `opensec-pi-fff` | 0.11.2 | run time, JIT (`bun:ffi`, so the JIT build is required) | 4 ms |
 | `opensec-pi-todo` | 2.13.1 | run time, JIT | 5 ms |
 | `opensec-pi-subagents` | 0.20.12 | run time, JIT | 41 ms |
@@ -34,8 +34,16 @@ make bench-pi-bolt    # ten starts: min / median / max time to the prompt
 | herdr's `herdr-agent-state.ts` | herdr 0.9.5 | **skipped** — Pi-Bolt has Herdr support of its own | 0 ms |
 
 Installed in `~/.pi/agent/npm` but not enabled (absent from `settings.json`, so
-nothing loads them): `gentle-pi` 1.2.0, `pi-messenger-bridge` 0.4.0,
-`pi-simplify` 0.2.3, `@ollama/pi-web-search` 0.0.5.
+nothing loads them): `gentle-pi` 1.2.0, `pi-simplify` 0.2.3,
+`@ollama/pi-web-search` 0.0.5.
+
+`pi-messenger-bridge` was dropped from the tree on 2026-11-18 (see
+`pi-messenger-bridge-crash.md`): it crashes Pi-Bolt at load, and its
+dependency chain — `request`, `request-promise*`, `qs`, `tough-cookie`,
+`uuid`, `form-data`, `matrix-bot-sdk`, `node-telegram-bot-api` — carried one
+critical and eight moderate advisories that no in-tree bump could clear.
+Re-add it (`pi-bolt install npm:pi-messenger-bridge`) only once upstream has
+replaced `request`.
 
 `pi` and `pi-bolt` share `settings.json`: `packages` holds all nine package
 entries, and `piBolt.packages` is an *overlay* on it — an exclusion

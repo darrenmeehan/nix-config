@@ -27,3 +27,8 @@ __pycache__/
 # Local nixpkgs working clones (pi-bolt PR / staging)
 /nixpkgs-pr/
 /nixpkgs-prep/
+
+# Stray downloads (yt-dlp state landed in a commit once)
+*.ytdl
+*.part
+*.mp4

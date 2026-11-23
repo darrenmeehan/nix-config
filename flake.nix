@@ -151,7 +151,7 @@
                   # drift. gh's credential helper takes precedence over the
                   # generic libsecret one for github.com, so the missing keyring
                   # on this headless box never matters.
-                  ./home/configs/git.nix
+                  ./hosts/dev-1/git.nix
                   ./home/configs/gh.nix
                   # Obsidian + Syncthing over the tailnet, same file the laptop
                   # uses. See home/configs/notes.nix.
@@ -257,6 +257,8 @@
           # Obsidian + Syncthing over the tailnet, shared with dev-1.
           # See home/configs/notes.nix.
           ./home/configs/notes.nix
+          # GNOME power/lock policy — only this machine runs GNOME.
+          ./home/configs/gnome-laptop.nix
           # Laptop-specific bits: keep the shell env and git auth that this
           # machine already has, instead of throwing them away on switch.
           {
