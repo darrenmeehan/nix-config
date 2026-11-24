@@ -117,12 +117,19 @@ in
     # project flake needs to add its own substituters/GC roots.
     trusted-users = [ "root" "@wheel" ];
   };
-  # A dev box eats disk; reclaim it rather than fill the VM.
+  # A dev box eats disk; reclaim it rather than fill the VM. Weekly was too
+  # lazy: a week of rust/devShell builds put 38G of unreachable store paths on
+  # the disk and `pi-bolt --continue` died with ENOSPC (2026-11-23).
   nix.gc = {
     automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 30d";
+    dates = "daily";
+    options = "--delete-older-than 14d";
   };
+  # Belt and braces: the daemon collects garbage mid-build when free space
+  # drops below min-free (and trims back to max-free), so a build fails to be
+  # collected instead of failing to be written.
+  nix.settings.min-free = "5G";
+  nix.settings.max-free = "15G";
 
   # ── Rust build headroom ──────────────────────────────────────────────────
   # No disk swap (hardware-configuration.nix): a link step that outruns RAM
