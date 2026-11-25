@@ -1,6 +1,6 @@
-# Handover: finishing nixpkgs PR #586143 (`pi-bolt: init at 1.3.0`)
+# Handover: finishing nixpkgs PR #586143 (`pi-bolt: init at 1.3.1`)
 
-Written 2026-11-14; updated after the Pi-Bolt 1.3.0 bump. The remaining steps are yours to run — the
+Written 2026-11-14; updated after the Pi-Bolt 1.3.1 bump. The remaining steps are yours to run — the
 agent is blocked from `git push` and from `gh` writes by design (see
 `.agents/skills/nixpkgs-contributing/`).
 
@@ -9,12 +9,12 @@ agent is blocked from `git push` and from `gh` writes by design (see
 | | |
 | --- | --- |
 | PR | **#586143** — head `darrenmeehan:pi-bolt-nixpkgs` @ `481f5e04326e` (**1.2.1**, the old head), still **draft**, title still says `init at 1.2.1` |
-| Local branch | **`pi-bolt-130`** @ **`75f1f5e02d60`** — `pi-bolt: init at 1.3.0`, replayed onto current master `b485955e5627`; **not pushed** |
-| Version bump | `./update.sh` only: source, three runtime hashes, `npmDepsHash`, and `RUNTIME_STAMP` `9606e2f8…` → **`13ef7565ee8ee6b5`** (the engine layout changed with this release). No derivation logic changed |
-| Local builds of 1.3.0 | ✅ `-A pi-bolt.passthru.tests` → `1.6.0 (Pi-Bolt 1.3.0, linux-x64-baseline, JIT off)`; ✅ four extensions + `.override { jitSupport = true; cpu = "native"; }` → `1.6.0 (Pi-Bolt 1.3.0, linux-x64-jit, JIT on)`; ✅ `doctor` lists all four as `builtin:` |
-| nix-config | `pkgs/pi-bolt/package.nix` mirrored to 1.3.0 (nixpkgs-fmt); home config evaluates (`nix build --dry-run .#homeConfigurations."darrenmeehan@fedora".activationPackage`); **machine not switched yet** |
-| CI / review on 1.3.0 | ❌ none — the PR still serves `481f5e0`, so every check must be re-run after the push |
-| PR body | 1.3.0 draft at `docs/pi-bolt-nixpkgs-pr-body.md`, **not applied**; the live body still claims `JITI_FS_CACHE=true` |
+| Local branch | **`pi-bolt-131`** @ **`6db37eb4b1ab`** — `pi-bolt: init at 1.3.1`, on master `b485955e5627`; **not pushed** |
+| Version bump | `./update.sh` only: source and the three runtime hashes. `RUNTIME_STAMP` (`13ef7565ee8ee6b5`) and `npmDepsHash` unchanged — patch release, no engine or dependency change. No derivation logic changed |
+| Local builds of 1.3.1 | ✅ `-A pi-bolt.passthru.tests` → `1.6.0 (Pi-Bolt 1.3.1, linux-x64-baseline, JIT off)`; ✅ four extensions + `.override { jitSupport = true; cpu = "native"; }` → `1.6.0 (Pi-Bolt 1.3.1, linux-x64-jit, JIT on)` |
+| nix-config | `pkgs/pi-bolt/package.nix` mirrored to 1.3.1 (nixpkgs-fmt), **switched on the laptop**: `pi-bolt --version` → `1.6.0 (Pi-Bolt 1.3.1, linux-x64-jit, JIT on)`; dev-1 still needs its own pull+switch after the push |
+| CI / review on 1.3.1 | ❌ none — the PR still serves `481f5e0`, so every check must be re-run after the push |
+| PR body | 1.3.1 draft at `docs/pi-bolt-nixpkgs-pr-body.md`, **not applied**; the live body still claims `JITI_FS_CACHE=true` |
 | Reviewer | none yet (`reviewDecision` empty; `7.no default reviewers`) |
 | ofBorg | never built — it doesn't build drafts |
 | Local clone | `~/code/nix-config/nixpkgs-pr` (shallow; `origin` = NixOS/nixpkgs, `fork` = darrenmeehan/nixpkgs) |
@@ -26,7 +26,7 @@ the `Assisted-by:` trailer.
 
 ## Steps
 
-Nothing from the earlier head carries over — the head moved to 1.3.0.
+Nothing from the earlier head carries over — the head moved to 1.3.1.
 
 ```bash
 cd ~/code/nix-config/nixpkgs-pr
@@ -40,28 +40,28 @@ git log --oneline origin/master..HEAD
 git diff origin/master..HEAD -- pkgs/by-name/pi/pi-bolt maintainers/maintainer-list.nix
 ```
 
-**2. Push.** `fork/pi-bolt-nixpkgs` is at `481f5e04326e`, so the lease holds; expect `75f1f5e02d60`
+**2. Push.** `fork/pi-bolt-nixpkgs` is at `481f5e04326e`, so the lease holds; expect `6db37eb4b1ab`
 on the PR. Note the new branch name:
 
 ```bash
-git push --force-with-lease fork pi-bolt-130:pi-bolt-nixpkgs
+git push --force-with-lease fork pi-bolt-131:pi-bolt-nixpkgs
 ```
 
-**3. Retitle the PR** to `pi-bolt: init at 1.3.0` — the commit headline and the body already say
-1.3.0; the title is the last place still on 1.2.1:
+**3. Retitle the PR** to `pi-bolt: init at 1.3.1` — the commit headline and the body already say
+1.3.1; the title is the last place still on 1.2.1:
 
 ```bash
-gh pr edit 586143 --title 'pi-bolt: init at 1.3.0'
+gh pr edit 586143 --title 'pi-bolt: init at 1.3.1'
 ```
 
-Then confirm GitHub took the push and CI started (expect `75f1f5e02d60`):
+Then confirm GitHub took the push and CI started (expect `6db37eb4b1ab`):
 
 ```bash
 gh pr view 586143 --json headRefOid,isDraft,state
 gh pr checks 586143 --watch          # minutes, not a hang
 ```
 
-**4. Run nixpkgs-review on the pushed 1.3.0 PR.** Results for the old head are void.
+**4. Run nixpkgs-review on the pushed 1.3.1 PR.** Results for the old head are void.
 
 ```bash
 nix run nixpkgs#nixpkgs-review -- pr 586143 --no-shell
@@ -102,7 +102,7 @@ pushed head, all green:
 | nixpkgs-vet | `nix-build ci -A nixpkgs-vet --arg base /tmp/nixpkgs-base --arg head $PWD` | ✅ `Validated successfully` (base `aab3d70`) |
 | package-set review | `nixpkgs-review rev HEAD --no-shell` | ✅ 1 package built: `pi-bolt`, 0 failed |
 | extensions | `pi-bolt.withExtensions [guardrails, leash, pi-diff, pi-task]` | ✅ builds, 13 built-ins in `doctor` |
-| daily driver | same + `.override { jitSupport = true; cpu = "native"; }` | ✅ `1.6.0 (Pi-Bolt 1.3.0, linux-x64-jit, JIT on)` on 1.3.0; 1.2.1 was `1.5.2 (Pi-Bolt 1.2.1, …)` |
+| daily driver | same + `.override { jitSupport = true; cpu = "native"; }` | ✅ `1.6.0 (Pi-Bolt 1.3.1, linux-x64-jit, JIT on)` on 1.3.1; 1.3.0 was the same string with `1.3.0` |
 
 CI's `Lint / nixpkgs-vet` and `Lint / treefmt` have since passed against the real merge base
 (`49dd1e9b`), so the `aab3d70` tie no longer matters. For a future push, redo the vet run against

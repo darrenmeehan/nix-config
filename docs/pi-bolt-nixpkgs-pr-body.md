@@ -1,4 +1,4 @@
-Adds `pi-bolt` 1.3.0, OpenSec's ahead-of-time compiled build of the [pi coding agent](https://github.com/earendil-works/pi). This builds Pi-Bolt from source and compiles it with the released Pi-Bolt AOT engine (Pi 1.6.0).
+Adds `pi-bolt` 1.3.1, OpenSec's ahead-of-time compiled build of the [pi coding agent](https://github.com/earendil-works/pi). This builds Pi-Bolt from source and compiles it with the released Pi-Bolt AOT engine (Pi 1.6.0).
 
 The engine (`pi-bolt-runtime-*.tar.gz`: patched Bun + WebKit) is released as a signed binary. Building it from source builds WebKit and Bun with LTO, which is not practical in nixpkgs, so `sourceProvenance` lists both `fromSource` and `binaryNativeCode`.
 
@@ -12,7 +12,7 @@ The engine (`pi-bolt-runtime-*.tar.gz`: patched Bun + WebKit) is released as a s
   - [ ] aarch64-darwin
 - Tested, as applicable:
   - [x] Basic functionality of all binary files, usually in `./result/bin/`.
-  - [ ] Ran `nixpkgs-review` on this PR. See [nixpkgs-review usage]. <!-- re-run pending on the 1.3.0 head -->
+  - [ ] Ran `nixpkgs-review` on this PR. See [nixpkgs-review usage]. <!-- re-run pending on the 1.3.1 head -->
   - [x] [Package tests] at `passthru.tests`.
   - [ ] [NixOS tests] in [nixos/tests].
   - [ ] Tests in [lib/tests] or [pkgs/test] for functions and "core" functionality.
@@ -25,10 +25,10 @@ The engine (`pi-bolt-runtime-*.tar.gz`: patched Bun + WebKit) is released as a s
 What was actually run locally (x86_64-linux, `sandbox = true`):
 
 - `nix-build -A pi-bolt.passthru.tests` — builds, `versionCheckHook` passes, and `passthru.tests.aot` confirms the static heap image is registered rather than falling back to the Bun CLI.
-- `./result/bin/pi-bolt --version` → `1.6.0 (Pi-Bolt 1.3.0, linux-x64-baseline, JIT off)`.
+- `./result/bin/pi-bolt --version` → `1.6.0 (Pi-Bolt 1.3.1, linux-x64-baseline, JIT off)`.
 - `pi-bolt.withExtensions [ … ]` with four extensions (`@aliou/pi-guardrails`, `@melihmucuk/leash`, `@heyhuynhgiabuu/pi-diff`, `@mjasnikovs/pi-task`) — builds, and `pi-bolt doctor` lists them as built-in extensions (`builtin:aliou-pi-guardrails-index…`, `builtin:melihmucuk-leash`, `builtin:heyhuynhgiabuu-pi-diff`, `builtin:mjasnikovs-pi-task`).
-- The same with `.override { jitSupport = true; cpu = "native"; }` — builds, `--version` → `1.6.0 (Pi-Bolt 1.3.0, linux-x64-jit, JIT on)`. This variant is what I run as a daily driver, so the default build and the two overridable axes are both exercised.
-- The version bump is `./update.sh` only: source, three runtime hashes, `RUNTIME_STAMP` (`13ef7565ee8ee6b5`, so the engine layout changed with this release) and `npmDepsHash`. No derivation logic changed between 1.2.1 and 1.3.0.
+- The same with `.override { jitSupport = true; cpu = "native"; }` — builds, `--version` → `1.6.0 (Pi-Bolt 1.3.1, linux-x64-jit, JIT on)`. This variant is what I run as a daily driver, so the default build and the two overridable axes are both exercised.
+- The version bump is `./update.sh` only: source and the three runtime hashes. `RUNTIME_STAMP` and `npmDepsHash` are unchanged, so this is a patch release with no engine or dependency-tree change. No derivation logic changed.
 - `nixfmt` clean; `nix-instantiate --parse` clean.
 - Evaluation with `--option allow-import-from-derivation false` for x86_64-linux (the mode nixpkgs CI uses).
 - Manual smoke test: a model call succeeded with and without the local extension set.
@@ -47,7 +47,7 @@ Output was verified rather than trusted: the package was built and its binaries 
 - `npmDeps = fetchNpmDeps` pins the npm tree by `npmDepsHash` (no import-from-derivation, which nixpkgs CI disallows); `npmRebuildFlags = [ "--ignore-scripts" ]`.
 - **jiti cache.** Pi caches transformed extensions in `~/.pi/agent/cache/jiti` and reuses a cached transform whenever the extension's own source is unchanged, whatever produced it, so two Pi/Pi-Bolt builds sharing that directory can hand each other incompatible output and crash Bun. `postPatch` salts the cache path with `${version}`; `JITI_FS_CACHE` is deliberately *not* set, because setting it (to anything) moves pi onto jiti's system-wide temporary directory, which is the shared-directory case that crashes.
 - **Compiled-in extensions.** `passthru.withExtensions` writes a `build-pi.sh --plugins` manifest, so an extension can be part of the static heap image instead of being loaded from files at run time (where the JIT-off build interprets it). Each extension is staged with its package root and dependency tree because the manifest build maps Pi's packages with a `tsconfig` next to the staged folder. This is how I use the package, so it is exercised; `jitSupport`, `cpu` and `aotBytecodeLimit` are the other `build-pi.sh` knobs, all defaulting to upstream behaviour. Happy to drop any of them that a reviewer considers speculative.
-- `--version` prints `1.6.0 (Pi-Bolt 1.3.0, …)`; `versionCheckHook` matches `1.3.0` against `meta.mainProgram`.
+- `--version` prints `1.6.0 (Pi-Bolt 1.3.1, …)`; `versionCheckHook` matches `1.3.1` against `meta.mainProgram`.
 - License: Pi-Bolt/Bun MIT; bundled WebKit LGPL-2.0-or-later and BSD-2-Clause.
 - Platforms: upstream publishes assets for all three, but only x86_64-linux has been built, so `meta.platforms` is x86_64-linux only. The aarch64/darwin runtime hashes stay in `runtimeAssets` because `update.sh` maintains them and they are what a platform widening would use.
 - Update script: `passthru.updateScript = ./update.sh`; this is the hook `nixpkgs-update`/r-ryantm uses. No extra registration is needed.
