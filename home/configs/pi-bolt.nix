@@ -28,6 +28,14 @@ in
     force = true;
   };
 
+  # The global instructions every session loads. Versioned here because it is
+  # policy the agent follows, not scratch config: an edit goes through this
+  # repo and a switch. The source is a store file, so it is read-only in place.
+  home.file.".pi/agent/AGENTS.md" = {
+    source = ./pi-agent-AGENTS.md;
+    force = true;
+  };
+
   # Guardrails' global config.
   home.file.".pi/agent/extensions/guardrails.json" = {
     source = (pkgs.formats.json { }).generate "guardrails.json" piConfig.guardrails;
