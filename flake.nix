@@ -156,7 +156,13 @@
                   # on this headless box never matters.
                   ./hosts/dev-1/git.nix
                   ./home/configs/gh.nix
+                  # The laptop's starship prompt. Its bash integration lands in
+                  # ~/.bashrc, so bash has to be enabled here — but
+                  # home/configs/bash.nix is deliberately not imported: its
+                  # aliases send docker to podman and this box runs real Docker.
+                  ./home/configs/starship.nix
                 ];
+                programs.bash.enable = true;
                 home = {
                   username = "drn";
                   homeDirectory = "/home/drn";
