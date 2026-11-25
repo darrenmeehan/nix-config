@@ -130,6 +130,12 @@ in
   # collected instead of failing to be written.
   nix.settings.min-free = "5G";
   nix.settings.max-free = "15G";
+  # ...but GC only ever reclaims the store. The next fill (2026-11-25, 98G disk
+  # at 100%) was entirely outside it — 38G of abandoned pi scratch in /tmp,
+  # some of it ten days old — and `nix-collect-garbage` could only find 35 dead
+  # paths. NixOS ships no /tmp aging rule of its own, so nothing ever removed
+  # them. This is upstream systemd's tmp.conf rule, which NixOS does not carry.
+  systemd.tmpfiles.rules = [ "q /tmp 1777 root root 10d" ];
 
   # ── Rust build headroom ──────────────────────────────────────────────────
   # No disk swap (hardware-configuration.nix): a link step that outruns RAM
