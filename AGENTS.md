@@ -42,6 +42,15 @@ Rust repo carries its own devShell, and agents must run cargo as
 - New home-manager configs: add the file under `home/configs/` and import it in `home/home.nix`
 - Uncommitted working tree is normal here; commit in conventional-commit themed batches
 
+## GitHub Actions
+
+This clone has two remotes: `origin` is `darrenmeehan/nix-config` (the fork
+where CI runs) and `upstream` is `timhourigan/nix-config`. `gh` resolves the
+current repo to **upstream**, so a bare `gh run list` or `gh run view` in this
+directory watches the wrong repo — pass `-R darrenmeehan/nix-config`
+explicitly. Otherwise you read someone else's runs and conclude yours never
+started.
+
 ## Changing machines
 
 NEVER change a machine directly — no ad-hoc package installs, no editing
