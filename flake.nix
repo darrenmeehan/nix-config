@@ -132,6 +132,9 @@
         system = "x86_64-linux";
         modules = [
           ./hosts/dev-1
+          # Federated docs hub: merges every project's docs/ into one Zola site
+          # and serves it on the tailnet. See docs-hub/README.md.
+          ./hosts/dev-1/docs-hub.nix
           ./hosts/nix-ld.nix
           "${nixpkgs}/nixos/modules/virtualisation/proxmox-image.nix"
           ./hosts/dev-1/proxmox.nix
@@ -328,6 +331,11 @@
           { boot.zfs.forceImportRoot = false; }
         ];
       }).config.system.build.isoImage;
+
+      # `nix run .#hub-sync` — aggregate every project's docs/ into the Zola hub
+      # and build it. The same package the dev-1 timer runs; sources and site
+      # config live in ./docs-hub.
+      hub-sync = nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/docs-hub.nix { };
     };
   };
 }
