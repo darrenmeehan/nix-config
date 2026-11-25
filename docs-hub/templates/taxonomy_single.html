@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ taxonomy.name }}: {{ term.name }} · {{ config.title }}{% endblock title %}
+{% block content %}
+  <h1>{{ taxonomy.name }}: {{ term.name }}</h1>
+  <table>
+    <thead>
+      <tr><th>Document</th><th>Project</th><th>Date</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for page in term.pages %}
+        <tr>
+          <td><a href="{{ page.permalink }}">{{ page.title }}</a></td>
+          <td>{{ page.taxonomies.project | default(value=[]) | join(sep=", ") }}</td>
+          <td>{{ page.date | date(format="%Y-%m-%d") }}</td>
+          <td>{{ page.taxonomies.status | default(value=[]) | join(sep=", ") }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock content %}

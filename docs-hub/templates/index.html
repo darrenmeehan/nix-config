@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>{{ section.title }}</h1>
+  <p class="lede">{{ config.description }}</p>
+  {% set projects = get_section(path="projects/_index.md") %}
+  <table>
+    <thead>
+      <tr><th>Project</th><th>Docs</th><th>Latest</th></tr>
+    </thead>
+    <tbody>
+      {% for path in projects.subsections %}
+        {% set project = get_section(path=path) %}
+        <tr>
+          <td><a href="{{ project.permalink }}">{{ project.title }}</a></td>
+          <td>{{ project.extra.docs | default(value=0) }}</td>
+          <td>
+            {% for page in project.pages %}
+              {% if loop.index == 1 %}<a href="{{ page.permalink }}">{{ page.title }}</a>{% endif %}
+            {% else %}
+              <span class="muted">no documents yet</span>
+            {% endfor %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock content %}

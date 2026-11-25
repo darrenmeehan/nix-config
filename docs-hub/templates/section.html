@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>{{ section.title }}</h1>
+  {% if section.subsections %}
+    <ul class="sections">
+      {% for path in section.subsections %}
+        {% set sub = get_section(path=path) %}
+        <li><a href="{{ sub.permalink }}">{{ sub.title }}</a> <span class="muted">{{ sub.pages | length }}</span></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  {% if section.pages %}
+    <table>
+      <thead>
+        <tr><th>Document</th><th>Date</th><th>Type</th><th>Status</th><th>Agent</th></tr>
+      </thead>
+      <tbody>
+        {% for page in section.pages %}
+          <tr>
+            <td><a href="{{ page.permalink }}">{{ page.title }}</a></td>
+            <td>{{ page.date | date(format="%Y-%m-%d") }}</td>
+            <td>{{ page.taxonomies.type | default(value=[]) | join(sep=", ") }}</td>
+            <td>{{ page.taxonomies.status | default(value=[]) | join(sep=", ") }}</td>
+            <td>{{ page.taxonomies.agent | default(value=[]) | join(sep=", ") }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% elif not section.subsections %}
+    <p class="muted">Nothing published here yet.</p>
+  {% endif %}
+{% endblock content %}

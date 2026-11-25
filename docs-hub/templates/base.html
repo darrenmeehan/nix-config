@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="{{ config.default_language }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ config.title }}{% endblock title %}</title>
+    <link rel="stylesheet" href="{{ get_url(path='hub.css') }}">
+  </head>
+  <body>
+    <header>
+      {# Hard-coded absolute paths: the hub is always served at the root of its
+         own tailnet port (config base_url = "/"), so a relative URL here would
+         resolve against the current document instead. #}
+      <a class="brand" href="/">{{ config.title }}</a>
+      <nav>
+        {% for taxonomy in config.taxonomies %}
+          <a href="/{{ taxonomy.name }}/">{{ taxonomy.name }}</a>
+        {% endfor %}
+      </nav>
+    </header>
+    <main>
+      {% block content %}{% endblock content %}
+    </main>
+    <footer>
+      Generated from each project's <code>docs/</code> by <code>hub-sync</code>.
+      Edit the project repository, never this site.
+    </footer>
+  </body>
+</html>

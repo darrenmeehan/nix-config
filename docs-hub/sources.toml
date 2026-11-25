@@ -1,0 +1,27 @@
+# Projects whose docs/ are aggregated into the hub. One [[sources]] entry per
+# repo, with `project` (the slug it appears under, also the URL segment) and
+# exactly one of:
+#
+#   path   = "/abs/or/~/relative/checkout"   read the working tree as-is
+#   remote = "git@host:owner/repo.git"       shallow-cloned into the hub cache
+#
+# Optional keys: `docs` (subdirectory to publish, default "docs"), `branch`
+# (remote only, default the remote's HEAD).
+#
+# A missing local path is a warning, not an error: the same file is used on
+# every machine, and not every machine has every checkout.
+
+[[sources]]
+project = "nix-config"
+path = "~/code/nix-config"
+
+[[sources]]
+project = "pi-bolt"
+path = "~/code/Pi-Bolt"
+
+# Remotes work the same way; uncomment to aggregate a repo that is not checked
+# out locally.
+# [[sources]]
+# project = "curam"
+# remote = "git@github.com:opensec-git/curam.git"
+# branch = "main"

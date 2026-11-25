@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ page.title }} · {{ config.title }}{% endblock title %}
+{% block content %}
+  <article>
+    <h1>{{ page.title }}</h1>
+    <p class="meta">
+      <time datetime="{{ page.date | date(format='%Y-%m-%d') }}">{{ page.date | date(format="%Y-%m-%d") }}</time>
+      {% for term in page.taxonomies.project | default(value=[]) %}
+        <a class="chip" href="{{ get_taxonomy_url(kind='project', name=term) }}">{{ term }}</a>
+      {% endfor %}
+      {% for term in page.taxonomies.type | default(value=[]) %}
+        <a class="chip" href="{{ get_taxonomy_url(kind='type', name=term) }}">{{ term }}</a>
+      {% endfor %}
+      {% for term in page.taxonomies.status | default(value=[]) %}
+        <a class="chip" href="{{ get_taxonomy_url(kind='status', name=term) }}">{{ term }}</a>
+      {% endfor %}
+      {% for term in page.taxonomies.agent | default(value=[]) %}
+        <a class="chip" href="{{ get_taxonomy_url(kind='agent', name=term) }}">{{ term }}</a>
+      {% endfor %}
+      {% for term in page.taxonomies.tag | default(value=[]) %}
+        <a class="chip" href="{{ get_taxonomy_url(kind='tag', name=term) }}">{{ term }}</a>
+      {% endfor %}
+    </p>
+    {{ page.content | safe }}
+  </article>
+{% endblock content %}

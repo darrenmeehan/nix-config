@@ -1,0 +1,77 @@
+/* Minimal reader-first styling; the hub is for reading documents, not chrome. */
+:root {
+  --fg: #1a1a1a;
+  --muted: #6b6b6b;
+  --line: #d8d8d8;
+  --bg: #ffffff;
+  --chip: #eef1f5;
+  --link: #1a4fa0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: #e6e6e6;
+    --muted: #9a9a9a;
+    --line: #333;
+    --bg: #14161a;
+    --chip: #23272e;
+    --link: #8ab4f8;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0 auto;
+  max-width: 52rem;
+  padding: 0 1.25rem 4rem;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: baseline;
+  padding: 1.5rem 0 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand { font-weight: 600; text-decoration: none; }
+header nav { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.9rem; }
+
+a { color: var(--link); }
+h1 { line-height: 1.25; margin: 1.75rem 0 1rem; }
+h2, h3 { line-height: 1.3; margin-top: 2rem; }
+
+.lede, .muted { color: var(--muted); }
+.muted { font-size: 0.9em; }
+
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.94rem; }
+th, td { text-align: left; padding: 0.45rem 0.6rem 0.45rem 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); }
+
+ul.sections, ul.terms { padding-left: 1.1rem; }
+
+.chip {
+  display: inline-block;
+  padding: 0 0.5rem;
+  margin: 0 0.25rem 0.25rem 0;
+  border-radius: 999px;
+  background: var(--chip);
+  font-size: 0.78rem;
+  text-decoration: none;
+}
+
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.5rem; color: var(--muted); font-size: 0.9rem; }
+.meta time { margin-right: 0.5rem; }
+
+article :is(img, video, svg) { max-width: 100%; height: auto; }
+article pre { overflow-x: auto; padding: 0.75rem 1rem; background: var(--chip); border-radius: 6px; }
+article code { font-size: 0.9em; }
+article :not(pre) > code { background: var(--chip); padding: 0.1rem 0.3rem; border-radius: 4px; }
+article blockquote { margin-left: 0; padding-left: 1rem; border-left: 3px solid var(--line); color: var(--muted); }
+
+footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.85rem; }

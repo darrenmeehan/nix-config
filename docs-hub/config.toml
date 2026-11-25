@@ -1,0 +1,27 @@
+# Zola site config for the docs hub. hub-sync copies this file into the hub
+# root on every run, so it is only ever edited here.
+#
+# base_url is "/" because the site is served at the root of its own tailnet
+# port (tailscale serve --https=8443). A hostname here would have to be rewritten
+# on every machine that happens to build the site.
+base_url = "/"
+title = "Docs Hub"
+description = "Documentation aggregated from every project's docs/ directory."
+default_language = "en"
+compile_sass = false
+build_search_index = true
+
+# One view per frontmatter field agents are required to fill in. `tag` is
+# included because the schema mandates tags on every document.
+taxonomies = [
+  { name = "project" },
+  { name = "agent" },
+  { name = "type" },
+  { name = "status" },
+  { name = "tag" },
+]
+
+# A source project's stale internal anchors (or links to files it does not
+# publish) must not take the whole hub down: report them and build anyway.
+[link_checker]
+internal_level = "warn"
