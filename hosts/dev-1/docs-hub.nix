@@ -33,6 +33,11 @@ in
         "DOCS_HUB_ROOT=${hubRoot}"
       ];
     };
+    # hub-sync bundles zola and python3+pyyaml in its own runtimeInputs, so the
+    # unit needs nothing beyond the default PATH.
+    script = ''
+      exec ${hubSync}/bin/hub-sync
+    '';
   };
 
   systemd.timers.docs-hub-sync = {
