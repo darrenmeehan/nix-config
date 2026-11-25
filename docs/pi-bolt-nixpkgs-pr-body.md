@@ -12,7 +12,7 @@ The engine (`pi-bolt-runtime-*.tar.gz`: patched Bun + WebKit) is released as a s
   - [ ] aarch64-darwin
 - Tested, as applicable:
   - [x] Basic functionality of all binary files, usually in `./result/bin/`.
-  - [ ] Ran `nixpkgs-review` on this PR. See [nixpkgs-review usage]. <!-- re-run pending on the 1.3.1 head -->
+  - [x] Ran `nixpkgs-review` on this PR. See [nixpkgs-review usage].
   - [x] [Package tests] at `passthru.tests`.
   - [ ] [NixOS tests] in [nixos/tests].
   - [ ] Tests in [lib/tests] or [pkgs/test] for functions and "core" functionality.
@@ -29,7 +29,8 @@ What was actually run locally (x86_64-linux, `sandbox = true`):
 - `pi-bolt.withExtensions [ … ]` with four extensions (`@aliou/pi-guardrails`, `@melihmucuk/leash`, `@heyhuynhgiabuu/pi-diff`, `@mjasnikovs/pi-task`) — builds, and `pi-bolt doctor` lists them as built-in extensions (`builtin:aliou-pi-guardrails-index…`, `builtin:melihmucuk-leash`, `builtin:heyhuynhgiabuu-pi-diff`, `builtin:mjasnikovs-pi-task`).
 - The same with `.override { jitSupport = true; cpu = "native"; }` — builds, `--version` → `1.6.0 (Pi-Bolt 1.3.1, linux-x64-jit, JIT on)`. This variant is what I run as a daily driver, so the default build and the two overridable axes are both exercised.
 - The version bump is `./update.sh` only: source and the three runtime hashes. `RUNTIME_STAMP` and `npmDepsHash` are unchanged, so this is a patch release with no engine or dependency-tree change. No derivation logic changed.
-- `nixfmt` clean; `nix-instantiate --parse` clean.
+- `nixpkgs-review rev HEAD --no-shell` on the full local clone: **1 package built: `pi-bolt`**, 0 failed (evaluated with import-from-derivation disabled, merge base at the current `master`).
+- `nix-build ci -A nixpkgs-vet` against that merge base: `Validated successfully`, zero findings; `nixfmt` clean; `nix-instantiate --parse` clean.
 - Evaluation with `--option allow-import-from-derivation false` for x86_64-linux (the mode nixpkgs CI uses).
 - Manual smoke test: a model call succeeded with and without the local extension set.
 

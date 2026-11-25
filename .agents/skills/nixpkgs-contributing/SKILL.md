@@ -1,12 +1,14 @@
 ---
 name: nixpkgs-contributing
-description: Prepare and self-review a nixpkgs PR from this repo's nixpkgs clone (nixpkgs-pr/). Lists the checks that are runnable locally, the shallow-clone git traps, and the steps that must be handed back to Darren instead of done by the agent. Use when working on the nixpkgs PR, a package under nixpkgs-pr/, or when asked to prepare, verify or review a nixpkgs contribution.
+description: Prepare and self-review a nixpkgs PR from this repo's nixpkgs clone (nixpkgs-pr/). Lists the checks that are runnable locally, the clone's history requirements, and the steps that must be handed back to Darren instead of done by the agent. Use when working on the nixpkgs PR, a package under nixpkgs-pr/, or when asked to prepare, verify or review a nixpkgs contribution.
 ---
 
 # Contributing to nixpkgs
 
-Work happens in `~/code/nix-config/nixpkgs-pr`: a **shallow** clone, `origin` = `NixOS/nixpkgs`,
-`fork` = `darrenmeehan/nixpkgs`, PR branch `pi-bolt-nixpkgs` = PR **#586143**. Keep
+Work happens in `~/code/nix-config/nixpkgs-pr`: a **full** clone (converted from shallow on
+2026-11-25, `.git` 6.3 GB), `origin` = `NixOS/nixpkgs`, `fork` = `darrenmeehan/nixpkgs`, PR branch
+`pi-bolt-nixpkgs` = PR **#586143**. Keep it full: a shallow re-clone breaks `nixpkgs-review` and
+plain `git rebase`. Keep
 `~/code/nix-config/pkgs/pi-bolt/package.nix` in sync — that copy is what this machine runs.
 
 Formatting is **nixfmt** (nixpkgs), not this repo's `nixpkgs-fmt`. Never run `nix fmt` in the
@@ -27,14 +29,21 @@ nix-build -A pi-bolt.passthru.tests --no-out-link
 # whole-tree formatting (~1.5 min). Attr is fmt.check, NOT treefmt.
 nix-build ci -A fmt.check
 
-# nixpkgs-vet: needs an explicit base checkout at the current master tip
-git worktree add -q /tmp/nixpkgs-base origin/master
+# nixpkgs-vet: base must be a commit the branch DESCENDS from, i.e. rebase first
+# and point the worktree at the new master tip, then vet the branch
+git fetch --depth=1 --no-tags origin master   # current tip first
+git worktree add -q /tmp/nixpkgs-base origin/master   # re-add if it exists at an old tip
 nix-build ci -A nixpkgs-vet --arg base /tmp/nixpkgs-base --arg head "$PWD"
 
-# package-set review. Always --no-shell, or it hangs in an interactive shell.
-nix run nixpkgs#nixpkgs-review -- rev HEAD --no-shell   # pre-push
-nix run nixpkgs#nixpkgs-review -- pr 586143 --no-shell # post-push
+# package-set review, post-push only. Always --no-shell, or it hangs.
+nix run nixpkgs#nixpkgs-review -- pr 586143 --no-shell
 ```
+
+`nixpkgs-review rev HEAD --no-shell` works **only because** the clone is no longer shallow. In a
+shallow clone it fetches the target branch at `--depth=1` and then cannot find a merge base, dying
+with `fatal: refusing to merge unrelated histories` — and `--branch` does not help, it only names a
+ref to fetch from `--remote` (`review.py:746`). If that error ever comes back, the clone has become
+shallow again; the fix is `git fetch --unshallow`, which took ~40 min and 6.3 GB here.
 
 OfBorg has no local mode — it is a hosted bot. The build half is what `nixpkgs-review` does; the
 eval half is `.github/workflows/eval.yml`. Do not claim it was "run locally".
@@ -73,13 +82,16 @@ If `RUNTIME_STAMP` changed, the engine layout changed: say so, it is the interes
 
 ## Git traps in this clone
 
-- `git fetch origin master` never completes (shallow, 3.1 G `.git`). Use
-  `git fetch --depth=1 --no-tags origin master` — seconds.
-- `git rebase origin/master` fails with add/add conflicts on the whole tree (no usable merge
-  base). Use `git rebase --onto origin/master <old-base-sha> <branch>`.
+- **If the clone is ever shallow again**, plain `git fetch origin master` never finishes, plain
+  `git rebase origin/master` produces add/add conflicts across the whole tree, and `cherry-pick` of
+  the init commit tries to revert upstream. Fix the clone (`git fetch --unshallow`), do not script
+  around it.
 - Keep the PR at two commits (`maintainers: add …`, package init): amend locally, never add
   fixup commits — the force-push is Darren's.
-- Re-run vet whenever master has moved; a stale base produces false findings both ways.
+- Vet's base and head must be related: if the branch has not been rebased onto the base you pass,
+  vet reports every upstream commit since the branch point as a regression introduced by this PR
+  (one run produced 222 findings on unrelated packages, zero on the package under test). Rebase
+  first, or pass a base at the branch point.
 - Rebasing this branch is unreliable: plain `rebase`, `rebase --onto` and `cherry-pick` of the init
   commit all misbehave (whole-tree add/add conflicts that revert upstream). The working recipe:
   `git checkout -B <new> origin/master`, then recreate the two files with
