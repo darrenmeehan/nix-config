@@ -75,6 +75,46 @@ cannot express.
 - Still write Conventional Commits — the history is for me, later.
 - Never force-push. Rewriting is only for commits I have not pushed yet.
 
+## Documentation & the docs hub
+
+Each repo's `docs/` is the single source of truth for its documentation. A hub
+(`docs-hub/` in `~/code/nix-config`, served on the tailnet by dev-1) aggregates
+those directories read-only, so write in the project repo and never in the hub —
+the hub is generated output, and a document outside a repo's `docs/` does not
+exist.
+
+- Subdirectories: `docs/specs/` (design and planning), `docs/research/`
+  (findings, investigations, prior art), `docs/runs/` (what a session tried and
+  what happened), `docs/adr/` (one decision per file).
+- Timestamped outputs are `YYYY-MM-DD-<agent-name>-<short-slug>.md`; ADRs are
+  `NNNN-<short-slug>.md`.
+- Every document starts with this YAML frontmatter, complete, no field omitted:
+
+  ```yaml
+  ---
+  title: "Concise Document Title"
+  date: YYYY-MM-DDTHH:MM:SSZ
+  project: "<repo-slug>"
+  agent: "<agent-identifier>"
+  type: "spec | research | run | adr"
+  status: "draft | verified | archived"
+  tags: ["tag1", "tag2"]
+  ---
+  ```
+
+- `date` is UTC RFC 3339 ending in `Z`; `project` is the lowercased repo
+  directory name (`nix-config`, `pi-bolt`); `agent` is your own identifier;
+  `type` must match the directory (`specs`→`spec`, `research`→`research`,
+  `runs`→`run`, `adr`→`adr`); `status` is `draft` while writing, `verified` once
+  the work was reviewed or tested, `archived` when superseded; `tags` is one to
+  five lowercase kebab-case tags.
+- Publishing is the commit: the hub rebuilds from the source repos every five
+  minutes on dev-1, so a committed and pushed document appears on its own.
+  `hub-sync` on `PATH` publishes immediately instead of waiting for the timer.
+- Documents without frontmatter still publish, typed `doc`; a malformed
+  frontmatter block skips that one file and is reported by the sync — fix the
+  file, do not work around it.
+
 ## Machine config
 
 - Machine config changes never happen ad-hoc on the machine itself — make

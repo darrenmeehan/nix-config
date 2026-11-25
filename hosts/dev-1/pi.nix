@@ -1,5 +1,5 @@
 { pkgs, ... }:
-# home-manager side of dev-1: only the two pi files, so they are declared rather
+# home-manager side of dev-1: only the pi files, so they are declared rather
 # than hand-edited on the box. pi-bolt itself is a systemPackage (the remote
 # control unit points at /run/current-system/sw/bin/pi-bolt), so it is not
 # installed again here.
@@ -26,6 +26,14 @@ in
 
   home.file.".pi/agent/extensions/guardrails.json" = {
     source = (pkgs.formats.json { }).generate "guardrails.json" piConfig.guardrails;
+    force = true;
+  };
+
+  # The global instructions every session loads — the same file the laptop gets,
+  # from home/configs so the two machines cannot drift. `force`: an scp'd copy
+  # from before this was declared may already exist on the box.
+  home.file.".pi/agent/AGENTS.md" = {
+    source = ../../home/configs/pi-agent-AGENTS.md;
     force = true;
   };
 }
