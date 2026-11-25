@@ -1,10 +1,10 @@
-# Pi-Bolt extensions: what loads, what it costs, and the three guards
+# Pi-Bolt extensions: what loads, what it costs, and the guards
 
-**Last updated:** 2026-11-13.
+**Last updated:** 2026-11-25.
 
 How this machine's Pi-Bolt is built, which extensions are compiled into it and
 which load from their files, why seven cannot be compiled in, and what the three
-guard layers each do.
+guard layers (plus bigpowers' git hook) each do.
 
 Built by `pkgs/pi-bolt` (a copy of the nixpkgs PR branch) loaded from
 `home/configs/pi-bolt.nix` with `extensions`, `jitSupport = true` and
@@ -82,7 +82,7 @@ three are installed.
 | mechanism | path policies: `noAccess` blocks `read/write/edit/bash/grep/find/ls`, `readOnly` blocks `write/edit/bash`, with allow-patterns; a dangerous-command detector that asks a delegate to approve and blocks when no UI can confirm; blocked and approval events go out as herdr pane prompts | command-pattern sandbox: `rm`/`mv`/`cp`/`chmod` outside the working directory, protected `.env`/`.git`, `git reset`/`restore`/`stash`, `push --force`, `clean -f`; resolves symlinks, parses `&&` `||` `;` `|` chains | spawns the `mem/1` engine once per session, masks each `text` block of tool output (secrets, PII), drops the stale `textSignature`, journals one `pii_scrubbed` event; `/membrane status\|audit\|rules` |
 | on failure | blocks, or asks | blocks | **passes results through unscrubbed** and says `membrane: degraded`; the driver respawns the engine on the next tool result and the footer returns to `on` (measured: one result lost, recovery under 500 ms) |
 | configuration | `guardrails.json`; `/guardrails` commands (settings, onboarding, examples) | built-in rules; its `leash` CLI and `--setup` are for other agents, in Pi only the extension runs | engine from `MEMBRANE_ENGINE`, then `PATH`, then the `~/code/curam-security` workspace builds; rules and storage live in the engine |
-| today | compiled in, default policies (no `guardrails.json` yet) | compiled in | compiled in, `membrane: on · e01s02-v1`; engine is the pinned release build in `~/.nix-profile/bin`, journal at `~/.local/state/curam/journal.db` (0600, hash chain; `verify` reports `chain_ok`, `status` reports the seal) |
+| today | compiled in; `guardrails.json` from `pkgs/pi-bolt/pi-config.nix` denies `gh` writes (and `gh api` outright), and allows one delete shape — every target under `/tmp` or `/var/tmp` — because the built-in `rm -rf` matcher otherwise gates scratch cleanup. `make check-guardrails` asserts that allow-pattern stays narrow | compiled in | compiled in, `membrane: on · e01s02-v1`; engine is the pinned release build in `~/.nix-profile/bin`, journal at `~/.local/state/curam/journal.db` (0600, hash chain; `verify` reports `chain_ok`, `status` reports the seal) |
 
 `make check-pi-bolt` fails unless that last cell reads `membrane: on`: the layer
 fails open, so `off` (no engine) and `degraded` (dead or slow engine) both leak
@@ -129,6 +129,33 @@ arguments (what `write`/`edit` sends), images, and injection scanning.
 Guardrails and leash overlap on `bash` — guardrails checks it when a protected
 path is involved, leash understands the command line itself — and the first one
 to block wins the turn.
+
+## The fourth guard: bigpowers' bash hook
+
+bigpowers' `extensions/omp-hooks.ts` is the fourth thing in front of a tool
+call, and it is the one with git opinions: it blocks a commit made on
+`main`/`master`, a push to either (unless `GIT_BIGPOWERS_LAND=1`), and the
+destructive-argv table (force push, discarding resets and the like). It is the
+reason `git commit` on `main` is refused here even though the workflow says
+commit straight to `main`.
+
+A repo opts out of the *protected-branch* half only — the argv rules and the
+Conventional Commits check still apply — by carrying a marker in its own git
+dir, which is per checkout and never committed:
+
+```sh
+touch "$(git rev-parse --absolute-git-dir)/bigpowers-allow-main-commits"
+```
+
+`~/code/nix-config` carries it (solo repo, main is the trunk); a fresh clone or
+dev-1 needs the same `touch` before it can commit there. The opt-out is resolved
+per git segment, so `cd` into another repo does not inherit it.
+
+That handler lives in the installed npm copy (`~/.pi/agent/npm/node_modules/`
+`bigpowers/extensions/omp-hooks.ts`), not in the nix-built one, so it belongs to
+`~/.pi` state, not this flake — `pi-bolt install`/bigpowers updates replace it and
+the opt-out has to be re-applied (the marker lookup is the only local edit).
+Upstreaming the marker is the fix that would survive updates.
 
 ## Time to the prompt
 
