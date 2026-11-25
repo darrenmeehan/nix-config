@@ -7,7 +7,7 @@ that made it work from a store path are gone. Current picture:
 
 **Status:** ready for implementation.
 **Last updated:** 2026-11-11.
-**Context:** curam-membrane's pi driver (`~/code/curam-membrane/drivers/pi`)
+**Context:** pi-curam-security's pi driver (`~/code/pi-curam-security/drivers/pi`)
 is installed and verified on the current nix Pi-Bolt. AOT compile is the
 remaining startup win: measured **3.51 s → 0.40 s** for `pi-bolt doctor`
 (file-loaded vs compiled-in).
@@ -37,8 +37,8 @@ cost model) and [pi-bolt-jiti-cache-fix.md](pi-bolt-jiti-cache-fix.md)
 | Wrapper | `home/configs/pi-bolt.nix` (sets `TMPDIR`, `JITI_FS_CACHE=true`) |
 | Flake input | `flake.nix` → `github:darrenmeehan/nixpkgs/pi-bolt-nixpkgs` (PR #586143) |
 | Test AOT build | `~/.cache/pi-bolt-aot-121/pi` (1.2.1, includes `curam-membrane-pi`) |
-| Driver source | `~/code/curam-membrane/drivers/pi` (branch `feat/pi-driver`) |
-| Driver docs | `~/code/curam-membrane/drivers/pi/README.md` → "Compiled (AOT) mode" |
+| Driver source | `~/code/pi-curam-security/drivers/pi` (branch `main`) |
+| Driver docs | `~/code/pi-curam-security/drivers/pi/README.md` → "Compiled (AOT) mode" |
 
 ## Issues
 
@@ -171,7 +171,7 @@ handoff, but it is the remaining non-nix piece of the daily-driver setup.
 time pi-bolt doctor            # expect ~0.4 s with AOT, ~3.5 s file-loaded
 
 # driver still masks under AOT (planted secret gate)
-cd ~/code/curam-membrane
+cd ~/code/pi-curam-security
 PI_BIN=~/.cache/pi-bolt-aot/pi E2E_COMPILED_DRIVER=1 \
   bash drivers/pi/tests/e2e_spy.sh
 # expect: PASS, journal 1 pii_scrubbed row, no raw secret
@@ -213,7 +213,7 @@ ls -l ~/.local/state/curam/journal.db    # expect -rw-------
 - `pi-bolt compile --out` on 1.2.1 release binary: exit 0, 157 s,
   13 extensions compiled in including `curam-membrane-pi`.
 - AOT doctor: `npm:bigpowers: by pi-bolt compile`, driver
-  `~/code/curam-membrane/drivers/pi: by pi-bolt compile`; doctor ~0.40 s.
+  `~/code/pi-curam-security/drivers/pi: by pi-bolt compile`; doctor ~0.40 s.
 - Live session under AOT, planted `ghp_…` in a file read by the agent:
   exit 0, answer noted the value was redacted, journal had one
   `pii_scrubbed` row with a fingerprint and no raw value.

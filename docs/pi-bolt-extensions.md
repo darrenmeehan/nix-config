@@ -30,7 +30,7 @@ make bench-pi-bolt    # ten starts: min / median / max time to the prompt
 | `opensec-pi-fff` | 0.11.2 | run time, JIT (`bun:ffi`, so the JIT build is required) | 4 ms |
 | `opensec-pi-todo` | 2.13.1 | run time, JIT | 5 ms |
 | `opensec-pi-subagents` | 0.20.12 | run time, JIT | 41 ms |
-| curam-membrane driver | `~/code/curam-membrane/drivers/pi` (flake input) | **compiled in** | 0 ms |
+| curam-membrane driver | `~/code/pi-curam-security/drivers/pi` (flake input) | **compiled in** | 0 ms |
 | herdr's `herdr-agent-state.ts` | herdr 0.9.5 | **skipped** — Pi-Bolt has Herdr support of its own | 0 ms |
 
 Installed in `~/.pi/agent/npm` but not enabled (absent from `settings.json`, so
@@ -96,9 +96,9 @@ compiled-in extension causes.
 
 | file | what |
 |---|---|
-| `pins.nix` | the two checkouts by commit: `curam-security` (engine) and `curam-membrane` (driver source) |
+| `pins.nix` | the two checkouts by commit: `curam-security` (engine) and `pi-curam-security` (driver source) |
 | `engine.nix` | `buildRustPackage` of `curam-security`'s workspace, `-p curam-membrane`; `home.packages`, so the driver's rule 2 finds `curam-membrane` on PATH |
-| `driver.nix` | `builtins.fetchGit` of `curam-membrane` at its pinned rev — a store path, so pi-bolt can compile the driver in; `piBolt.packages` excludes it as `-<store path>` so the interpreted copy does not replace the built-in |
+| `driver.nix` | `builtins.fetchGit` of `pi-curam-security` at its pinned rev — a store path, so pi-bolt can compile the driver in; `piBolt.packages` excludes it as `-<store path>` so the interpreted copy does not replace the built-in |
 
 `builtins.fetchGit` with an explicit rev is forced only when the engine or the
 driver is actually built. That is the whole point of not using flake inputs here:

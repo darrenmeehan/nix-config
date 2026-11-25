@@ -70,7 +70,7 @@ does not lazy-load extensions and `expose`/`deferred` only defers *tools*.
 | `@plannotator/pi-extension` | 0.28.61 | plan review (50 MB on disk) |
 | `pi-agent-browser-native` | 0.9.18 | browser automation |
 | `@heyhuynhgiabuu/pi-diff` | 0.9.3 | diff rendering — **broken**: its factory throws `Cannot find package '@earendil-works/pi-coding-agent'` on every start. Remove it or fix it upstream. |
-| `~/code/curam-membrane/drivers/pi` | 0.1.0 | local, in development |
+| `~/code/pi-curam-security/drivers/pi` | 0.1.0 | local, in development |
 | `opensec-pi-todo`, `opensec-pi-fff` | via `piBolt.packages` | todo panel, fuzzy find/grep |
 | `opensec-pi-subagents` | 0.20.12, via `piBolt.packages` | named subagents in separate sessions (`Agent`, background runs, `SubagentWorkflow`) |
 

@@ -95,7 +95,7 @@ make bench-pi-bolt     # min/median/max over 10 starts
 ## 6. Kill the engine and watch it recover
 
 ```bash
-cd ~/code/curam-membrane
+cd ~/code/pi-curam-security
 bun drivers/pi/tests/probe_respawn.ts
 # PASS: one request lost, engine respawned
 ```
@@ -107,7 +107,7 @@ covered by `drivers/pi/index.test.ts` against a fixture engine, without a model.
 ## 7. The driver's own gates
 
 ```bash
-cd ~/code/curam-membrane
+cd ~/code/pi-curam-security
 make gate          # no model: unit, mem/1 contract, latency, crash recovery
 make gate-e2e      # boundary gates, one model call each
 E2E_COMPILED_DRIVER=1 make gate-e2e    # same, with the driver compiled into pi-bolt

@@ -21,7 +21,7 @@ rev_of() {
 }
 
 security_rev="$(rev_of "$HOME/code/curam-security")"
-membrane_rev="$(rev_of "$HOME/code/curam-membrane")"
+membrane_rev="$(rev_of "$HOME/code/pi-curam-security")"
 
 python3 - "$pins" "$security_rev" "$membrane_rev" <<'PY'
 import re
@@ -29,11 +29,12 @@ import sys
 
 path, security, membrane = sys.argv[1:4]
 text = open(path).read()
-for name, rev in (("curam-security", security), ("curam-membrane", membrane)):
+for name, rev in (("curam-security", security), ("pi-curam-security", membrane)):
     text, count = re.subn(
-        rf'({re.escape(name)} = \{{[^}}]*rev = ")[0-9a-f]{{40}}(")',
+        rf'(^  {re.escape(name)} = \{{[^}}]*rev = ")[0-9a-f]{{40}}(")',
         rf"\g<1>{rev}\g<2>",
         text,
+        flags=re.MULTILINE,
     )
     if count != 1:
         sys.exit(f"pin-curam: expected one rev line for {name}, found {count}")

@@ -5,4 +5,4 @@
 let
   pins = import ./pins.nix;
 in
-builtins.fetchGit pins.curam-membrane
+builtins.fetchGit pins.pi-curam-security
