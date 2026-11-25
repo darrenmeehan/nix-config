@@ -82,7 +82,11 @@ in
       # shell doesnt seem to work
       diesel-cli
       # Apps
-      tailscale # VPN
+      # No `tailscale` here: the daemon owns the version. NixOS hosts get the
+      # client from `services.tailscale.enable`'s systemPackages; the Fedora
+      # laptop gets client+daemon together from dnf
+      # (scripts/setup-tailscale.sh). A nix client shadowing the dnf daemon
+      # would be a version-mismatched pair.
       filezilla # FTP client
       gimp # Image editor
       libreoffice # Office suite

@@ -10,6 +10,9 @@ because standalone Home-Manager has no root.
 | Keyboard backlight | `scripts/kbd-backlight` (toggle) | udev rule (`scripts/setup-laptop-hardware.sh`) |
 | Fingerprint → sudo | nothing | `fprintd` enrollment (already installed) |
 
+Tailscale lives on the same side of that line — see
+[fedora-laptop-tailscale.md](fedora-laptop-tailscale.md).
+
 ---
 
 ## Why can't Home-Manager manage this?
