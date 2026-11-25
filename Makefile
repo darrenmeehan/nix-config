@@ -66,9 +66,13 @@ bench-pi-bolt: ## Time to first prompt, min/median/max over 10 starts
 #   nix run .#vulnix -- -S
 VULNIX_HOST ?= $(HOSTNAME)
 VULNIX_WHITELIST ?= specs/security/vulnix-whitelist.toml
+# Extra `nix build` flags. mgmt needs them: its mongodb is unfree, so it must
+# compile, and mongod's link step is OOM-killed unless the build is serial:
+#   make vulnix VULNIX_HOST=mgmt NIX_BUILD_ARGS="--cores 1 --max-jobs 1"
+NIX_BUILD_ARGS ?=
 .PHONY: vulnix
 vulnix: ## Scan a host's closure for CVEs (VULNIX_HOST=media; default current host)
-	@toplevel=$$(nix build --no-link --print-out-paths .#nixosConfigurations.$(VULNIX_HOST).config.system.build.toplevel) || exit 1; \
+	@toplevel=$$(nix build --no-link --print-out-paths $(NIX_BUILD_ARGS) .#nixosConfigurations.$(VULNIX_HOST).config.system.build.toplevel) || exit 1; \
 	LANG=C.UTF-8 nix run .#vulnix -- -C "$$toplevel" -w $(VULNIX_WHITELIST)
 
 .PHONY: help
