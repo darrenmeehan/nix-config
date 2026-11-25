@@ -99,6 +99,16 @@ rec {
   # A denylist over the literal command, not a sandbox: `curl` to
   # api.github.com, or any other client, still gets through.
   #
+  # `permissionGate.allowedPatterns` is checked before both the auto-deny list
+  # and the built-in dangerous-command matchers, so it is the one way to let a
+  # command through without a confirmation prompt. Scratch dirs under /tmp are
+  # the only delete allowed: every target must be `/tmp/…` or `/var/tmp/…`, no
+  # `..` in a target (a traversal would leave /tmp), and no `$(…)`, backticks,
+  # quotes or `;`/`&&`/`|` (the whole command is one string here, so anything
+  # that could carry a second command stays gated). leash independently
+  # realpath-resolves the target and allows /tmp, so this only removes the
+  # prompt. `rm -rf /tmp` itself is not covered — that one still asks.
+  #
   # `version` is the @aliou/pi-guardrails release this file is written for
   # (pkgs/pi-extensions/npm/package-lock.json). Without it guardrails runs its
   # migrations on every load, stamps the version and tries to save the result —
@@ -106,6 +116,13 @@ rec {
   # session. Bump it when the extension's own migrations change this file.
   guardrails = {
     version = "0.23.0";
+    permissionGate.allowedPatterns = [
+      {
+        pattern = "^(?:rm|rmdir|unlink)\\s+(?:-[A-Za-z]+\\s+)*(?:/(?:tmp|var/tmp)/(?!\\S*\\.\\.)[^\\s;&|$()<>`'\"\\\\]*\\s*)+$";
+        regex = true;
+        description = "Deletes whose every target is under /tmp or /var/tmp.";
+      }
+    ];
     permissionGate.autoDenyPatterns = [
       {
         pattern = "\\bgh\\s+(pr|issue|release|repo|secret|variable|workflow|gist|label|ruleset|cache|project|discussion)\\s+(create|edit|merge|comment|close|reopen|ready|review|delete|set|run|sync|upload|download|rename|transfer|pin|unpin|lock|unlock|update|add|remove|clear)\\b";

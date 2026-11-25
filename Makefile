@@ -60,6 +60,10 @@ check-pi-bolt: ## Start pi-bolt on a pty, fail if an extension does not load (no
 bench-pi-bolt: ## Time to first prompt, min/median/max over 10 starts
 	./scripts/check-pi-bolt.sh 10
 
+.PHONY: check-guardrails
+check-guardrails: ## Assert the /tmp-delete allow-pattern in the live guardrails.json stays narrow
+	./scripts/check-guardrails-patterns.py
+
 .PHONY: help
 help: ## This menu
 	@grep -P "##\s(.*)$$" $(MAKEFILE_LIST) | sed 's/:.*##/:/'
