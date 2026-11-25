@@ -37,7 +37,7 @@
 }:
 let
   inherit (stdenv) hostPlatform;
-  version = "1.3.0";
+  version = "1.3.1";
 
   # Kept separate so update.sh can bump it like runtimeStamp.
   npmDepsHash = "sha256-ZDw5kD817dyRlz4POQgk3ftdG+BQxEi63rmExUkTDxM=";
@@ -48,16 +48,16 @@ let
   runtimeStamp = "13ef7565ee8ee6b5";
   runtimeAssets = {
     x86_64-linux = fetchurl {
-      url = "https://github.com/opensec-git/Pi-Bolt/releases/download/bolt-v1.3.0/pi-bolt-runtime-linux-x64.tar.gz";
-      hash = "sha256-iBab0pNzmQXFpQSORdpmvMaAi0fm2fgkgeKLiSlcgvQ=";
+      url = "https://github.com/opensec-git/Pi-Bolt/releases/download/bolt-v1.3.1/pi-bolt-runtime-linux-x64.tar.gz";
+      hash = "sha256-Rqol5H0xt3O02P+h9pEOFdBqcDc7b25WlVwcXfWrdas=";
     };
     aarch64-linux = fetchurl {
-      url = "https://github.com/opensec-git/Pi-Bolt/releases/download/bolt-v1.3.0/pi-bolt-runtime-linux-arm64.tar.gz";
-      hash = "sha256-bJkGyXSBcIL9Vv7PeSYQrbo6KIP9CzkfrKppIJkDIyY=";
+      url = "https://github.com/opensec-git/Pi-Bolt/releases/download/bolt-v1.3.1/pi-bolt-runtime-linux-arm64.tar.gz";
+      hash = "sha256-aQs6aOM2zZS148I+UviXJ043Tw1NwDAzLD/OrKRl3O0=";
     };
     aarch64-darwin = fetchurl {
-      url = "https://github.com/opensec-git/Pi-Bolt/releases/download/bolt-v1.3.0/pi-bolt-runtime-darwin-arm64.tar.gz";
-      hash = "sha256-dwHyX/Nyr/IXt3F70d5ZCnxe+OEEyyIZAYQtLL0gcVE=";
+      url = "https://github.com/opensec-git/Pi-Bolt/releases/download/bolt-v1.3.1/pi-bolt-runtime-darwin-arm64.tar.gz";
+      hash = "sha256-qxQZ/Do6O+AG5W43lWFsaRMo3ob7n7OuiQo3wF//HlI=";
     };
   };
   runtimeSrc =
@@ -72,7 +72,7 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "opensec-git";
     repo = "Pi-Bolt";
     tag = "bolt-v${version}";
-    hash = "sha256-NXVzdKUQN2bMCn1RMwTCLEUlgIckPVqZH+UA8XSbWxI=";
+    hash = "sha256-Nv55RdRLQL9Uvb2YiWe/8YSpVTPDKO6Hb2Bqpsyy3Lg=";
   };
 
   inherit runtimeSrc;
