@@ -132,7 +132,7 @@ and `~/.pi/agent/extensions/guardrails.json` come from home-manager
 (`hosts/dev-1/pi.nix`), built from the file both machines share —
 [`pkgs/pi-bolt/pi-config.nix`](../../pkgs/pi-bolt/pi-config.nix). One list, two
 consumers, so the boxes cannot drift: the laptop takes the default
-(`curam-membrane = true`), dev-1 passes `curam-membrane = false`.
+(`pi-curam-security = true`), dev-1 passes `pi-curam-security = false`.
 
 `pi-bolt` itself is built here with the same four extensions the laptop
 compiles in — `@aliou/pi-guardrails`, `@heyhuynhgiabuu/pi-diff`,

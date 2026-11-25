@@ -8,7 +8,7 @@
 # found" and then fails every session with "Failed to load extension". This
 # starts a real one, the way the TUI does, with no model call.
 #
-# It also fails when the curam-membrane driver is not `on` in the footer: that
+# It also fails when the pi-curam-security driver is not `on` in the footer: that
 # layer fails open by design, so a missing engine (`membrane: off`) or a dead one
 # (`membrane: degraded`) leaks tool results without failing a turn. The footer is
 # the only place that says which it is.

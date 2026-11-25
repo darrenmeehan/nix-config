@@ -30,7 +30,7 @@ make bench-pi-bolt    # ten starts: min / median / max time to the prompt
 | `opensec-pi-fff` | 0.11.2 | run time, JIT (`bun:ffi`, so the JIT build is required) | 4 ms |
 | `opensec-pi-todo` | 2.13.1 | run time, JIT | 5 ms |
 | `opensec-pi-subagents` | 0.20.12 | run time, JIT | 41 ms |
-| curam-membrane driver | `~/code/pi-curam-security/drivers/pi` (flake input) | **compiled in** | 0 ms |
+| pi-curam-security driver | `~/code/pi-curam-security/drivers/pi` (flake input) | **compiled in** | 0 ms |
 | herdr's `herdr-agent-state.ts` | herdr 0.9.5 | **skipped** — Pi-Bolt has Herdr support of its own | 0 ms |
 
 Installed in `~/.pi/agent/npm` but not enabled (absent from `settings.json`, so
@@ -75,7 +75,7 @@ would put startup at about 0.10 s.
 They sit at different points and answer different questions, which is why all
 three are installed.
 
-| | `@aliou/pi-guardrails` | `@melihmucuk/leash` | curam-membrane driver |
+| | `@aliou/pi-guardrails` | `@melihmucuk/leash` | pi-curam-security driver |
 |---|---|---|---|
 | layer | `tool_call`, before it runs | `tool_call`, before it runs | `tool_result`, after it ran |
 | question | may this tool touch *this path*? | may this *shell command* do that? | may this *text* reach the model? |

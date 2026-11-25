@@ -185,7 +185,7 @@ Options, in order of preference:
 - `pi-bolt compile` would remove all of this (~55 ms for the same set). The
   nix store build cannot compile in place, and 1.2.0's `--out` fails with
   `EACCES` on its read-only `.compile-*` folder; **1.2.1 fixes `--out`**
-  (verified: 13 extensions incl. `curam-membrane-pi`, ~157 s, then startup
+  (verified: 13 extensions incl. `pi-curam-security`, ~157 s, then startup
   ~0.40 s). See [pi-bolt-aot-handoff.md](pi-bolt-aot-handoff.md) for the
   flake-lock bump and wrapper plan.
 - Measured on a 4-core i7-10510U laptop (btrfs on LUKS). Some of the numbers

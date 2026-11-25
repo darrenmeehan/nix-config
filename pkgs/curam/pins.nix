@@ -9,10 +9,10 @@
 {
   curam-security = {
     url = "file:///home/darrenmeehan/code/curam-security";
-    rev = "d5820b852900a6586396ae0345a01d776512c318";
+    rev = "f8e3ecd5459cdcef8590f044f3b70d7003a22300";
   };
   pi-curam-security = {
     url = "file:///home/darrenmeehan/code/pi-curam-security";
-    rev = "92bedc3699b49b906584fa0562e0f244a993b393";
+    rev = "037d1aac655fb1de32fcc9f7571949c141522577";
   };
 }
