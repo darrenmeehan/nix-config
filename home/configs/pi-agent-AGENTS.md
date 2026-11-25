@@ -12,9 +12,9 @@
 
 ## Guards and destructive commands
 
-Four guards run before a tool call: guardrails (secret-file policies, dangerous
-command gate, gh deny), leash (file commands outside the repo), bigpowers' git
-hook, and membrane (output scrubbing). They enforce shapes, not intent —
+Three guards run before a tool call: guardrails (secret-file policies, dangerous
+command gate, gh deny), leash (file commands outside the repo), and membrane
+(output scrubbing). They enforce shapes, not intent —
 everything off their lists passes. Mechanics live in
 `~/code/nix-config/docs/pi-bolt-extensions.md`; what follows is the policy they
 cannot express.

@@ -21,11 +21,10 @@ rec {
   #
   # Left out because they read their own files at run time, which a compiled
   # executable does not have (import.meta points into the executable, `$bunfs`):
-  # bigpowers scans <package>/skills/ at load; opensec-pi-fff, opensec-pi-todo
-  # and opensec-pi-subagents are thin entries that nativeRequire ./core.cjs
-  # beside themselves, on every factory call, so /reload and upgrades work (the
-  # subagents one also discovers .pi/agents/*.md and ~/.pi/agent/agents/*.md at
-  # run time).
+  # opensec-pi-fff, opensec-pi-todo and opensec-pi-subagents are thin entries that
+  # nativeRequire ./core.cjs beside themselves, on every factory call, so /reload
+  # and upgrades work (the subagents one also discovers .pi/agents/*.md and
+  # ~/.pi/agent/agents/*.md at run time).
   #
   # Left out for other reasons, also loading from their files as before:
   # pi-agent-browser-native, whose entry module's top-level bytecode is over
@@ -41,9 +40,11 @@ rec {
     "${pkgs.pi-extensions}/node_modules/@mjasnikovs/pi-task"
   ] ++ lib.optional pi-curam-security curamDriver;
 
-  # Pi's own package list, untouched: `pi` loads every entry from its files.
+  # Pi's own package list: `pi` loads every entry from its files.
+  # `npm:bigpowers` is deliberately absent: its only extension is a git hook
+  # with no config file (see `skills` below), so the package's skills are read
+  # from the store instead and nothing of it loads at run time.
   packages = [
-    "npm:bigpowers"
     "npm:@dietrichgebert/ponytail"
     "npm:@plannotator/pi-extension"
     "npm:@mjasnikovs/pi-task"
@@ -84,6 +85,15 @@ rec {
     theme = "dark";
     enableInstallTelemetry = false;
     inherit packages;
+    # bigpowers' 80 skills, straight out of the store. Loading `npm:bigpowers`
+    # also loaded `extensions/omp-hooks.ts`, a git guard whose only knob is the
+    # `GIT_BIGPOWERS_LAND` environment variable of the agent process (the
+    # repo-local marker it is documented to honour only ever existed in a patch
+    # to the installed npm copy, so every update removed it). Skills are data
+    # read from an absolute path at startup, so the flake-locked copy keeps the
+    # methodology and drops the guard. The package's `.pi/prompts` slash
+    # commands go with it; `/skill:<name>` still works.
+    skills = [ "${pkgs.pi-extensions}/node_modules/bigpowers/.pi/skills" ];
     piBolt = {
       packages = piBoltPackages;
       packagesOverlay = true;

@@ -65,7 +65,7 @@ does not lazy-load extensions and `expose`/`deferred` only defers *tools*.
 | `@aliou/pi-guardrails` | 0.23.0 | file protection, path access, permission gate, herdr prompts |
 | `@melihmucuk/leash` | 1.0.11 | second security layer; overlaps guardrails, kept deliberately |
 | `@dietrichgebert/ponytail` | 5.3.3 | working style |
-| `bigpowers` | 2.96.1 | skills + lifecycle method (12 MB) |
+| `bigpowers` | 2.96.1 | skills + lifecycle method (12 MB). Not loaded as a package since 2026-11-25: its one extension was an unconfigurable git hook. The 80 skills are read from the store through `settings.skills`. |
 | `@mjasnikovs/pi-task` | 0.42.66 | `/task` pipelines |
 | `@plannotator/pi-extension` | 0.28.61 | plan review (50 MB on disk) |
 | `pi-agent-browser-native` | 0.9.18 | browser automation |

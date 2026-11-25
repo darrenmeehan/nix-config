@@ -36,9 +36,8 @@ Rust repo carries its own devShell, and agents must run cargo as
 
 - Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`)
 - Formatter: `nixpkgs-fmt` (flake `formatter.x86_64-linux`) — run `nix fmt` before commit
-- Direct commits to `main` need the marker bigpowers' git hook looks for, in
-  this clone only (docs/pi-bolt-extensions.md):
-  `touch "$(git rev-parse --absolute-git-dir)/bigpowers-allow-main-commits"`
+- Commits go straight to `main`: no hook refuses it any more (bigpowers' bash
+  hook is no longer loaded — docs/pi-bolt-extensions.md)
 - New home-manager configs: add the file under `home/configs/` and import it in `home/home.nix`
 - Uncommitted working tree is normal here; commit in conventional-commit themed batches
 

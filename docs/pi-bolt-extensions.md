@@ -4,7 +4,7 @@
 
 How this machine's Pi-Bolt is built, which extensions are compiled into it and
 which load from their files, why seven cannot be compiled in, and what the three
-guard layers (plus bigpowers' git hook) each do.
+guard layers each do.
 
 Built by `pkgs/pi-bolt` (a copy of the nixpkgs PR branch) loaded from
 `home/configs/pi-bolt.nix` with `extensions`, `jitSupport = true` and
@@ -23,7 +23,7 @@ make bench-pi-bolt    # ten starts: min / median / max time to the prompt
 | `@heyhuynhgiabuu/pi-diff` | 0.9.3 | **compiled in** | 0 ms |
 | `@melihmucuk/leash` | 1.0.11 | **compiled in** | 0 ms |
 | `@mjasnikovs/pi-task` | 0.42.66 | **compiled in** | 0 ms |
-| `bigpowers` | 2.96.1 | run time, JIT | 7 ms |
+| `bigpowers` | 2.96.1 | **not loaded** — only its skills, via `settings.skills` | — |
 | `@dietrichgebert/ponytail` | 5.3.3 | run time, JIT | 2 ms |
 | `@plannotator/pi-extension` | 0.28.67 | run time, JIT | 36–60 ms |
 | `pi-agent-browser-native` | 0.9.34 | run time, JIT | 53 ms |
@@ -59,7 +59,7 @@ seven has a concrete blocker:
 
 | extension | blocker |
 |---|---|
-| `bigpowers` | reads a directory listing at load: `readdirSync(<package>/skills)`; in the executable that is `/$bunfs/skills` |
+| `bigpowers` | reads a directory listing at load: `readdirSync(<package>/skills)`; in the executable that is `/$bunfs/skills`. Moot: the package is no longer loaded, its skills are read from the store |
 | `opensec-pi-fff`, `opensec-pi-todo`, `opensec-pi-subagents` | thin entries that `createRequire` → `./core.cjs` beside themselves on every factory call, by design, so `/reload` and package upgrades re-evaluate. `opensec-pi-subagents` also discovers agents from `.pi/agents/*.md` and `~/.pi/agent/agents/*.md` at run time |
 | `@dietrichgebert/ponytail` | imports `../hooks/ponytail-config.js` from its own folder at run time |
 | `pi-agent-browser-native` | its entry module is 1.77 MB; the top-level bytecode (282 620 B) is over Pi-Bolt's AOT candidate limit of 262 144 B. `aotBytecodeLimit` raises the limit and it does build (1m35s) and start (0.21 s), but the extension finds its package root from `import.meta.url` to point the model at `README.md` and `docs/COMMAND_REFERENCE.md`, which inside the executable are `/$bunfs/…` paths — not enabled for that reason |
@@ -130,32 +130,37 @@ Guardrails and leash overlap on `bash` — guardrails checks it when a protected
 path is involved, leash understands the command line itself — and the first one
 to block wins the turn.
 
-## The fourth guard: bigpowers' bash hook
+## The fourth guard that is no longer loaded
 
-bigpowers' `extensions/omp-hooks.ts` is the fourth thing in front of a tool
-call, and it is the one with git opinions: it blocks a commit made on
+bigpowers' `extensions/omp-hooks.ts` used to be the fourth thing in front of a
+tool call, and the one with git opinions: it blocked a commit made on
 `main`/`master`, a push to either (unless `GIT_BIGPOWERS_LAND=1`), and the
-destructive-argv table (force push, discarding resets and the like). It is the
-reason `git commit` on `main` is refused here even though the workflow says
-commit straight to `main`.
+destructive-argv table (force push, discarding resets and the like).
 
-A repo opts out of the *protected-branch* half only — the argv rules and the
-Conventional Commits check still apply — by carrying a marker in its own git
-dir, which is per checkout and never committed:
+It is gone. Two properties made it a poor fit rather than a guard:
 
-```sh
-touch "$(git rev-parse --absolute-git-dir)/bigpowers-allow-main-commits"
-```
+- **No config file.** The only knob is `GIT_BIGPOWERS_LAND` in the *agent
+  process's* environment, so a repo could only opt out by influencing where the
+  session was launched — and `GIT_BIGPOWERS_LAND=1 git commit …` inside a tool
+  call changes nothing, because the hook has already decided by then.
+- **The documented marker did not survive updates.** The per-repo
+  `bigpowers-allow-main-commits` file in the git dir was honoured only by a
+  local patch to the installed npm copy — the handler is not part of this flake
+  — so every bigpowers update silently reverted it and commits on `main` failed
+  again with no visible cause.
 
-`~/code/nix-config` carries it (solo repo, main is the trunk); a fresh clone or
-dev-1 needs the same `touch` before it can commit there. The opt-out is resolved
-per git segment, so `cd` into another repo does not inherit it.
+The skills survive it. `settings.skills` in `pkgs/pi-bolt/pi-config.nix` points
+at `${pkgs.pi-extensions}/node_modules/bigpowers/.pi/skills`, the flake-locked
+copy, and Pi reads each `SKILL.md` from that absolute path at startup — it never
+needs the package loaded, and the store copy cannot drift with the npm tree.
+The package's `.pi/prompts` slash commands go with the package; `/skill:<name>`
+still works.
 
-That handler lives in the installed npm copy (`~/.pi/agent/npm/node_modules/`
-`bigpowers/extensions/omp-hooks.ts`), not in the nix-built one, so it belongs to
-`~/.pi` state, not this flake — `pi-bolt install`/bigpowers updates replace it and
-the opt-out has to be re-applied (the marker lookup is the only local edit).
-Upstreaming the marker is the fix that would survive updates.
+What is given up is the protected-branch refusal and the Conventional Commits
+subject check. Both are conventions in `AGENTS.md` now, not enforced at the tool
+layer; `guardrails` and `leash` still run before every bash call, and its argv
+rules (force push, `reset --hard`, `clean -f`, `branch -D`, discarding
+checkouts) overlap theirs.
 
 ## Time to the prompt
 
